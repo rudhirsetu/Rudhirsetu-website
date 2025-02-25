@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import './styles/animations.css';
+
+@import "tailwindcss";/* DONT REMOVE THIS LINE TAILWINDCSS V4 requires this line*/
+
+:root {
+  --primary: #B91C1C;  /* red-700 */
+  --primary-dark: #991B1B;  /* red-800 */
+  --primary-light: #FEF2F2;  /* red-50 */
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
