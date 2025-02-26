@@ -1,3 +1,4 @@
+
 const Hero = () => {
   return (
     <div className="relative min-h-screen flex items-center pt-20 pb-8 md:pt-24 md:pb-12">
@@ -42,6 +43,7 @@ const Hero = () => {
                 Our Services
               </a>
             </div>
+
 
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 pt-8 max-w-4xl mx-auto animate-fade-in-delay-3">
