@@ -247,4 +247,32 @@ export const fetchDonationSettings = async () => {
     console.error('Error fetching donation settings:', error);
     return null;
   }
+};
+
+export interface ContactSettings {
+  id: number;
+  documentId: string;
+  address: string;
+  phone: string;
+  email: string;
+  url: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+}
+
+export const fetchContactSettings = async () => {
+  try {
+    const response = await fetch(
+      `${STRAPI_URL}/contact-setting?populate=*`
+    );
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error('Error fetching contact settings:', error);
+    return null;
+  }
 }; 

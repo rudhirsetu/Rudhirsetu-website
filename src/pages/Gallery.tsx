@@ -17,7 +17,8 @@ const Gallery = () => {
     { id: 'all', label: 'All Photos' },
     { id: 'blood-donation', label: 'Blood Donation' },
     { id: 'eye-care', label: 'Eye Care' },
-    { id: 'cancer-awareness', label: 'Cancer Awareness' }
+    { id: 'cancer-awareness', label: 'Cancer Awareness' },
+    { id: 'thalassemia', label: 'Thalassemia' }
   ];
 
   const loadImages = async (page = 1) => {
