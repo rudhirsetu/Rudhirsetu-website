@@ -1,4 +1,4 @@
-const STRAPI_URL = 'http://localhost:1337/api';
+const STRAPI_URL = `${import.meta.env.VITE_STRAPI_API_URL}/api`;
 
 export interface Event {
   id: number;

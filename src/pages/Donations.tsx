@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { QrCode, CreditCard, Heart, ArrowRight, Gift, Users } from 'lucide-react';
 import { fetchDonationSettings, DonationSettings } from '../services/strapi';
 
-const STRAPI_URL = 'http://localhost:1337';
+const STRAPI_URL = import.meta.env.VITE_STRAPI_URL;
 
 const Donations = () => {
   const [settings, setSettings] = useState<DonationSettings | null>(null);
