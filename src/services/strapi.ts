@@ -45,7 +45,7 @@ export const fetchEvents = async (page = 1, pageSize = 6) => {
 export const fetchUpcomingEvents = async (page = 1, pageSize = 6) => {
   try {
     const response = await fetch(
-      `${STRAPI_URL}/events?filters[isUpcoming][$eq]=true&sort=date:asc&pagination[page]=${page}&pagination[pageSize]=${pageSize}`
+      `${STRAPI_URL}/events?filters[isUpcoming][$eq]=true&sort=date:desc&pagination[page]=${page}&pagination[pageSize]=${pageSize}`
     );
     if (!response.ok) {
       throw new Error('Network response was not ok');

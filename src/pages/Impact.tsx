@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Calendar, MapPin, Users, Heart, Activity, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { fetchUpcomingEvents, fetchPastEvents, Event, Pagination } from '../services/strapi';
-import { format } from 'date-fns';
+import { format, isToday, isFuture, differenceInDays } from 'date-fns';
 
 const Impact = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
@@ -20,11 +20,23 @@ const Impact = () => {
       ]);
 
       if (upcomingData) {
-        setUpcomingEvents(upcomingData.data);
+        // Sort upcoming events by date proximity to today
+        const sortedUpcomingEvents = upcomingData.data.sort((a, b) => {
+          const dateA = new Date(a.date);
+          const dateB = new Date(b.date);
+          return dateA.getTime() - dateB.getTime();
+        });
+        setUpcomingEvents(sortedUpcomingEvents);
         setUpcomingPagination(upcomingData.meta.pagination);
       }
       if (pastData) {
-        setPastEvents(pastData.data);
+        // Sort past events by date, most recent first
+        const sortedPastEvents = pastData.data.sort((a, b) => {
+          const dateA = new Date(a.date);
+          const dateB = new Date(b.date);
+          return dateB.getTime() - dateA.getTime();
+        });
+        setPastEvents(sortedPastEvents);
         setPastPagination(pastData.meta.pagination);
       }
     } catch (err) {
@@ -59,6 +71,37 @@ const Impact = () => {
       description: 'Active community members'
     }
   ];
+
+  const getEventStatusStyle = (date: string) => {
+    const eventDate = new Date(date);
+    if (isToday(eventDate)) {
+      return {
+        containerClass: "bg-gradient-to-br from-red-50 to-red-100 border-red-300 shadow-red-100/50",
+        badgeClass: "bg-red-600 text-white",
+        badgeText: "Today"
+      };
+    }
+    if (isFuture(eventDate)) {
+      const daysUntil = differenceInDays(eventDate, new Date());
+      if (daysUntil <= 7) {
+        return {
+          containerClass: "bg-gradient-to-br from-white to-orange-50 border-orange-100",
+          badgeClass: "bg-orange-100 text-orange-700",
+          badgeText: "Coming Soon"
+        };
+      }
+      return {
+        containerClass: "bg-gradient-to-br from-white to-red-50 border-red-100",
+        badgeClass: "bg-red-100 text-red-700",
+        badgeText: "Upcoming"
+      };
+    }
+    return {
+      containerClass: "bg-white border-gray-100",
+      badgeClass: "bg-gray-100 text-gray-600",
+      badgeText: "Completed"
+    };
+  };
 
   if (loading) {
     return (
@@ -153,43 +196,51 @@ const Impact = () => {
 
         {/* Upcoming Events */}
         <section className="mb-16">
-          <h2 className="text-2xl font-bold mb-8">Upcoming Camps & Events</h2>
+          <h2 className="text-2xl font-bold mb-8">Upcoming or Ongoing Camps & Events</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {upcomingEvents.map((event) => (
-              <div key={event.id} className="bg-gradient-to-br from-white to-red-50 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-red-100">
-                <div className="flex items-start space-x-4">
-                  <div className="flex-grow">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-semibold text-red-900">{event.title}</h3>
-                      <span className="px-3 py-1 bg-red-100 text-red-700 text-sm font-medium rounded-full">Upcoming</span>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center text-gray-700">
-                        <Calendar className="w-5 h-5 mr-2 text-red-600" />
-                        <span className="font-medium">{format(new Date(event.date), 'MMMM d, yyyy')}</span>
+            {upcomingEvents.map((event) => {
+              const { containerClass, badgeClass, badgeText } = getEventStatusStyle(event.date);
+              return (
+                <div 
+                  key={event.id} 
+                  className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border ${containerClass}`}
+                >
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-grow">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-semibold text-red-900">{event.title}</h3>
+                        <span className={`px-3 py-1 text-sm font-medium rounded-full ${badgeClass}`}>
+                          {badgeText}
+                        </span>
                       </div>
-                      <div className="flex items-center text-gray-700">
-                        <Clock className="w-5 h-5 mr-2 text-red-600" />
-                        <span>{format(new Date(event.date), 'h:mm a')}</span>
-                      </div>
-                      <div className="flex items-center text-gray-700">
-                        <MapPin className="w-5 h-5 mr-2 text-red-600" />
-                        <span>{event.location}</span>
-                      </div>
-                      {event.expectedParticipants && (
+                      <div className="space-y-3">
                         <div className="flex items-center text-gray-700">
-                          <Users className="w-5 h-5 mr-2 text-red-600" />
-                          <span>Expected: {event.expectedParticipants}</span>
+                          <Calendar className="w-5 h-5 mr-2 text-red-600" />
+                          <span className="font-medium">{format(new Date(event.date), 'MMMM d, yyyy')}</span>
                         </div>
+                        <div className="flex items-center text-gray-700">
+                          <Clock className="w-5 h-5 mr-2 text-red-600" />
+                          <span>{format(new Date(event.date), 'h:mm a')}</span>
+                        </div>
+                        <div className="flex items-center text-gray-700">
+                          <MapPin className="w-5 h-5 mr-2 text-red-600" />
+                          <span>{event.location}</span>
+                        </div>
+                        {event.expectedParticipants && (
+                          <div className="flex items-center text-gray-700">
+                            <Users className="w-5 h-5 mr-2 text-red-600" />
+                            <span>Expected: {event.expectedParticipants}</span>
+                          </div>
+                        )}
+                      </div>
+                      {event.desc && (
+                        <p className="mt-4 text-gray-600 border-t border-red-100 pt-4">{event.desc}</p>
                       )}
                     </div>
-                    {event.desc && (
-                      <p className="mt-4 text-gray-600 border-t border-red-100 pt-4">{event.desc}</p>
-                    )}
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <PaginationControls
             pagination={upcomingPagination}
