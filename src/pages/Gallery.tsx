@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { fetchGalleryImages, fetchGalleryImagesByCategory, GalleryImage, Pagination } from '../services/strapi';
 
-const STRAPI_URL = 'http://localhost:1337';
+const STRAPI_URL = import.meta.env.VITE_STRAPI_URL;
 
 const Gallery = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);
