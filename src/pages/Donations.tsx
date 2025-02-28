@@ -1,6 +1,32 @@
-import { QrCode, CreditCard, MapPin, Heart, ArrowRight, Gift, Users } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { QrCode, CreditCard, Heart, ArrowRight, Gift, Users } from 'lucide-react';
+import { fetchDonationSettings, DonationSettings } from '../services/strapi';
+
+const STRAPI_URL = 'http://localhost:1337';
 
 const Donations = () => {
+  const [settings, setSettings] = useState<DonationSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const data = await fetchDonationSettings();
+        if (data) {
+          setSettings(data);
+        }
+      } catch (err) {
+        setError('Failed to load donation settings');
+        console.error('Error loading donation settings:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSettings();
+  }, []);
+
   const donationImpact = [
     {
       amount: "₹500",
@@ -18,6 +44,45 @@ const Donations = () => {
       icon: Users
     }
   ];
+
+  if (loading) {
+    return (
+      <div className="py-12">
+        <div className="container mx-auto px-4">
+          <div className="animate-pulse space-y-8">
+            <div className="h-8 bg-gray-200 rounded w-1/4 mx-auto"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-white p-6 rounded-xl shadow-lg">
+                  <div className="h-32 bg-gray-200 rounded-lg mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-12">
+        <div className="container mx-auto px-4 text-center">
+          <div className="bg-red-50 p-4 rounded-lg inline-block">
+            <p className="text-red-700">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-12">
@@ -50,79 +115,59 @@ const Donations = () => {
         </section>
 
         {/* Donation Methods */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {/* UPI Section */}
-          <div className="bg-white p-8 rounded-xl shadow-lg">
-            <div className="flex items-center justify-center mb-6">
-              <QrCode className="w-10 h-10 text-red-700" />
+          {settings?.upiId && (
+            <div className="bg-white p-8 rounded-xl shadow-lg">
+              <div className="flex items-center justify-center mb-6">
+                <QrCode className="w-10 h-10 text-red-700" />
+              </div>
+              <h3 className="text-xl font-semibold text-center mb-4">UPI Payment</h3>
+              {settings.qrCodeImage && (
+                <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                  <img
+                    src={`${STRAPI_URL}${settings.qrCodeImage.url}`}
+                    alt={settings.qrCodeImage.alternativeText || "UPI QR Code"}
+                    className="w-48 h-48 mx-auto"
+                  />
+                </div>
+              )}
+              <p className="text-center text-gray-600 text-sm mb-4">
+                Scan to donate via any UPI app
+              </p>
+              <p className="text-center text-gray-800 font-medium">
+                UPI ID: {settings.upiId}
+              </p>
             </div>
-            <h3 className="text-xl font-semibold text-center mb-4">UPI Payment</h3>
-            <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <img
-                src="/images/upi-qr.png"
-                alt="UPI QR Code"
-                className="w-48 h-48 mx-auto"
-              />
-            </div>
-            <p className="text-center text-gray-600 text-sm mb-4">
-              Scan to donate via any UPI app
-            </p>
-            <p className="text-center text-gray-800 font-medium">
-              UPI ID: donate@rudhirsetu
-            </p>
-          </div>
+          )}
 
           {/* Bank Transfer Section */}
-          <div className="bg-white p-8 rounded-xl shadow-lg">
-            <div className="flex items-center justify-center mb-6">
-              <CreditCard className="w-10 h-10 text-red-700" />
-            </div>
-            <h3 className="text-xl font-semibold text-center mb-4">Bank Transfer</h3>
-            <div className="space-y-3">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Account Name</p>
-                <p className="font-medium">Rudhirsetu Seva Sanstha</p>
+          {settings?.accountNumber && (
+            <div className="bg-white p-8 rounded-xl shadow-lg">
+              <div className="flex items-center justify-center mb-6">
+                <CreditCard className="w-10 h-10 text-red-700" />
               </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Account Number</p>
-                <p className="font-medium">1234567890</p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">IFSC Code</p>
-                <p className="font-medium">SBIN0123456</p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Bank & Branch</p>
-                <p className="font-medium">State Bank of India, Panvel</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Physical Donation Section */}
-          <div className="bg-white p-8 rounded-xl shadow-lg">
-            <div className="flex items-center justify-center mb-6">
-              <MapPin className="w-10 h-10 text-red-700" />
-            </div>
-            <h3 className="text-xl font-semibold text-center mb-4">Visit Us</h3>
-            <div className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-gray-800">
-                  C-23, Nandanvan Complex,<br />
-                  Near Wadale Talav,<br />
-                  Old Mumbai Pune Highway,<br />
-                  Panvel-410206
-                </p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Contact Number</p>
-                <p className="font-medium">93216 06868</p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Office Hours</p>
-                <p className="font-medium">Mon-Sat: 9:00 AM - 6:00 PM</p>
+              <h3 className="text-xl font-semibold text-center mb-4">Bank Transfer</h3>
+              <div className="space-y-3">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600 mb-1">Account Name</p>
+                  <p className="font-medium">{settings.accountName}</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600 mb-1">Account Number</p>
+                  <p className="font-medium">{settings.accountNumber}</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600 mb-1">IFSC Code</p>
+                  <p className="font-medium">{settings.ifscCode}</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600 mb-1">Bank & Branch</p>
+                  <p className="font-medium">{settings.bankAndBranch}</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Tax Benefits Section */}
