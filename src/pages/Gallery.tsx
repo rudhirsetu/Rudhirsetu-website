@@ -18,7 +18,7 @@ const Gallery = () => {
     { id: 'blood-donation', label: 'Blood Donation' },
     { id: 'eye-care', label: 'Eye Care' },
     { id: 'cancer-awareness', label: 'Cancer Awareness' },
-    { id: 'thalassemia', label: 'Thalassemia' }
+    { id: 'thalassemia-support', label: 'Thalassemia Support' }
   ];
 
   const loadImages = async (page = 1) => {
