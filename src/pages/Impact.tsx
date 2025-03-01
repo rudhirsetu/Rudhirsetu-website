@@ -21,7 +21,7 @@ const Impact = () => {
 
       if (upcomingData) {
         // Sort upcoming events by date proximity to today
-        const sortedUpcomingEvents = upcomingData.data.sort((a, b) => {
+        const sortedUpcomingEvents = upcomingData.data.sort((a: Event, b: Event) => {
           const dateA = new Date(a.date);
           const dateB = new Date(b.date);
           return dateA.getTime() - dateB.getTime();
@@ -31,7 +31,7 @@ const Impact = () => {
       }
       if (pastData) {
         // Sort past events by date, most recent first
-        const sortedPastEvents = pastData.data.sort((a, b) => {
+        const sortedPastEvents = pastData.data.sort((a: Event, b: Event) => {
           const dateA = new Date(a.date);
           const dateB = new Date(b.date);
           return dateB.getTime() - dateA.getTime();
@@ -202,7 +202,7 @@ const Impact = () => {
               const { containerClass, badgeClass, badgeText } = getEventStatusStyle(event.date);
               return (
                 <div 
-                  key={event.id} 
+                  key={event._id} 
                   className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border ${containerClass}`}
                 >
                   <div className="flex items-start space-x-4">
@@ -254,7 +254,7 @@ const Impact = () => {
           <h2 className="text-2xl font-bold mb-8">Past Camps & Events</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {pastEvents.map((event) => (
-              <div key={event.id} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-gray-100">
+              <div key={event._id} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-gray-100">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-semibold text-gray-900">{event.title}</h3>
                   <span className="px-3 py-1 bg-gray-100 text-gray-600 text-sm font-medium rounded-full">Completed</span>

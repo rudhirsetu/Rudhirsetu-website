@@ -1,4 +1,4 @@
-import { client, QUERIES } from '../lib/sanity';
+import { client } from '../lib/sanity';
 
 export interface Event {
   _id: string;
