@@ -8,10 +8,10 @@ const Navbar = () => {
 
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
-    { path: '/social', label: 'Social Media', icon: Share2 },
     { path: '/impact', label: 'Our Impact', icon: Heart },
     { path: '/gallery', label: 'Gallery', icon: Image },
     { path: '/donations', label: 'Donate', icon: Gift },
+    { path: '/social', label: 'Social Media', icon: Share2 },
     { path: '/contact', label: 'Contact', icon: Phone }
   ];
 
