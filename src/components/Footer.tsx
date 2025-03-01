@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { fetchContactSettings, ContactSettings } from '../services/strapi';
+import { ContactSettings } from '../types/sanity';
+import { settingsService } from '../services/sanity-client';
 
 const Footer = () => {
   const [settings, setSettings] = useState<ContactSettings | null>(null);
@@ -7,7 +8,7 @@ const Footer = () => {
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const data = await fetchContactSettings();
+        const data = await settingsService.fetchContact();
         if (data) {
           setSettings(data);
         }

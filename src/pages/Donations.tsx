@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { QrCode, CreditCard, Heart, ArrowRight, Gift, Users } from 'lucide-react';
-import { fetchDonationSettings, DonationSettings } from '../services/strapi';
+import { DonationSettings } from '../types/sanity';
+import { settingsService } from '../services/sanity-client';
 import { urlFor } from '../lib/sanity';
 
 const Donations = () => {
@@ -11,7 +12,7 @@ const Donations = () => {
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const data = await fetchDonationSettings();
+        const data = await settingsService.fetchDonation();
         if (data) {
           setSettings(data);
         }

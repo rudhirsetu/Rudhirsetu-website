@@ -2,6 +2,7 @@ import { createClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
+// Initialize the Sanity client
 export const client = createClient({
   projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
   dataset: import.meta.env.VITE_SANITY_DATASET,
@@ -9,8 +10,14 @@ export const client = createClient({
   useCdn: true,
 });
 
+// Initialize the image URL builder
 const builder = imageUrlBuilder(client);
 
+/**
+ * Helper function to build image URLs from Sanity image references
+ * @param source - The Sanity image source
+ * @returns An image URL builder instance
+ */
 export function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }

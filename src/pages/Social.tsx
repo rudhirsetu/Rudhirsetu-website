@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Linkedin, Facebook, Instagram, Youtube, ExternalLink } from 'lucide-react';
-import { fetchSocialMediaSettings, SocialMediaSettings } from '../services/strapi';
+import { SocialMediaSettings } from '../types/sanity';
+import { settingsService } from '../services/sanity-client';
 
 const SocialMedia = () => {
   const [settings, setSettings] = useState<SocialMediaSettings | null>(null);
@@ -10,7 +11,7 @@ const SocialMedia = () => {
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const data = await fetchSocialMediaSettings();
+        const data = await settingsService.fetchSocialMedia();
         if (data) {
           setSettings(data);
         }

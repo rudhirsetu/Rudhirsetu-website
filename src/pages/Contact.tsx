@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Phone, Mail, MapPin } from 'lucide-react';
-import { fetchContactSettings, ContactSettings } from '../services/strapi';
+import { ContactSettings } from '../types/sanity';
+import { settingsService } from '../services/sanity-client';
 
 const Contact = () => {
   const [settings, setSettings] = useState<ContactSettings | null>(null);
@@ -8,12 +9,10 @@ const Contact = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadSettings = async () => {
+    const fetchSettings = async () => {
       try {
-        const data = await fetchContactSettings();
-        if (data) {
-          setSettings(data);
-        }
+        const data = await settingsService.fetchContact();
+        setSettings(data);
       } catch (err) {
         setError('Failed to load contact settings');
         console.error('Error loading contact settings:', err);
@@ -21,8 +20,7 @@ const Contact = () => {
         setLoading(false);
       }
     };
-
-    loadSettings();
+    fetchSettings();
   }, []);
 
   if (loading) {

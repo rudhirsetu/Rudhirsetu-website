@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { client } from '../lib/sanity';
 import { QUERIES } from '../lib/sanity';
 import { urlFor } from '../lib/sanity';
-import type { GalleryImage } from '../services/strapi';
+import type { GalleryImage } from '../types/sanity';
 
 const Gallery = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);
@@ -55,6 +55,7 @@ const Gallery = () => {
 
   useEffect(() => {
     loadImages();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory]);
 
   // Auto-advance carousel

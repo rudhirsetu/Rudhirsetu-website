@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Calendar, MapPin, Users, Heart, Activity, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
-import { fetchUpcomingEvents, fetchPastEvents, Event, Pagination } from '../services/strapi';
+import { Event, Pagination } from '../types/sanity';
+import { eventService } from '../services/sanity-client';
 import { format, isToday, isFuture, differenceInDays } from 'date-fns';
 
 const Impact = () => {
@@ -15,28 +16,16 @@ const Impact = () => {
     try {
       setLoading(true);
       const [upcomingData, pastData] = await Promise.all([
-        fetchUpcomingEvents(upcomingPage),
-        fetchPastEvents(pastPage)
+        eventService.fetchUpcoming(upcomingPage),
+        eventService.fetchPast(pastPage)
       ]);
 
       if (upcomingData) {
-        // Sort upcoming events by date proximity to today
-        const sortedUpcomingEvents = upcomingData.data.sort((a: Event, b: Event) => {
-          const dateA = new Date(a.date);
-          const dateB = new Date(b.date);
-          return dateA.getTime() - dateB.getTime();
-        });
-        setUpcomingEvents(sortedUpcomingEvents);
+        setUpcomingEvents(upcomingData.data);
         setUpcomingPagination(upcomingData.meta.pagination);
       }
       if (pastData) {
-        // Sort past events by date, most recent first
-        const sortedPastEvents = pastData.data.sort((a: Event, b: Event) => {
-          const dateA = new Date(a.date);
-          const dateB = new Date(b.date);
-          return dateB.getTime() - dateA.getTime();
-        });
-        setPastEvents(sortedPastEvents);
+        setPastEvents(pastData.data);
         setPastPagination(pastData.meta.pagination);
       }
     } catch (err) {
@@ -103,37 +92,6 @@ const Impact = () => {
     };
   };
 
-  if (loading) {
-    return (
-      <div className="py-12">
-        <div className="container mx-auto px-4 text-center">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mx-auto mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="py-12">
-        <div className="container mx-auto px-4 text-center">
-          <div className="bg-red-50 p-4 rounded-lg inline-block">
-            <p className="text-red-700">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800"
-            >
-              Try Again
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const PaginationControls = ({ pagination, onPageChange, label }: { 
     pagination: Pagination | null; 
     onPageChange: (page: number) => void;
@@ -165,6 +123,37 @@ const Impact = () => {
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="py-12">
+        <div className="container mx-auto px-4 text-center">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/4 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-12">
+        <div className="container mx-auto px-4 text-center">
+          <div className="bg-red-50 p-4 rounded-lg inline-block">
+            <p className="text-red-700">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-12">
