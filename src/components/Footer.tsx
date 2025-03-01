@@ -62,7 +62,7 @@ const Footer = () => {
         </div>
         <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
           <p>&copy; {new Date().getFullYear()} Rudhirsetu Seva Sanstha. All rights reserved.</p>
-          Made with ❤️ by <a href="https://www.linkedin.com/in/deeptanshu-l-6868a4187/" target="_blank" className="text-gray-400 hover:text-white transition-colors"><b>Deeptanshu RAIT'26</b></a>
+          Made with ❤️ by <a href="https://www.linkedin.com/in/deeptanshu-l-6868a4187/" target="_blank" className="text-gray-400 hover:text-white transition-colors"><b>Deeptanshu</b></a>
         </div>
       </div>
     </footer>
