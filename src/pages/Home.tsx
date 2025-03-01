@@ -79,10 +79,10 @@ const Home = () => {
             Contact Us
           </a>
           <a
-            href="/services"
+            href="/donations"
             className="inline-block border-2 border-red-700 text-red-700 px-6 py-3 rounded-lg font-semibold hover:bg-red-700 hover:text-white transition-colors"
           >
-            Learn More
+            Donate Now
           </a>
         </div>
       </section>

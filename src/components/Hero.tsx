@@ -1,13 +1,14 @@
+import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
-    <div className="relative min-h-screen flex items-center pt-20 pb-8 md:pt-24 md:pb-12">
+    <div className="relative min-h-[75vh] flex items-center pt-20 pb-8 md:pt-24 md:pb-12">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-red-900" />
+        <div className="absolute inset-0 bg-red-800/90" />
         <img
-          src="/images/hero-bg.jpg"
-          alt="Background"
+          src="/images/logo.webpf"
+          alt=""
           className="w-full h-full object-cover"
         />
       </div>
@@ -30,20 +31,19 @@ const Hero = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-delay-2">
-              <a
-                href="/contact"
+              <Link
+                to="/contact"
                 className="w-full sm:w-auto text-center px-8 py-4 bg-white text-[#9B2C2C] rounded-lg font-semibold hover:bg-[#FECACA] transform hover:-translate-y-1 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 Get Involved
-              </a>
-              <a
-                href="/services"
+              </Link>
+              <Link
+                to="/donations"
                 className="w-full sm:w-auto text-center px-8 py-4 border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-[#9B2C2C] transform hover:-translate-y-1 transition-all duration-200"
               >
-                Our Services
-              </a>
+                Donate Now
+              </Link>
             </div>
-
 
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 pt-8 max-w-4xl mx-auto animate-fade-in-delay-3">
