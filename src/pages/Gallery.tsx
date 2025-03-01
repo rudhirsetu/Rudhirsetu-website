@@ -124,7 +124,7 @@ const Gallery = () => {
       <div className="mb-16">
         <h2 className="text-2xl font-bold mb-8">Featured Moments</h2>
         <div className="relative">
-          <div className="relative aspect-[21/9] rounded-xl overflow-hidden">
+          <div className="relative md:aspect-[21/9] aspect-square rounded-xl overflow-hidden">
             {featuredImages.map((image, index) => (
               <div
                 key={image._id}

@@ -278,27 +278,6 @@ const Impact = () => {
           />
         </section>
 
-        {/* Call to Action */}
-        <div className="mt-16 text-center bg-red-50 p-8 rounded-xl">
-          <h2 className="text-2xl font-bold mb-4">Want to Make a Difference?</h2>
-          <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-            Join us in our upcoming events and help us create a positive impact in our community.
-          </p>
-          <div className="space-x-4">
-            <a
-              href="/contact"
-              className="inline-block bg-red-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-800 transition-colors"
-            >
-              Register for Events
-            </a>
-            <a
-              href="/contact"
-              className="inline-block border-2 border-red-700 text-red-700 px-6 py-3 rounded-lg font-semibold hover:bg-red-700 hover:text-white transition-colors"
-            >
-              Become a Volunteer
-            </a>
-          </div>
-        </div>
       </div>
     </div>
   );
