@@ -7,12 +7,6 @@ const Contact = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Extract the src URL from iframe HTML
-  const getMapUrl = (iframeHtml: string) => {
-    const srcMatch = iframeHtml.match(/src="([^"]+)"/);
-    return srcMatch ? srcMatch[1] : '';
-  };
-
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -86,10 +80,10 @@ const Contact = () => {
           <div className="bg-white p-8 rounded-xl shadow-lg">
             <h2 className="text-2xl font-semibold mb-6">Find Us</h2>
             <div className="aspect-[4/3] w-full mb-6">
-              {settings?.url ? (
+              {settings?.googleMapsUrl ? (
                 <div className="relative w-full h-full">
                   <iframe
-                    src={getMapUrl(settings.url)}
+                    src={settings.googleMapsUrl}
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}

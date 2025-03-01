@@ -209,7 +209,7 @@ const Impact = () => {
                     <div className="flex-grow">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xl font-semibold text-red-900">{event.title}</h3>
-                        <span className={`px-3 py-1 text-sm font-medium rounded-full ${badgeClass}`}>
+                        <span className={`px-3 py-1 text-sm font-medium rounded-full text-center ${badgeClass}`}>
                           {badgeText}
                         </span>
                       </div>

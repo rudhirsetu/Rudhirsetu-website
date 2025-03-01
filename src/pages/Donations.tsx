@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { QrCode, CreditCard, Heart, ArrowRight, Gift, Users } from 'lucide-react';
 import { fetchDonationSettings, DonationSettings } from '../services/strapi';
-
-const STRAPI_URL = import.meta.env.VITE_STRAPI_URL;
+import { urlFor } from '../lib/sanity';
 
 const Donations = () => {
   const [settings, setSettings] = useState<DonationSettings | null>(null);
@@ -126,8 +125,8 @@ const Donations = () => {
               {settings.qrCodeImage && (
                 <div className="bg-gray-50 p-4 rounded-lg mb-4">
                   <img
-                    src={`${STRAPI_URL}${settings.qrCodeImage.url}`}
-                    alt={settings.qrCodeImage.alternativeText || "UPI QR Code"}
+                    src={urlFor(settings.qrCodeImage).width(400).height(400).url()}
+                    alt={settings.qrCodeImage.alt || "UPI QR Code"}
                     className="w-48 h-48 mx-auto"
                   />
                 </div>
