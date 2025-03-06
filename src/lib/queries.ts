@@ -14,6 +14,8 @@ export const QUERIES = {
     expectedParticipants,
     isUpcoming,
     desc,
+    image,
+    shortDesc,
     _createdAt,
     _updatedAt
   }`,
@@ -29,6 +31,8 @@ export const QUERIES = {
     expectedParticipants,
     isUpcoming,
     desc,
+    image,
+    shortDesc,
     _createdAt,
     _updatedAt
   }`,

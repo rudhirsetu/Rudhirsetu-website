@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Heart, Phone, Menu, X, Home, Share2, Image, Gift, Linkedin, Facebook, Instagram, Youtube } from 'lucide-react';
 import { settingsService } from '../services/sanity-client';
 import type { SocialMediaSettings } from '../types/sanity';
+import GoogleTranslate from './GoogleTranslate';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,12 +22,34 @@ const Navbar = () => {
     loadSocialLinks();
   }, []);
 
+  // Effect to move translate element between desktop and mobile containers
+  useEffect(() => {
+    const translateElement = document.getElementById('google_translate_element');
+    const desktopContainer = document.getElementById('desktop_translate_container');
+    const mobileContainer = document.getElementById('mobile_translate_container');
+
+    if (translateElement && desktopContainer && mobileContainer) {
+      const moveTranslateElement = () => {
+        const isMobile = window.innerWidth < 768; // md breakpoint
+        if (isMobile) {
+          mobileContainer.appendChild(translateElement);
+        } else {
+          desktopContainer.appendChild(translateElement);
+        }
+      };
+
+      moveTranslateElement();
+      window.addEventListener('resize', moveTranslateElement);
+      return () => window.removeEventListener('resize', moveTranslateElement);
+    }
+  }, []);
+
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
-    { path: '/impact', label: 'Our Impact', icon: Heart },
+    { path: '/impact', label: 'Camps', icon: Heart },
     { path: '/gallery', label: 'Gallery', icon: Image },
     { path: '/donations', label: 'Donate', icon: Gift },
-    { path: '/social', label: 'Social Media', icon: Share2 },
+    { path: '/social', label: 'Socials', icon: Share2 },
     { path: '/contact', label: 'Contact', icon: Phone }
   ];
 
@@ -84,9 +107,9 @@ const Navbar = () => {
   );
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-[50] bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-20 gap-8">
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-3">
@@ -125,13 +148,21 @@ const Navbar = () => {
                 </Link>
               );
             })}
-            <div className="ml-4 pl-4 border-l border-gray-200">
+            <div className="ml-4 pl-4 border-l border-gray-200 flex items-center gap-4">
+              <div className="hidden md:block">
+                <GoogleTranslate />
+              </div>
               <SocialLinks />
             </div>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
+          {/* Mobile Controls */}
+          <div className="flex items-center gap-4 md:hidden">
+            {/* Mobile Google Translate */}
+            <div className="md:hidden">
+              <GoogleTranslate />
+            </div>
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center p-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-100"

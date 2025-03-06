@@ -29,6 +29,8 @@ export interface Event extends SanityDocument {
   expectedParticipants?: string;
   isUpcoming: boolean;
   desc?: string;
+  image: SanityImage;
+  shortDesc: string;
 }
 
 // Gallery image document type

@@ -7,6 +7,7 @@ import Gallery from './pages/Gallery';
 import Impact from './pages/Impact';
 import Donations from './pages/Donations';
 import NotFound from './pages/NotFound';
+import EventDetails from './pages/EventDetails';
 import DevelopmentWarning from './components/DevelopmentWarning';
 import Footer from './components/Footer';
 
@@ -24,6 +25,7 @@ const App = () => {
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/donations" element={<Donations />} />
+            <Route path="/event/:id" element={<EventDetails />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
