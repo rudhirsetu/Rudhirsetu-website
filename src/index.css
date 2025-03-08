@@ -34,6 +34,7 @@ body {
 .goog-te-gadget {
   font-family: 'Poppins', sans-serif !important;
   color: #4B5563 !important;
+  margin: 0 !important;
 }
 
 .goog-te-gadget .goog-te-combo {
@@ -72,6 +73,54 @@ body {
   display: none !important;
 }
 
+/* Hide the "Powered by Google Translate" text */
+.goog-logo-link {
+  display: none !important;
+}
+
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+/* Fix for translated page */
+body {
+  top: 0 !important;
+}
+
+.goog-te-gadget {
+  height: max-content !important;
+  overflow: visible !important;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  .goog-te-gadget .goog-te-combo {
+    max-width: 140px !important;
+    padding: 4px 8px !important;
+    font-size: 14px !important;
+    height: 32px !important;
+  }
+  
+  .translate-container {
+    min-width: 100px;
+  }
+}
+
+/* Ensure translate widget is above other elements */
+.goog-te-menu-frame {
+  z-index: 100 !important;
+}
+
+.skiptranslate {
+  display: inline-block !important;
+}
+
 iframe {
   z-index: 1 !important;
+  display: none !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 0% !important;
+  height: 0% !important;
 }

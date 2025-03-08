@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { Heart, Phone, Menu, X, Home, Share2, Image, Gift, Linkedin, Facebook, Instagram, Youtube } from 'lucide-react';
 import { settingsService } from '../services/sanity-client';
 import type { SocialMediaSettings } from '../types/sanity';
-import GoogleTranslate from './GoogleTranslate';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -119,10 +118,10 @@ const Navbar = () => {
                 alt="Rudhirsetu Logo"
               />
               <div className="flex flex-col">
-                <span className="text-2xl font-bold tracking-tight text-[#9B2C2C]">
+                <span className="md:text-2xl text-xl font-bold tracking-tight text-[#9B2C2C]">
                   Rudhirsetu
                 </span>
-                <span className="text-xs text-gray-600">
+                <span className="md:text-xs text-xs text-gray-600">
                   Seva Sanstha
                 </span>
               </div>
@@ -149,19 +148,12 @@ const Navbar = () => {
               );
             })}
             <div className="ml-4 pl-4 border-l border-gray-200 flex items-center gap-4">
-              <div className="hidden md:block">
-                <GoogleTranslate />
-              </div>
               <SocialLinks />
             </div>
           </div>
 
           {/* Mobile Controls */}
           <div className="flex items-center gap-4 md:hidden">
-            {/* Mobile Google Translate */}
-            <div className="md:hidden">
-              <GoogleTranslate />
-            </div>
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
