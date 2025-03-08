@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { Languages } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -39,14 +38,7 @@ const GoogleTranslate = () => {
     };
   }, []);
 
-  return (
-    <div className="fixed bottom-4 border-1 border-gray-800 rounded-lg right-4 z-50">
-      <div className="bg-white rounded-lg shadow-lg p-2 flex items-center gap-2">
-        <Languages className="w-5 h-5 text-gray-600" />
-        <div id="google_translate_element" className="translate-container" />
-      </div>
-    </div>
-  );
+  return <div id="google_translate_element" className="translate-container" />;
 };
 
 export default GoogleTranslate; 

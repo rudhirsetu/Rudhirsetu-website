@@ -10,7 +10,6 @@ import NotFound from './pages/NotFound';
 import EventDetails from './pages/EventDetails';
 import DevelopmentWarning from './components/DevelopmentWarning';
 import Footer from './components/Footer';
-import GoogleTranslate from './components/GoogleTranslate';
 
 const App = () => {
   return (
@@ -18,7 +17,7 @@ const App = () => {
       <DevelopmentWarning />
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Navbar />
-        <main className="flex-grow mt-15">
+        <main className="flex-grow mt-12">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/social" element={<Social />} />
@@ -31,7 +30,6 @@ const App = () => {
           </Routes>
         </main>
         <Footer />
-        <GoogleTranslate />
       </div>
     </Router>
   );

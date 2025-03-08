@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Heart, Phone, Menu, X, Home, Share2, Image, Gift, Linkedin, Facebook, Instagram, Youtube } from 'lucide-react';
 import { settingsService } from '../services/sanity-client';
 import type { SocialMediaSettings } from '../types/sanity';
+import GoogleTranslate from './GoogleTranslate';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -148,12 +149,17 @@ const Navbar = () => {
               );
             })}
             <div className="ml-4 pl-4 border-l border-gray-200 flex items-center gap-4">
+              <GoogleTranslate />
               <SocialLinks />
             </div>
           </div>
 
           {/* Mobile Controls */}
           <div className="flex items-center gap-4 md:hidden">
+            {/* Mobile Google Translate */}
+            <div>
+              <GoogleTranslate />
+            </div>
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}

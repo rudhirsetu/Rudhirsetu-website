@@ -106,21 +106,16 @@ body {
   }
 }
 
-/* Ensure translate widget is above other elements */
-.goog-te-menu-frame {
-  z-index: 100 !important;
-}
+
 
 .skiptranslate {
   display: inline-block !important;
 }
 
-iframe {
-  z-index: 1 !important;
+.skiptranslate.VIpgJd-ZVi9od-ORHb-OEVmcd {
   display: none !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 0% !important;
-  height: 0% !important;
+}
+
+.skiptranslate.VIpgJd-yAWNEb-L7lbkb {
+  display: none !important;
 }
