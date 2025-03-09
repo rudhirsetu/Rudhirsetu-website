@@ -31,6 +31,15 @@ export interface Event extends SanityDocument {
   desc?: string;
   image: SanityImage;
   shortDesc: string;
+  gallery?: Array<{
+    _type: 'image';
+    asset: {
+      _ref: string;
+      _type: 'reference';
+    };
+    alt?: string;
+    caption?: string;
+  }>;
 }
 
 // Gallery image document type
@@ -52,6 +61,11 @@ export interface DonationSettings extends SanityDocument {
   ifscCode: string;
   bankAndBranch: string;
   qrCodeImage: SanityImage;
+  isUpiEnabled: boolean;
+  isBankEnabled: boolean;
+  isSection80GEnabled: boolean;
+  section80GNumber: string;
+  taxDeductionPercentage: number;
 }
 
 // Contact settings document type

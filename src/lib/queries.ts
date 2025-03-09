@@ -16,6 +16,7 @@ export const QUERIES = {
     desc,
     image,
     shortDesc,
+    gallery,
     _createdAt,
     _updatedAt
   }`,
@@ -33,6 +34,7 @@ export const QUERIES = {
     desc,
     image,
     shortDesc,
+    gallery,
     _createdAt,
     _updatedAt
   }`,
@@ -79,7 +81,12 @@ export const QUERIES = {
     accountNumber,
     ifscCode,
     bankAndBranch,
-    qrCodeImage
+    qrCodeImage,
+    isUpiEnabled,
+    isBankEnabled,
+    isSection80GEnabled,
+    section80GNumber,
+    taxDeductionPercentage
   }`,
 
   contactSettings: `*[_type == "contactSettings"][0] {

@@ -117,37 +117,44 @@ const Donations = () => {
         {/* Donation Methods */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {/* UPI Section */}
-          {settings?.upiId && (
-            <div className="bg-white p-8 rounded-xl shadow-lg">
-              <div className="flex items-center justify-center mb-6">
-                <QrCode className="w-10 h-10 text-red-700" />
-              </div>
-              <h3 className="text-xl font-semibold text-center mb-4">UPI Payment</h3>
-              {settings.qrCodeImage && (
-                <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                  <img
-                    src={urlFor(settings.qrCodeImage).width(400).height(400).url()}
-                    alt={settings.qrCodeImage.alt || "UPI QR Code"}
-                    className="w-48 h-48 mx-auto"
-                  />
-                </div>
-              )}
-              <p className="text-center text-gray-600 text-sm mb-4">
-                Scan to donate via any UPI app
-              </p>
-              <p className="text-center text-gray-800 font-medium">
-                UPI ID: {settings.upiId}
-              </p>
+          <div className="bg-white p-8 rounded-xl shadow-lg">
+            <div className="flex items-center justify-center mb-6">
+              <QrCode className="w-10 h-10 text-red-700" />
             </div>
-          )}
+            <h3 className="text-xl font-semibold text-center mb-4">UPI Payment</h3>
+            {settings?.isUpiEnabled ? (
+              <>
+                {settings.qrCodeImage && (
+                  <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                    <img
+                      src={urlFor(settings.qrCodeImage).width(400).height(400).url()}
+                      alt={settings.qrCodeImage.alt || "UPI QR Code"}
+                      className="w-48 h-48 mx-auto"
+                    />
+                  </div>
+                )}
+                <p className="text-center text-gray-600 text-sm mb-4">
+                  Scan to donate via any UPI app
+                </p>
+                <p className="text-center text-gray-800 font-medium">
+                  UPI ID: {settings.upiId}
+                </p>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-600">UPI payments are temporarily unavailable.</p>
+                <p className="text-sm text-gray-500 mt-2">Please use bank transfer instead.</p>
+              </div>
+            )}
+          </div>
 
           {/* Bank Transfer Section */}
-          {settings?.accountNumber && (
-            <div className="bg-white p-8 rounded-xl shadow-lg">
-              <div className="flex items-center justify-center mb-6">
-                <CreditCard className="w-10 h-10 text-red-700" />
-              </div>
-              <h3 className="text-xl font-semibold text-center mb-4">Bank Transfer</h3>
+          <div className="bg-white p-8 rounded-xl shadow-lg">
+            <div className="flex items-center justify-center mb-6">
+              <CreditCard className="w-10 h-10 text-red-700" />
+            </div>
+            <h3 className="text-xl font-semibold text-center mb-4">Bank Transfer</h3>
+            {settings?.isBankEnabled ? (
               <div className="space-y-3">
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Account Name</p>
@@ -166,21 +173,47 @@ const Donations = () => {
                   <p className="font-medium">{settings.bankAndBranch}</p>
                 </div>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-600">Bank transfer is temporarily unavailable.</p>
+                <p className="text-sm text-gray-500 mt-2">Please check back later or contact us for assistance.</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Tax Benefits Section */}
         <section className="bg-red-50 p-8 rounded-xl mb-16">
           <h2 className="text-2xl font-bold mb-4">Tax Benefits</h2>
-          <p className="text-gray-700 mb-4">
-            All donations to Rudhirsetu Seva Sanstha are eligible for tax deduction under Section 80G of the Income Tax Act.
-            You will receive a donation receipt that can be used for tax purposes.
-          </p>
-          <div className="flex items-center text-red-700 font-medium">
-            <span>Learn more about tax benefits</span>
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </div>
+          {settings?.isSection80GEnabled ? (
+            <>
+              <p className="text-gray-700 mb-4">
+                All donations to Rudhirsetu Seva Sanstha are eligible for tax deduction under Section 80G of the Income Tax Act.
+                You will receive a donation receipt that can be used for tax purposes.
+              </p>
+              <div className="bg-white p-4 rounded-lg mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Section 80G Number</p>
+                    <p className="font-medium text-gray-900">{settings.section80GNumber}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Tax Deduction</p>
+                    <p className="font-medium text-gray-900">{settings.taxDeductionPercentage}% of donation amount</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center text-red-700 font-medium">
+                <span>Learn more about tax benefits</span>
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-gray-600">Tax benefit information is currently being updated.</p>
+              <p className="text-sm text-gray-500 mt-2">Please contact us for the latest information about tax deductions.</p>
+            </div>
+          )}
         </section>
 
         {/* Contact Section */}
