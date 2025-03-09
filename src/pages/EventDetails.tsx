@@ -104,7 +104,7 @@ const EventDetails = () => {
               className="max-w-full max-h-[80vh] object-contain"
             />
             {image.caption && (
-              <p className="absolute bottom-0 left-0 right-0 text-center text-white bg-black/50 p-2">
+              <p className="absolute bottom-[-40px] left-0 right-0 text-center text-white bg-black/50 p-2 text-sm md:text-base">
                 {image.caption}
               </p>
             )}
