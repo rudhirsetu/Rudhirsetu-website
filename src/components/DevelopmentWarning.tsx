@@ -2,7 +2,7 @@ import { AlertTriangle, X } from 'lucide-react';
 import { useState } from 'react';
 
 const DevelopmentWarning = () => {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
 
   if (!isVisible) return null;
 
