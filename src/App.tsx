@@ -17,7 +17,7 @@ const App = () => {
       <DevelopmentWarning />
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Navbar />
-        <main className="flex-grow mt-16">
+        <main className="flex-grow mt-14">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/social" element={<Social />} />
