@@ -30,8 +30,6 @@ const Footer = () => {
     return address.split(',').map(line => line.trim());
   };
 
-
-
   // Social media icons mapping
   const getSocialIcon = (platform: string) => {
     switch (platform) {
@@ -74,15 +72,13 @@ const Footer = () => {
     { label: "Social Media", path: "/social" }
   ];
 
-
   return (
-    <footer className="bg-gradient-to-b from-red-900 to-black text-white pt-16 pb-8">
-
-      <div className="container mx-auto px-4 relative">
+    <footer className="bg-red-900 text-white py-16">
+      <div className="container mx-auto px-4">
         {/* Main Footer Sections */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 mb-12">
           {/* About & Logo Section */}
-          <div className="md:col-span-4 space-y-6">
+          <div className="md:col-span-4 space-y-5">
             <div className="flex items-center space-x-3">
               <img 
                 src="/images/logo.webp" 
@@ -91,11 +87,11 @@ const Footer = () => {
               />
               <div>
                 <h2 className="text-2xl font-bold text-white tracking-tight">Rudhirsetu</h2>
-                <p className="text-gray-400 text-sm">Seva Sanstha</p>
+                <p className="text-white/70 text-sm">Seva Sanstha</p>
               </div>
             </div>
             
-            <p className="text-gray-300 max-w-md">
+            <p className="text-white/90 max-w-md">
               Empowering communities through blood donation, healthcare support, and social initiatives since 2010. 
               Our mission is to reach the unreached and provide essential healthcare services.
             </p>
@@ -107,7 +103,7 @@ const Footer = () => {
                   href={socialLinks.facebookUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-white transition-colors h-10 w-10 rounded-full bg-gray-800/50 flex items-center justify-center hover:bg-red-900/20"
+                  className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
                 >
                   {getSocialIcon('facebook')}
                 </a>
@@ -117,7 +113,7 @@ const Footer = () => {
                   href={socialLinks.instagramUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-white transition-colors h-10 w-10 rounded-full bg-gray-800/50 flex items-center justify-center hover:bg-red-900/20"
+                  className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
                 >
                   {getSocialIcon('instagram')}
                 </a>
@@ -127,7 +123,7 @@ const Footer = () => {
                   href={socialLinks.linkedinUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-white transition-colors h-10 w-10 rounded-full bg-gray-800/50 flex items-center justify-center hover:bg-red-900/20"
+                  className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
                 >
                   {getSocialIcon('linkedin')}
                 </a>
@@ -137,7 +133,7 @@ const Footer = () => {
                   href={socialLinks.youtubeUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-white transition-colors h-10 w-10 rounded-full bg-gray-800/50 flex items-center justify-center hover:bg-red-900/20"
+                  className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
                 >
                   {getSocialIcon('youtube')}
                 </a>
@@ -146,8 +142,8 @@ const Footer = () => {
           </div>
           
           {/* Quick Links Section */}
-          <div className="md:col-span-2 space-y-4">
-            <h3 className="text-lg font-bold relative pb-2 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-12 after:bg-red-700 after:rounded-full">
+          <div className="md:col-span-3 space-y-4">
+            <h3 className="text-lg font-bold border-b border-white/20 pb-2 mb-4">
               Quick Links
             </h3>
             <ul className="space-y-2.5">
@@ -155,7 +151,7 @@ const Footer = () => {
                 <li key={index}>
                   <Link 
                     to={link.path} 
-                    className="text-gray-400 hover:text-white transition-colors inline-flex items-center group"
+                    className="text-white/80 hover:text-white transition-colors inline-flex items-center group"
                   >
                     <span className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <ArrowRight className="w-3 h-3" />
@@ -168,32 +164,32 @@ const Footer = () => {
           </div>
           
           {/* Contact Section */}
-          <div className="md:col-span-3 space-y-4">
-            <h3 className="text-lg font-bold relative pb-2 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-12 after:bg-red-700 after:rounded-full">
-              Stay Connected
+          <div className="md:col-span-5 space-y-4">
+            <h3 className="text-lg font-bold border-b border-white/20 pb-2 mb-4">
+              Contact Us
             </h3>
             <div className="space-y-4">
               {/* Contact Info */}
               <div className="space-y-3">
                 {contactSettings?.phone && (
-                  <a href={`tel:${contactSettings.phone}`} className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors">
-                    <div className="p-2 bg-gray-800 rounded-full">
+                  <a href={`tel:${contactSettings.phone}`} className="flex items-center space-x-3 text-white/80 hover:text-white transition-colors">
+                    <div className="p-2 bg-white/10 rounded-full">
                       <Phone className="w-4 h-4" />
                     </div>
                     <span>{contactSettings.phone}</span>
                   </a>
                 )}
                 {contactSettings?.email && (
-                  <a href={`mailto:${contactSettings.email}`} className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors">
-                    <div className="p-2 bg-gray-800 rounded-full">
+                  <a href={`mailto:${contactSettings.email}`} className="flex items-center space-x-3 text-white/80 hover:text-white transition-colors">
+                    <div className="p-2 bg-white/10 rounded-full">
                       <Mail className="w-4 h-4" />
                     </div>
                     <span>{contactSettings.email}</span>
                   </a>
                 )}
                 {contactSettings?.address && (
-                  <div className="flex items-start space-x-3 text-gray-400">
-                    <div className="p-2 bg-gray-800 rounded-full flex-shrink-0 mt-0.5">
+                  <div className="flex items-start space-x-3 text-white/80">
+                    <div className="p-2 bg-white/10 rounded-full flex-shrink-0 mt-0.5">
                       <MapPin className="w-4 h-4" />
                     </div>
                     <div>
@@ -209,22 +205,22 @@ const Footer = () => {
         </div>
         
         {/* Divider */}
-        <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent my-8"></div>
+        <div className="h-px bg-white/20 my-8"></div>
         
         {/* Bottom Footer */}
-        <div className="flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm">
+        <div className="flex flex-col md:flex-row justify-between items-center text-white/80 text-sm">
           <div className="mb-4 md:mb-0">
             <p>&copy; {new Date().getFullYear()} Rudhirsetu Seva Sanstha. All rights reserved.</p>
           </div>
           <div className="flex items-center space-x-2">
             <span>Made with</span>
-            <Heart className="w-4 h-4 fill-current text-red-500" />
+            <Heart className="w-4 h-4 fill-current text-white" />
             <span>by</span>
             <a
               href="https://www.linkedin.com/in/deeptanshu-l-6868a4187/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white font-medium hover:text-red-400 transition-colors"
+              className="text-white font-medium hover:underline"
             >
               Deeptanshu
             </a>
