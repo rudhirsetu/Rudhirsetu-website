@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, Users, Heart, Clock, ArrowLeft, X, ChevronLeft, ChevronRight, Calendar, Share2, Tag, ExternalLink } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, Users, Heart, Clock, ArrowLeft, X, ChevronLeft, ChevronRight, Calendar, Share2, ExternalLink } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Event } from '../types/sanity';
 import { client } from '../lib/sanity';
 import { urlFor } from '../lib/sanity';
@@ -92,80 +92,50 @@ const EventDetails = () => {
     const image = event.gallery[selectedImage];
 
     return (
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-        className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center backdrop-blur-sm"
-      >
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+      <div className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center backdrop-blur-sm">
+        <button
           onClick={() => setSelectedImage(null)}
-          className="absolute bg-black/70 border border-gray-700 rounded-full top-6 right-6 p-2 text-red-600 hover:text-white hover:bg-red-600 transition-all duration-300 z-[60]"
+          className="absolute bg-black/70 border border-gray-700 rounded-full top-6 right-6 p-2 text-red-600 hover:text-white hover:bg-red-600 transition-colors duration-300 z-[60]"
           aria-label="Close lightbox"
         >
           <X className="w-6 h-6 md:w-8 md:h-8" />
-        </motion.button>
+        </button>
 
         <div className="relative w-full h-full flex items-center justify-center p-4">
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            whileHover={{ scale: 1.1, x: -5 }}
-            whileTap={{ scale: 0.9 }}
+          <button
             onClick={handlePrevImage}
-            className="absolute bg-black/70 border border-gray-700 rounded-full left-4 p-2 sm:p-3 z-[60] text-white hover:bg-white hover:text-black transition-all duration-300"
+            className="absolute bg-black/70 border border-gray-700 rounded-full left-4 p-2 sm:p-3 z-[60] text-white hover:bg-white hover:text-black transition-colors duration-300"
             aria-label="Previous image"
           >
             <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-          </motion.button>
+          </button>
 
           <div className="relative max-w-5xl max-h-full">
             <img
               src={urlFor(image).width(1500).url()}
               alt={image.alt || 'Gallery image'}
-              className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
-              style={{ 
-                opacity: 1,
-                transition: "opacity 0.3s ease"
-              }}
+              className="max-w-full max-h-[80vh] mb-10 object-contain rounded-lg shadow-2xl"
             />
             
             {image.caption && (
-              <div className="absolute bottom-[-40px] left-0 right-0 text-center">
-                <p className="text-white bg-black/60 p-3 text-sm md:text-base rounded-lg backdrop-blur-sm">
+              <div className="absolute top-[-50px] left-0 right-0 text-center">
+                <p className="text-white p-3 text-sm md:text-base rounded-lg backdrop-blur-sm">
                   {image.caption}
                 </p>
               </div>
             )}
           </div>
 
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            whileHover={{ scale: 1.1, x: 5 }}
-            whileTap={{ scale: 0.9 }}
+          <button
             onClick={handleNextImage}
-            className="absolute bg-black/70 border border-gray-700 rounded-full right-4 p-2 sm:p-3 z-[60] text-white hover:bg-white hover:text-black transition-all duration-300"
+            className="absolute bg-black/70 border border-gray-700 rounded-full right-4 p-2 sm:p-3 z-[60] text-white hover:bg-white hover:text-black transition-colors duration-300"
             aria-label="Next image"
           >
             <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
-          </motion.button>
+          </button>
         </div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 px-4"
-        >
+        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 px-4">
           <div className="flex gap-2 p-2 bg-black/60 rounded-full backdrop-blur-sm overflow-x-auto max-w-full">
             {event.gallery.map((img, index) => (
               <button
@@ -174,8 +144,8 @@ const EventDetails = () => {
                 className="relative flex-shrink-0"
                 aria-label={`Go to image ${index + 1}`}
               >
-                <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 transition-all ${
-                  index === selectedImage ? 'border-white scale-105' : 'border-transparent opacity-60 hover:opacity-100'
+                <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 transition-colors ${
+                  index === selectedImage ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'
                 }`}>
                   <img 
                     src={urlFor(img).width(100).height(100).url()} 
@@ -186,8 +156,8 @@ const EventDetails = () => {
               </button>
             ))}
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     );
   };
 
@@ -259,7 +229,7 @@ const EventDetails = () => {
                 className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-300"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
-                Back to Events
+                Back to Camps
               </Link>
             </motion.div>
           </motion.div>
@@ -303,7 +273,7 @@ const EventDetails = () => {
       {/* Hero Section with Parallax */}
       <div className="relative w-full">
         {event.image && (
-          <div className="relative h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden">
+          <div className="relative h-[65vh] md:h-[70vh] lg:h-[80vh] overflow-hidden">
             <motion.div
               initial={{ scale: 1.1 }}
               animate={{ scale: 1 }}
@@ -323,7 +293,7 @@ const EventDetails = () => {
             </motion.div>
             
             {/* Overlay Content */}
-            <div className="absolute inset-0 flex flex-col justify-between container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="absolute inset-0 flex flex-col justify-between container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -331,10 +301,10 @@ const EventDetails = () => {
               >
                 <Link
                   to="/impact"
-                  className="inline-flex items-center px-5 py-2.5 bg-black/30 hover:bg-red-600 text-white rounded-full backdrop-blur-sm border border-white/20 transition-all duration-300 group shadow-lg"
+                  className="inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 bg-black/30 hover:bg-red-600 text-white rounded-full backdrop-blur-sm border border-white/20 transition-all duration-300 group shadow-lg text-sm sm:text-base"
                 >
-                  <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-                  <span>Back to Events</span>
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
+                  <span>Back to Camps</span>
                 </Link>
               </motion.div>
 
@@ -342,25 +312,25 @@ const EventDetails = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="max-w-4xl mb-6 sm:mb-12"
+                className="max-w-4xl mb-4 sm:mb-6 md:mb-12"
               >
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <motion.div 
                     initial={{ opacity: 0, x: -30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="inline-flex gap-3 mb-4"
+                    className="inline-flex flex-wrap gap-2 sm:gap-3 mb-3 sm:mb-4"
                   >
-                    <span className={`px-4 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1.5 ${
+                    <span className={`px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium inline-flex items-center gap-1.5 ${
                       event.isUpcoming 
-                        ? 'bg-emerald-500 text-white' 
-                        : 'bg-blue-500 text-white'
+                        ? 'bg-red-600 text-white' 
+                        : 'bg-black/30 text-white backdrop-blur-sm'
                     }`}>
-                      <Calendar className="w-3.5 h-3.5" />
+                      <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                       {event.isUpcoming ? 'Upcoming Event' : 'Past Event'}
                     </span>
-                    <span className="px-4 py-1.5 bg-black/40 text-white rounded-full text-sm font-medium backdrop-blur-sm inline-flex items-center">
-                      <Clock className="w-3.5 h-3.5 mr-1.5" />
+                    <span className="px-3 sm:px-4 py-1.5 bg-black/30 text-white rounded-full text-xs sm:text-sm font-medium backdrop-blur-sm inline-flex items-center">
+                      <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1.5" />
                       {format(new Date(event.date), 'MMM d, yyyy')}
                     </span>
                   </motion.div>
@@ -369,7 +339,7 @@ const EventDetails = () => {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5, duration: 0.7 }}
-                    className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight shadow-text"
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight shadow-text mb-4 md:mb-6"
                   >
                     {event.title}
                   </motion.h1>
@@ -379,7 +349,7 @@ const EventDetails = () => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.7 }}
-                      className="text-xl text-white/90 max-w-3xl mt-4 shadow-text"
+                      className="text-base sm:text-lg md:text-xl text-white/90 max-w-3xl mt-2 sm:mt-4 shadow-text mb-4 md:mb-6"
                     >
                       {event.shortDesc}
                     </motion.p>
@@ -412,11 +382,7 @@ const EventDetails = () => {
               className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100"
             >
               <div className="bg-gradient-to-br from-[#9B2C2C] to-red-600 text-white p-6">
-                <h2 className="text-xl font-bold flex items-center mb-1">
-                  <Tag className="w-5 h-5 mr-2 opacity-80" />
-                  Event Details
-                </h2>
-                <p className="text-white/80 text-sm">Everything you need to know</p>
+                <h2 className="text-xl font-bold">Event Details</h2>
               </div>
               
               <div className="p-6 space-y-5">
@@ -584,9 +550,7 @@ const EventDetails = () => {
       </div>
 
       {/* Lightbox */}
-      <AnimatePresence>
-        {selectedImage !== null && <Lightbox />}
-      </AnimatePresence>
+      {selectedImage !== null && <Lightbox />}
 
       {/* Custom CSS for text shadow */}
       <style>

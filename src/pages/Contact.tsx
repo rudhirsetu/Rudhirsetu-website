@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Phone, Mail, MapPin } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageSquare } from 'lucide-react';
 import { ContactSettings } from '../types/sanity';
 import { settingsService } from '../services/sanity-client';
 
@@ -67,6 +67,10 @@ const Contact = () => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
+        <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 inline-flex items-center">
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Contact
+          </span>
           <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto text-balance">
             Get in touch with us to learn more about our services, volunteer opportunities, or how you can support our cause.

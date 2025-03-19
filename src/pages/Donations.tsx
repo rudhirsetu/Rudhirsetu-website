@@ -89,6 +89,10 @@ const Donations = () => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
+        <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 inline-flex items-center">
+            <Heart className="w-4 h-4 mr-2" />
+            Donate
+          </span>
           <h1 className="text-4xl font-bold mb-4">Support Our Cause</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto text-balance">
             Your contribution helps us continue our mission of providing healthcare support and community services to those in need.

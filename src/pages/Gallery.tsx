@@ -124,14 +124,18 @@ const Gallery = () => {
 
   const ImageCard = ({ image }: { image: GalleryImage }) => (
     <div 
-      className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl"
+      className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl cursor-pointer"
       style={{ aspectRatio: '4/3' }}
-      onClick={() => setSelectedImage(image)}
+      onClick={() => {
+        const index = filteredImages.findIndex(img => img._id === image._id);
+        setSelectedImage(image);
+        setSelectedImageIndex(index);
+      }}
     >
       <img
-        src={urlFor(image.image).width(600).height(400).url()}
+        src={urlFor(image.image).url()}
         alt={image.title || 'Gallery Image'}
-        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        className="w-full h-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
         <div className="p-4 text-white w-full">
@@ -143,7 +147,7 @@ const Gallery = () => {
           )}
           {image.category && (
             <span className="inline-block px-2 py-1 bg-red-600/80 text-white text-xs rounded-full mt-2">
-              {image.category}
+              {image.category.charAt(0).toUpperCase() + image.category.slice(1).replace(/-/g, ' ')}
             </span>
           )}
         </div>
@@ -152,6 +156,54 @@ const Gallery = () => {
   );
 
   const MasonryGrid = ({ images }: { images: GalleryImage[] }) => {
+    const [columns, setColumns] = useState<GalleryImage[][]>([]);
+
+    // Calculate and set columns when images or window size changes
+    useEffect(() => {
+      const calculateColumns = () => {
+        // Calculate number of columns based on screen width
+        const columnCount = window.innerWidth < 640 ? 1 : window.innerWidth < 1024 ? 2 : 3;
+        
+        // Initialize columns array
+        const newColumns: GalleryImage[][] = Array.from({ length: columnCount }, () => []);
+        
+        // Helper function to get column heights
+        const getColumnHeight = (columnIndex: number) => {
+          return newColumns[columnIndex].reduce((height) => {
+            // Use aspect ratio to estimate height (assuming base width of 100)
+            const aspectRatio = 3/4; // Your images are using 4:3 ratio
+            return height + (100 * aspectRatio);
+          }, 0);
+        };
+
+        // Distribute images among columns
+        images.forEach((image) => {
+          // Find the shortest column
+          const shortestColumnIndex = newColumns.reduce((shortest, _, currentIndex) => {
+            const currentHeight = getColumnHeight(currentIndex);
+            const shortestHeight = getColumnHeight(shortest);
+            return currentHeight < shortestHeight ? currentIndex : shortest;
+          }, 0);
+
+          // Add image to shortest column
+          newColumns[shortestColumnIndex].push(image);
+        });
+
+        setColumns(newColumns);
+      };
+
+      // Calculate initial columns
+      calculateColumns();
+
+      // Add resize listener
+      const handleResize = () => {
+        calculateColumns();
+      };
+
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }, [images]);
+
     if (images.length === 0) {
       return (
         <div className="col-span-full py-16 flex flex-col items-center justify-center text-center">
@@ -176,31 +228,18 @@ const Gallery = () => {
       );
     }
 
-    // Split images into columns for masonry-like layout
-    const column1 = images.filter((_, i) => i % 3 === 0);
-    const column2 = images.filter((_, i) => i % 3 === 1);
-    const column3 = images.filter((_, i) => i % 3 === 2);
-
     return (
-      <>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          <div className="flex flex-col gap-4 sm:gap-6">
-            {column1.map((image) => (
-              <ImageCard key={image._id} image={image} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        {columns.map((column, columnIndex) => (
+          <div key={columnIndex} className="flex flex-col gap-4 sm:gap-6">
+            {column.map((image) => (
+              <div key={image._id} className="break-inside-avoid">
+                <ImageCard image={image} />
+              </div>
             ))}
           </div>
-          <div className="flex flex-col gap-4 sm:gap-6">
-            {column2.map((image) => (
-              <ImageCard key={image._id} image={image} />
-            ))}
-          </div>
-          <div className="hidden lg:flex flex-col gap-4 sm:gap-6">
-            {column3.map((image) => (
-              <ImageCard key={image._id} image={image} />
-            ))}
-          </div>
-        </div>
-      </>
+        ))}
+      </div>
     );
   };
 
@@ -214,7 +253,7 @@ const Gallery = () => {
       >
         <button
           onClick={() => setSelectedImage(null)}
-          className="absolute bg-black/70 border border-gray-700 rounded-full top-6 right-6 p-2 text-red-600 hover:text-white hover:bg-red-600 transition-all duration-300 z-[60]"
+          className="absolute bg-black/70 border border-gray-700 rounded-full top-6 right-6 p-2 text-red-600 hover:text-white hover:bg-red-600 transition-colors duration-300 z-[60]"
           aria-label="Close lightbox"
         >
           <X className="w-6 h-6 md:w-8 md:h-8" />
@@ -222,8 +261,12 @@ const Gallery = () => {
 
         <div className="relative w-full h-full flex items-center justify-center p-4">
           <button
-            onClick={() => setSelectedImage(null)}
-            className="absolute bg-black/70 border border-gray-700 rounded-full left-4 p-2 sm:p-3 z-[60] text-white hover:bg-white hover:text-black transition-all duration-300"
+            onClick={() => {
+              const newIndex = (selectedImageIndex - 1 + filteredImages.length) % filteredImages.length;
+              setSelectedImage(filteredImages[newIndex]);
+              setSelectedImageIndex(newIndex);
+            }}
+            className="absolute bg-black/70 border border-gray-700 rounded-full left-4 p-2 sm:p-3 z-[60] text-white hover:bg-white hover:text-black transition-colors duration-300"
             aria-label="Previous image"
             disabled={filteredImages.length <= 1}
           >
@@ -232,19 +275,19 @@ const Gallery = () => {
 
           <div className="relative max-w-5xl max-h-full">
             <img
-              src={urlFor(selectedImage.image).width(1500).url()}
+              src={urlFor(selectedImage.image).width(800).url()}
               alt={selectedImage.title || 'Gallery Image'}
               className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
-              style={{ 
-                opacity: 1,
-                transition: "opacity 0.3s ease"
-              }}
             />
           </div>
 
           <button
-            onClick={() => setSelectedImage(null)}
-            className="absolute bg-black/70 border border-gray-700 rounded-full right-4 p-2 sm:p-3 z-[60] text-white hover:bg-white hover:text-black transition-all duration-300"
+            onClick={() => {
+              const newIndex = (selectedImageIndex + 1) % filteredImages.length;
+              setSelectedImage(filteredImages[newIndex]);
+              setSelectedImageIndex(newIndex);
+            }}
+            className="absolute bg-black/70 border border-gray-700 rounded-full right-4 p-2 sm:p-3 z-[60] text-white hover:bg-white hover:text-black transition-colors duration-300"
             aria-label="Next image"
             disabled={filteredImages.length <= 1}
           >
@@ -265,7 +308,7 @@ const Gallery = () => {
               </div>
               {selectedImage.category && (
                 <span className="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full ml-4">
-                  {selectedImage.category}
+                  {selectedImage.category.charAt(0).toUpperCase() + selectedImage.category.slice(1).replace(/-/g, ' ')}
                 </span>
               )}
             </div>
@@ -284,29 +327,27 @@ const Gallery = () => {
   const FeaturedCarousel = () => {
     if (featuredImages.length === 0) return null;
 
+    const handleImageClick = (image: GalleryImage) => {
+      // First, ensure the image is in the filtered images array
+      if (!filteredImages.some(img => img._id === image._id)) {
+        setFilteredImages(prev => [image, ...prev]);
+      }
+      
+      // Set a timeout to ensure the state has updated
+      setTimeout(() => {
+        const index = filteredImages.findIndex(img => img._id === image._id);
+        setSelectedImage(image);
+        setSelectedImageIndex(index >= 0 ? index : 0);
+      }, 0);
+    };
+
     return (
       <div className="mb-16 sm:mb-24">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold">Featured Moments</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setCurrentSlide((prev) => (prev - 1 + featuredImages.length) % featuredImages.length)}
-              className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-700"
-              aria-label="Previous slide"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setCurrentSlide((prev) => (prev + 1) % featuredImages.length)}
-              className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-700"
-              aria-label="Next slide"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
         </div>
-        <div className="relative">
-          <div className="relative md:aspect-[21/9] aspect-square rounded-2xl overflow-hidden shadow-xl">
+        <div className="relative group">
+          <div className="relative md:aspect-[21/9] aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
             {featuredImages.map((image, index) => (
               <div
                 key={image._id}
@@ -314,48 +355,70 @@ const Gallery = () => {
                   index === currentSlide ? 'opacity-100' : 'opacity-0'
                 }`}
                 style={{ pointerEvents: index === currentSlide ? 'auto' : 'none' }}
-                onClick={() => setSelectedImage(image)}
               >
-                <img
-                  src={urlFor(image.image).width(1600).height(800).url()}
-                  alt={image.title || 'Featured Image'}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                  <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-10">
-                    <span className="inline-block px-4 py-1.5 bg-red-600 text-white text-sm font-medium rounded-full mb-3 shadow-lg">
-                      Featured
-                    </span>
-                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">{image.title}</h3>
-                    {image.description && (
-                      <p className="text-white/90 text-base sm:text-lg max-w-2xl drop-shadow-md">{image.description}</p>
-                    )}
-                    <button 
-                      className="mt-4 px-6 py-2.5 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-lg transition-colors border border-white/30 shadow-md"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedImage(image);
-                      }}
-                    >
-                      View Image
-                    </button>
+                <div 
+                  className="absolute inset-0 cursor-pointer"
+                  onClick={() => handleImageClick(featuredImages[currentSlide])}
+                >
+                  <img
+                    src={urlFor(image.image).width(1600).height(800).url()}
+                    alt={image.title || 'Featured Image'}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 lg:p-10">
+                      <span className="inline-block px-3 py-1 bg-red-600 text-white text-xs sm:text-sm font-medium rounded-full mb-2 sm:mb-3 shadow-lg">
+                        Featured
+                      </span>
+                      <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-3 drop-shadow-lg line-clamp-2">{image.title}</h3>
+                      {image.description && (
+                        <p className="text-white/90 text-sm sm:text-base md:text-lg max-w-2xl drop-shadow-md line-clamp-2">{image.description}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
+
+            {/* Carousel Controls - Only show on hover or touch devices */}
+            <div className="absolute inset-0 flex items-center justify-between p-2 sm:p-4 pointer-events-none">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentSlide((prev) => (prev - 1 + featuredImages.length) % featuredImages.length);
+                }}
+                className="pointer-events-auto w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 text-white hover:bg-white hover:text-black duration-300 flex items-center justify-center backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentSlide((prev) => (prev + 1) % featuredImages.length);
+                }}
+                className="pointer-events-auto w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 text-white hover:bg-white hover:text-black duration-300 flex items-center justify-center backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
+            </div>
           </div>
 
-          {/* Dot Indicators */}
+          {/* Progress Indicators */}
           {featuredImages.length > 1 && (
-            <div className="absolute -bottom-6 left-0 right-0 flex justify-center gap-2">
+            <div className="absolute -bottom-4 left-0 right-0 flex justify-center gap-2 px-4 pointer-events-none">
               {featuredImages.map((_, index) => (
                 <button
                   key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentSlide(index);
+                  }}
+                  className={`pointer-events-auto h-1.5 rounded-full transition-all duration-300 ${
                     index === currentSlide 
-                      ? 'bg-red-600 w-10' 
-                      : 'bg-gray-300 hover:bg-gray-400'
+                      ? 'bg-red-600 w-8 sm:w-12' 
+                      : 'bg-gray-300 w-2.5 sm:w-3 hover:bg-gray-400'
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />

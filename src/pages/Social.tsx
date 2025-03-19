@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Linkedin, Facebook, Instagram, Youtube, ExternalLink } from 'lucide-react';
+import { Linkedin, Facebook, Instagram, Youtube, ExternalLink, MessageSquare } from 'lucide-react';
 import { SocialMediaSettings } from '../types/sanity';
 import { settingsService } from '../services/sanity-client';
 
@@ -102,6 +102,10 @@ const SocialMedia = () => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
+        <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 inline-flex items-center">
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Connect
+          </span>
           <h1 className="text-4xl font-bold mb-4">Connect With Us</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto text-balance">
             {settings?.description || 'Follow us on social media to stay updated with our latest events, initiatives, and community stories.'}

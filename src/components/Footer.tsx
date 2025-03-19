@@ -73,7 +73,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-red-900 text-white py-16">
+    <footer className="bg-gradient-to-br from-red-950 to-red-900 text-white py-16">
       <div className="container mx-auto px-4">
         {/* Main Footer Sections */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 mb-12">
@@ -209,20 +209,19 @@ const Footer = () => {
         
         {/* Bottom Footer */}
         <div className="flex flex-col md:flex-row justify-between items-center text-white/80 text-sm">
-          <div className="mb-4 md:mb-0">
+          <div className="mb-4 md:mb-0 text-center text-md">
             <p>&copy; {new Date().getFullYear()} Rudhirsetu Seva Sanstha. All rights reserved.</p>
           </div>
-          <div className="flex items-center space-x-2">
-            <span>Made with</span>
-            <Heart className="w-4 h-4 fill-current text-white" />
-            <span>by</span>
+          <div className="flex items-center justify-center text-lg">
             <a
               href="https://www.linkedin.com/in/deeptanshu-l-6868a4187/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white font-medium hover:underline"
+              className="text-white flex items-center gap-1.5 font-medium hover:underline transition-colors duration-300 group"
             >
-              Deeptanshu
+              <span>Made with</span>
+              <Heart className="w-4 h-4 text-white group-hover:scale-110 transition-transform duration-300" />
+              <span>by Deeptanshu</span>
             </a>
           </div>
         </div>
