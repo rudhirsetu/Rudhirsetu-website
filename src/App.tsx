@@ -11,7 +11,6 @@ import EventDetails from './pages/EventDetails';
 import DevelopmentWarning from './components/DevelopmentWarning';
 import Footer from './components/Footer';
 import { useEffect } from 'react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -29,7 +28,6 @@ const App = () => {
       <ScrollToTop />
       <DevelopmentWarning />
       <div className="min-h-screen min-w-screen bg-gray-50 flex flex-col">
-        <SpeedInsights />
         <Navbar />
         <main className="flex-grow mt-15">
           <Routes>

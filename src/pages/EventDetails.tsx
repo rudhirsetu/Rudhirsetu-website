@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, Users, Heart, Clock, ArrowLeft, X, ChevronLeft, ChevronRight, Calendar, Share2, ExternalLink } from 'lucide-react';
+import { MapPin, Users, Heart, Clock, ArrowLeft, X, ChevronLeft, ChevronRight, Calendar, Share2, ExternalLink, FileText, Camera, CalendarHeart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Event } from '../types/sanity';
 import { client } from '../lib/sanity';
@@ -226,7 +226,7 @@ const EventDetails = () => {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
                 to="/impact"
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                className="inline-flex items-center px-6 py-3 bg-red-900 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-300"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Back to Camps
@@ -301,7 +301,7 @@ const EventDetails = () => {
               >
                 <Link
                   to="/impact"
-                  className="inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 bg-black/30 hover:bg-red-600 text-white rounded-full backdrop-blur-sm border border-white/20 transition-all duration-300 group shadow-lg text-sm sm:text-base"
+                  className="inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 bg-black/30 hover:bg-red-900 text-white rounded-full backdrop-blur-sm border border-white/20 transition-all duration-300 group shadow-lg text-sm sm:text-base"
                 >
                   <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
                   <span>Back to Camps</span>
@@ -381,7 +381,8 @@ const EventDetails = () => {
               custom={0.2}
               className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100"
             >
-              <div className="bg-gradient-to-br from-[#9B2C2C] to-red-600 text-white p-6">
+              <div className="flex items-center bg-red-900 text-white p-6">
+                <CalendarHeart className="w-5 h-5 mr-2" />
                 <h2 className="text-xl font-bold">Event Details</h2>
               </div>
               
@@ -500,13 +501,18 @@ const EventDetails = () => {
             <motion.div 
               variants={fadeIn}
               custom={0.1}
-              className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mb-8"
+              className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8"
             >
-              <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center">
-                About This Event
-              </h2>
-              <div className="prose prose-red max-w-none">
-                <p className="text-gray-700 whitespace-pre-line leading-relaxed">{event.desc}</p>
+              <div className="bg-red-900 text-white p-6">
+                <h2 className="text-xl font-bold flex items-center">
+                  <FileText className="w-5 h-5 mr-2" />
+                  About This Event
+                </h2>
+              </div>
+              <div className="p-6 sm:p-8">
+                <div className="prose prose-red max-w-none">
+                  <p className="text-gray-700 whitespace-pre-line leading-relaxed">{event.desc}</p>
+                </div>
               </div>
             </motion.div>
 
@@ -515,33 +521,38 @@ const EventDetails = () => {
               <motion.div 
                 variants={fadeIn}
                 custom={0.3}
-                className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mb-8"
+                className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8"
               >
-                <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center">
-                  Event Gallery
-                </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                  {event.gallery.map((image, index) => (
-                    <motion.button
-                      key={index}
-                      onClick={() => setSelectedImage(index)}
-                      className="relative aspect-square group overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
-                      whileHover={{ y: -5, scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <img
-                        src={urlFor(image).width(400).height(400).url()}
-                        alt={image.alt || `Gallery image ${index + 1}`}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3" />
-                      {image.caption && (
-                        <div className="absolute inset-x-0 bottom-0 p-3 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                          <p className="text-white text-sm font-medium">{image.caption}</p>
-                        </div>
-                      )}
-                    </motion.button>
-                  ))}
+                <div className="bg-red-900 text-white p-6">
+                  <h2 className="text-xl font-bold flex items-center">
+                    <Camera className="w-5 h-5 mr-2" />
+                    Event Gallery
+                  </h2>
+                </div>
+                <div className="p-6 sm:p-8">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                    {event.gallery.map((image, index) => (
+                      <motion.button
+                        key={index}
+                        onClick={() => setSelectedImage(index)}
+                        className="relative aspect-square group overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
+                        whileHover={{ y: -5, scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <img
+                          src={urlFor(image).width(400).height(400).url()}
+                          alt={image.alt || `Gallery image ${index + 1}`}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3" />
+                        {image.caption && (
+                          <div className="absolute inset-x-0 bottom-0 p-3 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <p className="text-white text-sm font-medium">{image.caption}</p>
+                          </div>
+                        )}
+                      </motion.button>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             )}
