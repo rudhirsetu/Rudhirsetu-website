@@ -140,7 +140,7 @@ const Navbar = () => {
           >
             <Link to="/" className="flex items-center space-x-3">
               <img
-                className="h-12 w-auto"
+                className="h-16 w-auto"
                 src="/images/logo.webp"
                 alt="Rudhirsetu Logo"
               />
