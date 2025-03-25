@@ -145,10 +145,10 @@ const Navbar = () => {
                 alt="Rudhirsetu Logo"
               />
               <div className="flex flex-col">
-                <span className="text-2xl font-bold tracking-tight text-[#9B2C2C]">
+                <span className="text-3xl font-bold tracking-tight text-[#9B2C2C]">
                   Rudhirsetu
                 </span>
-                <span className="text-xs text-gray-600">
+                <span className="text-sm text-gray-600">
                   Seva Sanstha
                 </span>
               </div>
