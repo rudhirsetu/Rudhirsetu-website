@@ -148,7 +148,7 @@ const Navbar = () => {
                 <span className="text-3xl font-bold tracking-tight text-[#9B2C2C]">
                   Rudhirsetu
                 </span>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm font-bold tracking-tight text-[#9B2C2C]">
                   Seva Sanstha
                 </span>
               </div>
