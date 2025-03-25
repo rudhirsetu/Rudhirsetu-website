@@ -66,6 +66,13 @@ const Home = () => {
       color: 'bg-red-50',
       accentColor: 'border-red-200'
     },
+      {
+      title: 'Cancer Awareness',
+      description: 'Focus on cervical and breast cancer awareness with free testing camps',
+      icon: <Award className="w-10 h-10 text-purple-500" />,
+      color: 'bg-purple-50',
+      accentColor: 'border-purple-200'
+    },
     {
       title: 'Thalassemia Support',
       description: 'Free testing camps and comprehensive patient support for 68+ patients',
@@ -79,15 +86,8 @@ const Home = () => {
       icon: <Zap className="w-10 h-10 text-blue-500" />,
       color: 'bg-blue-50',
       accentColor: 'border-blue-200'
-    },
-    {
-      title: 'Cancer Awareness',
-      description: 'Focus on cervical and breast cancer awareness with free testing camps',
-      icon: <Award className="w-10 h-10 text-purple-500" />,
-      color: 'bg-purple-50',
-      accentColor: 'border-purple-200'
-    },
-  ];
+    }
+    ];
 
   const impactStats = [
     { label: 'Blood Donation Camps', value: '50+', subtext: 'Annually', color: 'from-red-500 to-red-600' },
