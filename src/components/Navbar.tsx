@@ -211,42 +211,56 @@ const Navbar = () => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden bg-white"
+            className="md:hidden fixed inset-0 top-20 bg-white shadow-lg z-40"
           >
-            <div className="px-4 py-4 space-y-2 border-t border-gray-200">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <motion.div
-                    key={item.path}
-                    whileHover={{ x: 5 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Link
-                      to={item.path}
-                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-md font-medium ${
-                        isActive(item.path)
-                          ? 'bg-[#9B2C2C] text-white'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span>{item.label}</span>
-                    </Link>
-                  </motion.div>
-                );
-              })}
-              <div className="border-t border-gray-200 mt-4 pt-4">
+            <div className="h-full flex flex-col">
+              <div className="flex-1 overflow-y-auto">
+                <div className="px-6 py-6 space-y-1">
+                  {navItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <motion.div
+                        key={item.path}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Link
+                          to={item.path}
+                          className={`flex items-center space-x-4 px-4 py-4 rounded-xl text-base font-medium ${
+                            isActive(item.path)
+                              ? 'bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white shadow-md'
+                              : 'text-gray-600 hover:bg-gray-50'
+                          }`}
+                          onClick={() => setIsOpen(false)}
+                        >
+                          <Icon className="w-5 h-5" />
+                          <span>{item.label}</span>
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="px-6 py-6 border-t border-gray-100">
                 <div className="flex flex-col space-y-4">
-                  <span className="text-sm font-medium text-gray-700">Follow us on:</span>
-                  <SocialLinks />
+                  <span className="text-sm font-medium text-gray-500">Follow us on:</span>
+                  <div className="flex gap-4">
+                    <SocialLinks />
+                  </div>
                 </div>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <style>{`
+        @media (max-width: 768px) {
+          body {
+            overflow: ${isOpen ? 'hidden' : 'auto'};
+          }
+        }
+      `}</style>
     </motion.nav>
   );
 };
