@@ -140,15 +140,15 @@ const Navbar = () => {
           >
             <Link to="/" className="flex items-center space-x-3">
               <img
-                className="h-12 w-auto"
+                className="h-16 w-auto"
                 src="/images/logo.webp"
                 alt="Rudhirsetu Logo"
               />
               <div className="flex flex-col">
-                <span className="text-2xl font-bold tracking-tight text-[#9B2C2C]">
+                <span className="text-3xl font-bold tracking-tight text-[#9B2C2C]">
                   Rudhirsetu
                 </span>
-                <span className="text-xs text-gray-600">
+                <span className="text-sm font-bold tracking-tight text-[#9B2C2C]">
                   Seva Sanstha
                 </span>
               </div>
