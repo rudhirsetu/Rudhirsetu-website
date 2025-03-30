@@ -208,12 +208,13 @@ const Navbar = () => {
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: 'calc(100vh - 5rem)' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
             className="md:hidden fixed inset-0 top-20 bg-white shadow-lg z-40"
+            style={{ overflowY: 'auto' }}
           >
-            <div className="h-full flex flex-col">
+            <div className="flex flex-col h-full">
               <div className="flex-1 overflow-y-auto">
                 <div className="px-6 py-6 space-y-1">
                   {navItems.map((item) => {
@@ -265,4 +266,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar; 
+export default Navbar;
