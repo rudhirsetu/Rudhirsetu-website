@@ -1,9 +1,134 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { ChevronLeft, ChevronRight, X, Filter, Heart, Camera, Tag } from 'lucide-react';
 import { client } from '../lib/sanity';
 import { QUERIES } from '../lib/sanity';
 import { urlFor } from '../lib/sanity';
 import type { GalleryImage } from '../types/sanity';
+
+// Memoized FeaturedCarousel component
+const FeaturedCarousel = memo(({ 
+  featuredImages, 
+  filteredImages, 
+  onImageSelect 
+}: { 
+  featuredImages: GalleryImage[], 
+  filteredImages: GalleryImage[], 
+  onImageSelect: (image: GalleryImage, index: number) => void 
+}) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto-advance carousel
+  useEffect(() => {
+    if (featuredImages.length <= 1) return;
+
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % featuredImages.length);
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(timer);
+  }, [featuredImages]);
+
+  if (featuredImages.length === 0) return null;
+
+  const handleImageClick = (image: GalleryImage) => {
+    // Find index in filteredImages
+    const index = filteredImages.findIndex(img => img._id === image._id);
+    if (index >= 0) {
+      onImageSelect(image, index);
+    } else {
+      // If not in filteredImages, pass the image and indicate with -1
+      onImageSelect(image, -1);
+    }
+  };
+
+  return (
+    <div className="mb-16 sm:mb-24">
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl sm:text-3xl font-bold">Featured Moments</h2>
+      </div>
+      <div className="relative group">
+        <div className="relative md:aspect-[21/9] aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
+          {featuredImages.map((image, index) => (
+            <div
+              key={image._id}
+              className={`absolute inset-0 transition-opacity duration-500 ${
+                index === currentSlide ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ pointerEvents: index === currentSlide ? 'auto' : 'none' }}
+            >
+              <div 
+                className="absolute inset-0 cursor-pointer"
+                onClick={() => handleImageClick(featuredImages[currentSlide])}
+              >
+                <img
+                  src={urlFor(image.image).width(1600).height(800).url()}
+                  alt={image.title || 'Featured Image'}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                  <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 lg:p-10">
+                    <span className="inline-block px-3 py-1 bg-red-600 text-white text-xs sm:text-sm font-medium rounded-full mb-2 sm:mb-3 shadow-lg">
+                      Featured
+                    </span>
+                    <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-3 drop-shadow-lg line-clamp-2">{image.title}</h3>
+                    {image.description && (
+                      <p className="text-white/90 text-sm sm:text-base md:text-lg max-w-2xl drop-shadow-md line-clamp-2">{image.description}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* Carousel Controls - Only show on hover or touch devices */}
+          <div className="absolute inset-0 flex items-center justify-between p-2 sm:p-4 pointer-events-none">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentSlide((prev) => (prev - 1 + featuredImages.length) % featuredImages.length);
+              }}
+              className="pointer-events-auto w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 text-white hover:bg-white hover:text-black duration-300 flex items-center justify-center backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"
+              aria-label="Previous slide"
+            >
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentSlide((prev) => (prev + 1) % featuredImages.length);
+              }}
+              className="pointer-events-auto w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 text-white hover:bg-white hover:text-black duration-300 flex items-center justify-center backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all"
+              aria-label="Next slide"
+            >
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          </div>
+        </div>
+
+        {/* Progress Indicators */}
+        {featuredImages.length > 1 && (
+          <div className="absolute -bottom-4 left-0 right-0 flex justify-center gap-2 px-4 pointer-events-none">
+            {featuredImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentSlide(index);
+                }}
+                className={`pointer-events-auto h-1.5 rounded-full transition-all duration-300 ${
+                  index === currentSlide 
+                    ? 'bg-red-600 w-8 sm:w-12' 
+                    : 'bg-gray-300 w-2.5 sm:w-3 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
 
 const Gallery = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);
@@ -14,7 +139,6 @@ const Gallery = () => {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [currentSlide, setCurrentSlide] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -96,17 +220,6 @@ const Gallery = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-advance carousel
-  useEffect(() => {
-    if (featuredImages.length <= 1) return;
-
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % featuredImages.length);
-    }, 5000); // Change slide every 5 seconds
-
-    return () => clearInterval(timer);
-  }, [featuredImages]);
-
   // Reset selected image index when changing to a new image
   useEffect(() => {
     if (selectedImage) {
@@ -120,6 +233,30 @@ const Gallery = () => {
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     setShowFilters(false);
+  };
+
+  const handleFeaturedImageSelect = (image: GalleryImage, index: number) => {
+    if (index === -1) {
+      // Image not in filtered images, add it
+      setFilteredImages(prev => {
+        // Check if image is already in the array to avoid duplicates
+        if (!prev.some(img => img._id === image._id)) {
+          return [image, ...prev];
+        }
+        return prev;
+      });
+      
+      // Set a timeout to ensure the state has updated
+      setTimeout(() => {
+        const newIndex = filteredImages.findIndex(img => img._id === image._id);
+        setSelectedImage(image);
+        setSelectedImageIndex(newIndex >= 0 ? newIndex : 0);
+      }, 0);
+    } else {
+      // Image already in filtered images, just select it
+      setSelectedImage(image);
+      setSelectedImageIndex(index);
+    }
   };
 
   const ImageCard = ({ image }: { image: GalleryImage }) => (
@@ -323,113 +460,6 @@ const Gallery = () => {
     );
   };
 
-  // Featured Images Carousel
-  const FeaturedCarousel = () => {
-    if (featuredImages.length === 0) return null;
-
-    const handleImageClick = (image: GalleryImage) => {
-      // First, ensure the image is in the filtered images array
-      if (!filteredImages.some(img => img._id === image._id)) {
-        setFilteredImages(prev => [image, ...prev]);
-      }
-      
-      // Set a timeout to ensure the state has updated
-      setTimeout(() => {
-        const index = filteredImages.findIndex(img => img._id === image._id);
-        setSelectedImage(image);
-        setSelectedImageIndex(index >= 0 ? index : 0);
-      }, 0);
-    };
-
-    return (
-      <div className="mb-16 sm:mb-24">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold">Featured Moments</h2>
-        </div>
-        <div className="relative group">
-          <div className="relative md:aspect-[21/9] aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
-            {featuredImages.map((image, index) => (
-              <div
-                key={image._id}
-                className={`absolute inset-0 transition-opacity duration-500 ${
-                  index === currentSlide ? 'opacity-100' : 'opacity-0'
-                }`}
-                style={{ pointerEvents: index === currentSlide ? 'auto' : 'none' }}
-              >
-                <div 
-                  className="absolute inset-0 cursor-pointer"
-                  onClick={() => handleImageClick(featuredImages[currentSlide])}
-                >
-                  <img
-                    src={urlFor(image.image).width(1600).height(800).url()}
-                    alt={image.title || 'Featured Image'}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 lg:p-10">
-                      <span className="inline-block px-3 py-1 bg-red-600 text-white text-xs sm:text-sm font-medium rounded-full mb-2 sm:mb-3 shadow-lg">
-                        Featured
-                      </span>
-                      <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-3 drop-shadow-lg line-clamp-2">{image.title}</h3>
-                      {image.description && (
-                        <p className="text-white/90 text-sm sm:text-base md:text-lg max-w-2xl drop-shadow-md line-clamp-2">{image.description}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {/* Carousel Controls - Only show on hover or touch devices */}
-            <div className="absolute inset-0 flex items-center justify-between p-2 sm:p-4 pointer-events-none">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCurrentSlide((prev) => (prev - 1 + featuredImages.length) % featuredImages.length);
-                }}
-                className="pointer-events-auto w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 text-white hover:bg-white hover:text-black duration-300 flex items-center justify-center backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"
-                aria-label="Previous slide"
-              >
-                <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCurrentSlide((prev) => (prev + 1) % featuredImages.length);
-                }}
-                className="pointer-events-auto w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 text-white hover:bg-white hover:text-black duration-300 flex items-center justify-center backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all"
-                aria-label="Next slide"
-              >
-                <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-              </button>
-            </div>
-          </div>
-
-          {/* Progress Indicators */}
-          {featuredImages.length > 1 && (
-            <div className="absolute -bottom-4 left-0 right-0 flex justify-center gap-2 px-4 pointer-events-none">
-              {featuredImages.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCurrentSlide(index);
-                  }}
-                  className={`pointer-events-auto h-1.5 rounded-full transition-all duration-300 ${
-                    index === currentSlide 
-                      ? 'bg-red-600 w-8 sm:w-12' 
-                      : 'bg-gray-300 w-2.5 sm:w-3 hover:bg-gray-400'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   if (loading && images.length === 0) {
     return (
       <div className="py-12 sm:py-16">
@@ -490,7 +520,13 @@ const Gallery = () => {
         </div>
 
         {/* Featured Images Carousel */}
-        {featuredImages.length > 0 && <FeaturedCarousel />}
+        {featuredImages.length > 0 && 
+          <FeaturedCarousel 
+            featuredImages={featuredImages} 
+            filteredImages={filteredImages} 
+            onImageSelect={handleFeaturedImageSelect} 
+          />
+        }
 
         {/* Filters */}
         <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm py-4 border-b border-gray-100 shadow-sm mb-8 -mx-4 px-4 sm:-mx-8 sm:px-8">
@@ -586,4 +622,4 @@ const Gallery = () => {
   );
 };
 
-export default Gallery; 
+export default Gallery;
