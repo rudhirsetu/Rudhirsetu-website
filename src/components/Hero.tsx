@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, ChevronDown } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 const Hero = () => {
+  // Track if user has scrolled
+  const [hasScrolled, setHasScrolled] = useState(false);
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -24,6 +28,18 @@ const Hero = () => {
     }
   };
 
+  // Set up scroll event listener
+  useEffect(() => {
+    const handleScrollEvent = () => {
+      if (window.scrollY > 10) {
+        setHasScrolled(true);
+      }
+    };
+
+    window.addEventListener('scroll', handleScrollEvent);
+    return () => window.removeEventListener('scroll', handleScrollEvent);
+  }, []);
+
   // Parallax effect for scrolling
   const handleScroll = () => {
     window.scrollTo({
@@ -35,12 +51,12 @@ const Hero = () => {
   return (
     <div className="relative min-h-screen flex flex-col justify-center items-center">
       {/* Background with overlay gradient */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-red-900/95 via-red-800/90 to-red-700/80" />
       </div>
 
       {/* Overlay pattern */}
-      <div className="absolute inset-0 z-[1] bg-black opacity-50 mix-blend-overlay pattern-grid-lg" />
+      <div className="absolute inset-0 z-[1] bg-black opacity-50 mix-blend-overlay pattern-grid-lg pointer-events-none" />
 
       {/* Content */}
       <motion.div
@@ -66,7 +82,7 @@ const Hero = () => {
             
             <motion.h1 
               variants={itemVariants}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight sm:leading-tight text-white mb-6 mx-auto"
+              className="text-5xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight sm:leading-tight text-white mb-6 mx-auto"
             >
               <span className="block sm:inline">Transforming Lives,</span>{' '}
               <span className="text-[#FECACA]">Empowering Communities</span>
@@ -144,24 +160,21 @@ const Hero = () => {
       </motion.div>
 
       {/* Scroll indicator */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2, duration: 0.5 }}
+      <div 
         onClick={handleScroll}
-        className="absolute bottom-16 hidden md:block left-1/2 transform -translate-x-1/2 z-20 cursor-pointer"
+        className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 cursor-pointer transition-all duration-700 ease-in-out ${
+          hasScrolled ? 'opacity-0 md:opacity-100' : 'opacity-100'
+        }`}
       >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="flex flex-col items-center"
+        <div
+          className="flex flex-col items-center animate-bounce"
         >
-          <span className="text-white/70 text-sm mb-2">Scroll Down</span>
-          <ChevronDown className="text-white/70 w-6 h-6" />
-        </motion.div>
-      </motion.div>
+          <span className="text-white/80 text-sm mb-2 font-medium">Scroll Down</span>
+          <ChevronDown className="text-white/80 w-6 h-6" />
+        </div>
+      </div>
     </div>
   );
 };
 
-export default Hero; 
+export default Hero;

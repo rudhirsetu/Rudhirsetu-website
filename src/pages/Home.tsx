@@ -302,11 +302,11 @@ const Home = () => {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={containerVariants}
-        className="container mx-auto px-4 py-24"
+        className="container mx-auto px-8 md:px-4 py-20 md:py-24"
       >
         <motion.div 
           variants={fadeInUpVariants}
-          className="relative z-10 max-w-4xl mx-auto bg-white border border-gray-100 p-12 md:p-16 rounded-2xl shadow-lg text-center"
+          className="relative z-10 max-w-4xl mx-auto md:bg-white md:border md:border-gray-100 md:p-12 md:p-16 rounded-2xl md:shadow-lg text-center"
         >
           <h2 className="text-4xl font-bold mb-6 text-gray-900">Join Us in Making a Difference!</h2>
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
