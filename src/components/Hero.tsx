@@ -49,9 +49,9 @@ const Hero = () => {
         variants={containerVariants}
         className="relative z-10 container mx-auto px-4 py-10 min-h-[85vh] flex flex-col justify-center"
       >
-        <div className="max-w-5xl mx-auto text-center">
+        <div className="w-full max-w-5xl mx-auto text-center items-center">
           {/* Main content */}
-          <motion.div variants={itemVariants} className="mb-3">
+          <motion.div variants={itemVariants} className="mb-3 w-full">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -66,12 +66,10 @@ const Hero = () => {
             
             <motion.h1 
               variants={itemVariants}
-              className="text-5xl sm:text-6xl md:text-7xl font-bold leading-tight text-white mb-6"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight sm:leading-tight text-white mb-6 mx-auto"
             >
-              Transforming Lives,{' '}
-              <span className="relative">
-                <span className="relative z-10 text-[#FECACA]">Empowering Communities</span>
-              </span>
+              <span className="block sm:inline">Transforming Lives,</span>{' '}
+              <span className="text-[#FECACA]">Empowering Communities</span>
             </motion.h1>
             
             <motion.p 

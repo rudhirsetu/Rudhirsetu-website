@@ -5,10 +5,18 @@ import { settingsService } from '../services/sanity-client';
 import type { SocialMediaSettings } from '../types/sanity';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Pre-fetch social links data to avoid delay
+let socialLinksCache: SocialMediaSettings | null = null;
+settingsService.fetchSocialMedia().then(data => {
+  socialLinksCache = data;
+}).catch(err => {
+  console.error('Error pre-fetching social media links:', err);
+});
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [socialLinks, setSocialLinks] = useState<SocialMediaSettings | null>(null);
+  const [socialLinks, setSocialLinks] = useState<SocialMediaSettings | null>(socialLinksCache);
   const location = useLocation();
 
   useEffect(() => {
@@ -20,16 +28,24 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    const loadSocialLinks = async () => {
-      try {
-        const data = await settingsService.fetchSocialMedia();
-        setSocialLinks(data);
-      } catch (err) {
-        console.error('Error loading social media links:', err);
-      }
-    };
-    loadSocialLinks();
-  }, []);
+    if (!socialLinks) {
+      const loadSocialLinks = async () => {
+        try {
+          // Use the cache if available, otherwise fetch
+          if (socialLinksCache) {
+            setSocialLinks(socialLinksCache);
+          } else {
+            const data = await settingsService.fetchSocialMedia();
+            socialLinksCache = data;
+            setSocialLinks(data);
+          }
+        } catch (err) {
+          console.error('Error loading social media links:', err);
+        }
+      };
+      loadSocialLinks();
+    }
+  }, [socialLinks]);
 
   // Effect to move translate element between desktop and mobile containers
   useEffect(() => {
@@ -211,43 +227,41 @@ const Navbar = () => {
             animate={{ opacity: 1, height: 'calc(100vh - 5rem)' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden fixed inset-0 top-20 bg-white shadow-lg z-40"
+            className="md:hidden fixed inset-0 top-20 bg-white shadow-lg z-40 flex flex-col"
             style={{ overflowY: 'auto' }}
           >
-            <div className="flex flex-col h-full">
-              <div className="flex-1 overflow-y-auto">
-                <div className="px-6 py-6 space-y-1">
-                  {navItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <motion.div
-                        key={item.path}
-                        whileTap={{ scale: 0.98 }}
+            <div className="flex-1 overflow-y-auto pb-20">
+              <div className="px-6 py-6 space-y-1">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <motion.div
+                      key={item.path}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Link
+                        to={item.path}
+                        className={`flex items-center space-x-4 px-4 py-4 rounded-xl text-base font-medium ${
+                          isActive(item.path)
+                            ? 'bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white shadow-md'
+                            : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                        onClick={() => setIsOpen(false)}
                       >
-                        <Link
-                          to={item.path}
-                          className={`flex items-center space-x-4 px-4 py-4 rounded-xl text-base font-medium ${
-                            isActive(item.path)
-                              ? 'bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white shadow-md'
-                              : 'text-gray-600 hover:bg-gray-50'
-                          }`}
-                          onClick={() => setIsOpen(false)}
-                        >
-                          <Icon className="w-5 h-5" />
-                          <span>{item.label}</span>
-                        </Link>
-                      </motion.div>
-                    );
-                  })}
-                </div>
+                        <Icon className="w-5 h-5" />
+                        <span>{item.label}</span>
+                      </Link>
+                    </motion.div>
+                  );
+                })}
               </div>
+            </div>
 
-              <div className="px-6 py-6 border-t border-gray-100">
-                <div className="flex flex-col space-y-4">
-                  <span className="text-sm font-medium text-gray-500">Follow us on:</span>
-                  <div className="flex gap-4">
-                    <SocialLinks />
-                  </div>
+            <div className="px-6 py-4 border-t border-gray-100 sticky bottom-0 bg-white shadow-md">
+              <div className="flex flex-col space-y-2">
+                <span className="text-sm font-medium text-gray-500">Follow us on:</span>
+                <div className="flex gap-4">
+                  <SocialLinks />
                 </div>
               </div>
             </div>

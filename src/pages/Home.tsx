@@ -97,7 +97,7 @@ const Home = () => {
   ];
 
   return (
-    <div className="space-y-0">
+    <div className="space-y-0 overflow-x-hidden">
       <Hero />
       
       {/* Key Focus Areas */}
@@ -106,7 +106,7 @@ const Home = () => {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={containerVariants}
-        className="container mx-auto px-4 py-24 bg-white"
+        className="mx-auto px-4 py-24 bg-white"
       >
         <motion.div 
           variants={itemVariants} 

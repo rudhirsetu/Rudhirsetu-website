@@ -187,7 +187,7 @@ const Donations = () => {
         </div>
 
         {/* Tax Benefits Section */}
-        <section className="bg-red-50 p-8 rounded-xl mb-16">
+        <section className="text-center bg-red-50 p-8 rounded-xl mb-16">
           <h2 className="text-2xl font-bold mb-4">Tax Benefits</h2>
           {settings?.isSection80GEnabled ? (
             <>

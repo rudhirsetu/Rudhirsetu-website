@@ -121,9 +121,9 @@ const SocialMedia = () => {
                 href={platform.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`group relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl ${platform.color} text-white`}
+                className={`group relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl ${platform.color} text-white ${platform.hoverColor}`}
               >
-                <div className="p-8">
+                <div className="p-8 relative z-10">
                   <div className="flex items-center justify-between mb-4">
                     <platform.icon className="w-8 h-8" />
                     <ExternalLink className="w-5 h-5 opacity-75 group-hover:opacity-100 transition-opacity" />
@@ -131,7 +131,6 @@ const SocialMedia = () => {
                   <h2 className="text-2xl font-bold mb-2">{platform.name}</h2>
                   <p className="text-white/90">{platform.description}</p>
                 </div>
-                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity ${platform.hoverColor}`}></div>
               </a>
             )
           ))}
