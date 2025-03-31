@@ -23,6 +23,7 @@
     "lucide-react": "^0.476.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-masonry-css": "^1.0.16",
     "react-router-dom": "^7.2.0",
     "serve": "^14.2.4",
     "tailwindcss": "^4.0.8"

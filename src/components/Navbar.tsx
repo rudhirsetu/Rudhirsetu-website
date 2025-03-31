@@ -66,6 +66,7 @@ const Navbar = () => {
     return location.pathname === path;
   };
 
+  const SocialLinkSize = 'w-8 h-8 md:w-6 md:h-6';
   const SocialLinks = () => (
     <div className="flex items-center space-x-4">
       {socialLinks?.linkedinUrl && (
@@ -78,7 +79,7 @@ const Navbar = () => {
           className="text-gray-600 hover:text-[#0077b5] transition-colors"
           aria-label="LinkedIn"
         >
-          <Linkedin className="w-6 h-6" />
+          <Linkedin className={SocialLinkSize} />
         </motion.a>
       )}
       {socialLinks?.facebookUrl && (
@@ -91,7 +92,7 @@ const Navbar = () => {
           className="text-gray-600 hover:text-[#1877f2] transition-colors"
           aria-label="Facebook"
         >
-          <Facebook className="w-6 h-6" />
+          <Facebook className={SocialLinkSize} />
         </motion.a>
       )}
       {socialLinks?.instagramUrl && (
@@ -104,7 +105,7 @@ const Navbar = () => {
           className="text-gray-600 hover:text-[#e4405f] transition-colors"
           aria-label="Instagram"
         >
-          <Instagram className="w-6 h-6" />
+          <Instagram className={SocialLinkSize} />
         </motion.a>
       )}
       {socialLinks?.youtubeUrl && (
@@ -117,7 +118,7 @@ const Navbar = () => {
           className="text-gray-600 hover:text-[#ff0000] transition-colors"
           aria-label="YouTube"
         >
-          <Youtube className="w-6 h-6" />
+          <Youtube className={SocialLinkSize} />
         </motion.a>
       )}
     </div>
@@ -208,7 +209,7 @@ const Navbar = () => {
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'calc(100vh - 5rem)' }}
+            animate={{ opacity: 1, height: 'calc(60vh + 2rem)' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
             className="md:hidden fixed inset-0 top-20 bg-white shadow-lg z-40 flex flex-col"
@@ -243,7 +244,7 @@ const Navbar = () => {
 
             <div className="px-6 py-4 border-t border-gray-100 sticky bottom-0 bg-white shadow-md">
               <div className="flex flex-col space-y-2">
-                <span className="text-sm font-medium text-gray-500">Follow us on:</span>
+                <span className="text-md font-medium text-gray-500">Follow us on:</span>
                 <div className="flex gap-4">
                   <SocialLinks />
                 </div>
