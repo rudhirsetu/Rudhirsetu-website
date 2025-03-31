@@ -373,7 +373,7 @@ const Gallery = () => {
             
             @media (min-width: 1024px) {
               .gallery-masonry {
-                columns: 3 300px;
+                columns: 4 300px;
                 column-gap: 20px;
               }
             }
