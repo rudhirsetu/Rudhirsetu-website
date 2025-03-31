@@ -140,6 +140,8 @@ export const ImageLightbox = ({
   onNext: () => void; 
   showThumbnails?: boolean;
 }) => {
+  const [showInfo, setShowInfo] = useState(true);
+  
   if (!selectedImage) return null;
 
   return (
@@ -186,28 +188,66 @@ export const ImageLightbox = ({
       </div>
 
       <div className="absolute bottom-6 left-0 right-0 px-4">
-        <div className="max-w-5xl mx-auto bg-black/60 backdrop-blur-sm rounded-xl p-4 text-white">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-xl font-semibold">{selectedImage.title}</h3>
-              {selectedImage.description && (
-                <p className="text-white/80 mt-1 max-w-3xl text-sm md:text-base">
-                  {selectedImage.description}
-                </p>
-              )}
+        {showInfo && (
+          <div className="max-w-5xl mx-auto bg-black/60 backdrop-blur-sm rounded-xl p-4 text-white">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="text-xl font-semibold">{selectedImage.title}</h3>
+                {selectedImage.description && (
+                  <p className="text-white/80 mt-1 max-w-3xl text-sm md:text-base">
+                    {selectedImage.description}
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center">
+                {selectedImage.category && (
+                  <span className="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full">
+                    {selectedImage.category.charAt(0).toUpperCase() + selectedImage.category.slice(1).replace(/-/g, ' ')}
+                  </span>
+                )}
+                {/* Info Toggle Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowInfo(prev => !prev);
+                  }}
+                  className="ml-3 bg-black/50 border border-gray-700 rounded-full p-1.5 text-white hover:bg-white/20 transition-colors duration-300"
+                  aria-label={showInfo ? "Hide information" : "Show information"}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="3" y1="3" x2="21" y2="21"></line>
+                    <line x1="21" y1="3" x2="3" y2="21"></line>
+                  </svg>
+                </button>
+              </div>
             </div>
-            {selectedImage.category && (
-              <span className="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full ml-4">
-                {selectedImage.category.charAt(0).toUpperCase() + selectedImage.category.slice(1).replace(/-/g, ' ')}
+            <div className="mt-2 text-sm text-white/60 flex items-center">
+              <span className="mr-4">
+                {selectedIndex + 1} of {images.length}
               </span>
-            )}
+            </div>
           </div>
-          <div className="mt-2 text-sm text-white/60 flex items-center">
-            <span className="mr-4">
-              {selectedIndex + 1} of {images.length}
-            </span>
+        )}
+
+        {!showInfo && (
+          <div className="flex justify-end max-w-5xl mx-auto">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowInfo(true);
+              }}
+              className="bg-black/60 border border-gray-700 rounded-full p-2 text-white hover:bg-white/20 transition-colors duration-300 backdrop-blur-sm flex items-center gap-2"
+              aria-label="Show information"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span className="text-sm">Show Info</span>
+            </button>
           </div>
-        </div>
+        )}
 
         {/* Thumbnails */}
         {showThumbnails && images.length > 1 && (

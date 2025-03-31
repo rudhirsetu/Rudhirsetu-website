@@ -1,12 +1,8 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Heart, ChevronDown } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Heart } from 'lucide-react';
 
 const Hero = () => {
-  // Track if user has scrolled
-  const [hasScrolled, setHasScrolled] = useState(false);
-
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -26,26 +22,6 @@ const Hero = () => {
       y: 0,
       transition: { duration: 0.8, ease: [0.4, 0, 0.2, 1] }
     }
-  };
-
-  // Set up scroll event listener
-  useEffect(() => {
-    const handleScrollEvent = () => {
-      if (window.scrollY > 10) {
-        setHasScrolled(true);
-      }
-    };
-
-    window.addEventListener('scroll', handleScrollEvent);
-    return () => window.removeEventListener('scroll', handleScrollEvent);
-  }, []);
-
-  // Parallax effect for scrolling
-  const handleScroll = () => {
-    window.scrollTo({
-      top: window.innerHeight - 100,
-      behavior: 'smooth'
-    });
   };
 
   return (
@@ -158,21 +134,6 @@ const Hero = () => {
           </motion.div>
         </div>
       </motion.div>
-
-      {/* Scroll indicator */}
-      <div 
-        onClick={handleScroll}
-        className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 cursor-pointer transition-all duration-700 ease-in-out ${
-          hasScrolled ? 'opacity-0 md:opacity-100' : 'opacity-100'
-        }`}
-      >
-        <div
-          className="flex flex-col items-center animate-bounce"
-        >
-          <span className="text-white/80 text-sm mb-2 font-medium">Scroll Down</span>
-          <ChevronDown className="text-white/80 w-6 h-6" />
-        </div>
-      </div>
     </div>
   );
 };

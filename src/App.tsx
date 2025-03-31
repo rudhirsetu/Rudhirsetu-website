@@ -27,7 +27,7 @@ const App = () => {
     <Router>
       <ScrollToTop />
       <DevelopmentWarning />
-      <div className="min-h-screen min-w-screen bg-gray-50 flex flex-col">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <Navbar />
         <main className="flex-grow mt-15">
           <Routes>

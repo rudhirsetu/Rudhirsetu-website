@@ -1,31 +1,45 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Heart, Calendar, MapPin, Users, ExternalLink, Activity, Zap, Award } from 'lucide-react';
+import { ArrowRight, Heart, Calendar, MapPin, Users, ExternalLink, Activity, Zap, Award, Image } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Hero from '../components/Hero';
-import { Event } from '../types/sanity';
+import { Event, GalleryImage } from '../types/sanity';
 import { eventService } from '../services/sanity-client';
 import { urlFor } from '../lib/sanity';
 import { format } from 'date-fns';
+import { FeaturedCarousel, ImageLightbox } from '../components/GalleryComponents';
+import { client } from '../lib/sanity';
+import { QUERIES } from '../lib/sanity';
 
 const Home = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
+  const [featuredImages, setFeaturedImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
 
   useEffect(() => {
-    const loadEvents = async () => {
+    const loadData = async () => {
       try {
-        const data = await eventService.fetchUpcoming(1, 3); // Fetch only 3 upcoming events
-        if (data) {
-          setUpcomingEvents(data.data);
+        const [eventsData, imagesData] = await Promise.all([
+          eventService.fetchUpcoming(1, 3), // Fetch only 3 upcoming events
+          client.fetch(QUERIES.featuredImages)
+        ]);
+        
+        if (eventsData) {
+          setUpcomingEvents(eventsData.data);
+        }
+        
+        if (imagesData) {
+          setFeaturedImages(imagesData || []);
         }
       } catch (err) {
-        console.error('Error loading events:', err);
+        console.error('Error loading data:', err);
       } finally {
         setLoading(false);
       }
     };
-    loadEvents();
+    loadData();
   }, []);
 
   // Animation variants
@@ -295,6 +309,59 @@ const Home = () => {
         </div>
       </motion.section>
 
+      {/* Featured Gallery Showcase */}
+      {featuredImages.length > 0 && (
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={containerVariants}
+          className="py-24 bg-gray-50"
+        >
+          <div className="container mx-auto px-4">
+            <motion.div
+              variants={itemVariants}
+              className="text-center mb-16 max-w-3xl mx-auto"
+            >
+              <span className="px-4 py-1.5 bg-red-100 text-red-900 text-sm font-medium rounded-full mb-6 inline-flex items-center">
+                <Image className="w-4 h-4 mr-2" />
+                Featured Gallery
+              </span>
+              <h2 className="text-4xl font-bold mb-6 text-gray-900">Moments That Matter</h2>
+              <p className="text-xl text-gray-600">
+                Take a glimpse at the remarkable moments we've captured during our journey of service
+              </p>
+            </motion.div>
+
+            <motion.div
+              variants={itemVariants}
+              className="mb-16"
+            >
+              <FeaturedCarousel
+                featuredImages={featuredImages}
+                onImageClick={(image, index) => {
+                  setSelectedImage(image);
+                  setSelectedImageIndex(index);
+                }}
+                aspectRatio="md:aspect-[16/9] aspect-[7/9]"
+              />
+            </motion.div>
+
+            <motion.div
+              variants={itemVariants}
+              className="text-center"
+            >
+              <Link
+                to="/gallery"
+                className="inline-flex items-center justify-center px-8 py-4 bg-red-900 text-white rounded-lg font-semibold shadow-md hover:bg-red-800 transition-all duration-300 group"
+              >
+                <span>View Full Gallery</span>
+                <ArrowRight className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </Link>
+            </motion.div>
+          </div>
+        </motion.section>
+      )}
 
       {/* Call to Action */}
       <motion.section 
@@ -306,7 +373,7 @@ const Home = () => {
       >
         <motion.div 
           variants={fadeInUpVariants}
-          className="relative z-10 max-w-4xl mx-auto md:bg-white md:border md:border-gray-100 md:p-12 md:p-16 rounded-2xl md:shadow-lg text-center"
+          className="relative z-10 max-w-4xl mx-auto md:bg-white md:border md:border-gray-100 md:p-12 rounded-2xl md:shadow-lg text-center"
         >
           <h2 className="text-4xl font-bold mb-6 text-gray-900">Join Us in Making a Difference!</h2>
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
@@ -340,6 +407,28 @@ const Home = () => {
           </div>
         </motion.div>
       </motion.section>
+
+      {/* Lightbox */}
+      {selectedImage && (
+        <ImageLightbox
+          selectedImage={selectedImage}
+          images={featuredImages}
+          selectedIndex={selectedImageIndex}
+          onClose={() => {
+            setSelectedImage(null);
+          }}
+          onPrev={() => {
+            const newIndex = (selectedImageIndex - 1 + featuredImages.length) % featuredImages.length;
+            setSelectedImage(featuredImages[newIndex]);
+            setSelectedImageIndex(newIndex);
+          }}
+          onNext={() => {
+            const newIndex = (selectedImageIndex + 1) % featuredImages.length;
+            setSelectedImage(featuredImages[newIndex]);
+            setSelectedImageIndex(newIndex);
+          }}
+        />
+      )}
     </div>
   );
 };
