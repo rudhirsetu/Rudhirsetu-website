@@ -140,7 +140,7 @@ export const ImageLightbox = ({
   onNext: () => void; 
   showThumbnails?: boolean;
 }) => {
-  const [showInfo, setShowInfo] = useState(true);
+  const [showInfo, setShowInfo] = useState(false);
   
   if (!selectedImage) return null;
 
