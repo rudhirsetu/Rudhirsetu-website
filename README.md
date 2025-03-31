@@ -5,7 +5,7 @@ A modern web application for Rudhirsetu Seva Sanstha built with React, TypeScrip
 ## For NGO Workers: Content Management Guide
 
 ### Accessing Sanity Studio
-1. Go to https://rudhirsetu.sanity.studio/
+1. Go to https://rudhrisetu.sanity.studio/
 2. Log in with your provided credentials
 3. You'll see the main dashboard with different content types
 
