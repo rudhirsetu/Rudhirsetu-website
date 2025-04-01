@@ -206,11 +206,11 @@ const Gallery = () => {
     if (totalPages <= 1) return null;
 
     return (
-      <div className="flex items-center justify-between mt-12">
-        <span className="text-sm text-gray-600 font-medium">
+      <div className="flex flex-col sm:flex-row items-center sm:justify-between mt-12">
+        <span className="text-sm text-gray-600 font-medium hidden sm:block">
           Page {currentPage} of {totalPages}
         </span>
-        <div className="flex gap-2">
+        <div className="flex gap-2 sm:mx-0">
           <button
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}

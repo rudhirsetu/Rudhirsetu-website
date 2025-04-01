@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Heart } from 'lucide-react';
+import { Heart, ChevronRight } from 'lucide-react';
 
 const Hero = () => {
   // Animation variants
@@ -86,7 +86,9 @@ const Hero = () => {
                 className="h-[52px] w-full sm:w-auto text-center px-8 py-4 bg-white text-[#9B2C2C] rounded-lg font-semibold hover:bg-[#FECACA] shadow-xl hover:shadow-2xl transition-all duration-300 inline-flex items-center justify-center gap-2 group"
               >
                 <span>Get Involved</span>
-                <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
+                <span className="group-hover:translate-x-1 transition-transform duration-300">
+                <ChevronRight />
+                </span>
               </Link>
             </motion.div>
             
