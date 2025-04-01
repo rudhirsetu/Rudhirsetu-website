@@ -83,7 +83,7 @@ const Hero = () => {
             >
               <Link
                 to="/contact"
-                className="w-full sm:w-auto text-center px-8 py-4 bg-white text-[#9B2C2C] rounded-lg font-semibold hover:bg-[#FECACA] shadow-xl hover:shadow-2xl transition-all duration-300 inline-flex items-center justify-center gap-2 group"
+                className="h-[52px] w-full sm:w-auto text-center px-8 py-4 bg-white text-[#9B2C2C] rounded-lg font-semibold hover:bg-[#FECACA] shadow-xl hover:shadow-2xl transition-all duration-300 inline-flex items-center justify-center gap-2 group"
               >
                 <span>Get Involved</span>
                 <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
@@ -96,7 +96,7 @@ const Hero = () => {
             >
               <Link
                 to="/donations"
-                className="w-full sm:w-auto text-center px-8 py-4 border-2 border-white text-white rounded-lg font-semibold hover:bg-white/10 backdrop-blur-sm transition-all duration-300 inline-flex items-center justify-center gap-2 group"
+                className="h-[52px] w-full sm:w-auto text-center px-8 py-4 border-2 border-white text-white rounded-lg font-semibold hover:bg-white/10 backdrop-blur-sm transition-all duration-300 inline-flex items-center justify-center gap-2 group"
               >
                 <span>Donate Now</span>
                 <Heart className="w-5 h-5 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300" />

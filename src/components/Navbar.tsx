@@ -141,8 +141,8 @@ const Navbar = () => {
           >
             <Link to="/" className="flex items-center space-x-3">
               <img
-                className="h-16 w-auto"
-                src="/images/logo.webp"
+                className="h-12 w-auto"
+                src="/images/logo-dark.svg"
                 alt="Rudhirsetu Logo"
               />
               <div className="flex flex-col">

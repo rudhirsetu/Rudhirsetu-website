@@ -81,7 +81,7 @@ const Footer = () => {
           <div className="md:col-span-4 space-y-5">
             <div className="flex items-center space-x-3">
               <img 
-                src="/images/logo.webp" 
+                src="/images/logo-light.svg" 
                 alt="Rudhirsetu Logo" 
                 className="h-12 w-auto"
               />

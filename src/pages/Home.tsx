@@ -386,7 +386,7 @@ const Home = () => {
             >
               <Link
                 to="/contact"
-                className="inline-flex items-center justify-center px-8 py-4 bg-red-900 text-white rounded-lg font-semibold shadow-md hover:bg-red-800 transition-all duration-200 gap-2 group"
+                className="h-[52px] inline-flex items-center justify-center px-8 py-4 bg-red-900 text-white rounded-lg font-semibold shadow-md hover:bg-red-800 transition-all duration-200 gap-2 group"
               >
                 <span>Contact Us</span>
                 <ExternalLink className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
@@ -398,7 +398,7 @@ const Home = () => {
             >
               <Link
                 to="/donations"
-                className="inline-flex items-center justify-center px-8 py-4 border-2 border-red-900 text-red-900 hover:bg-red-900 hover:text-white rounded-lg font-semibold transition-all duration-200 gap-2 group"
+                className="h-[52px] inline-flex items-center justify-center px-8 py-4 border-2 border-red-900 text-red-900 hover:bg-red-900 hover:text-white rounded-lg font-semibold transition-all duration-200 gap-2 group"
               >
                 <span>Donate Now</span>
                 <Heart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
