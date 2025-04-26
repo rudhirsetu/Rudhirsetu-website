@@ -208,11 +208,11 @@ const Footer = () => {
         <div className="h-px bg-white/20 my-8"></div>
         
         {/* Bottom Footer */}
-        <div className="flex flex-col md:flex-row justify-between items-center text-white/80 text-sm">
+        <div className="flex flex-col md:flex-row justify-between items-center text-white text-lg">
           <div className="mb-4 md:mb-0 text-center text-md">
             <p>&copy; {new Date().getFullYear()} Rudhirsetu Seva Sanstha. All rights reserved.</p>
           </div>
-          <div className="flex items-center justify-center text-lg">
+          <div className="flex items-center justify-center">
             <a
               href="https://www.linkedin.com/in/deeptanshu-l-6868a4187/"
               target="_blank"

@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
-import { MapPin, Users, Heart, Clock, ChevronLeft, ChevronRight, ArrowRight, Calendar, Activity } from 'lucide-react';
+import { Heart, ChevronLeft, ChevronRight, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Event, Pagination } from '../types/sanity';
 import { eventService } from '../services/sanity-client';
-import { format } from 'date-fns';
-import { urlFor } from '../lib/sanity';
-import { Link } from 'react-router-dom';
+import EventCard from '../components/EventCard';
 
 const Impact = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
@@ -181,67 +179,7 @@ const Impact = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {upcomingEvents.length > 0 ? (
               upcomingEvents.map((event) => (
-                <motion.div 
-                  key={event._id}
-                  whileHover={{ y: -8 }}
-                  className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col group"
-                >
-                  {event.image && (
-                    <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden">
-                      <img
-                        src={urlFor(event.image).width(800).height(400).url()}
-                        alt={event.title}
-                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                      <div className="absolute top-4 right-4">
-                        <span className="px-3 py-1 bg-emerald-500 text-white text-sm font-medium rounded-full">
-                          Upcoming
-                        </span>
-                      </div>
-                      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                        <span className="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-full inline-flex items-center">
-                          <Calendar className="w-3.5 h-3.5 mr-1.5" />
-                          {format(new Date(event.date), 'MMM d, yyyy')}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  <div className="p-4 sm:p-6 md:p-8 flex flex-col flex-grow">
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 text-gray-900 group-hover:text-[#9B2C2C] transition-colors duration-300">{event.title}</h3>
-                    
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-center text-gray-700">
-                        <Clock className="w-5 h-5 mr-3 text-[#9B2C2C] min-w-[20px] min-h-[20px]" />
-                        <span>{format(new Date(event.date), 'h:mm a')}</span>
-                      </div>
-                      <div className="flex items-center text-gray-700">
-                        <MapPin className="w-5 h-5 mr-3 text-[#9B2C2C] min-w-[20px] min-h-[20px]" />
-                        <span className="line-clamp-1">{event.location}</span>
-                      </div>
-                      {event.expectedParticipants && (
-                        <div className="flex items-center text-gray-700">
-                          <Users className="w-5 h-5 mr-3 text-[#9B2C2C] min-w-[20px] min-h-[20px]" />
-                          <span>Expected: {event.expectedParticipants} participants</span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {event.desc && (
-                      <p className="text-gray-600 mb-6 line-clamp-2 text-sm sm:text-base">{event.desc}</p>
-                    )}
-                    
-                    <div className="mt-auto">
-                      <Link 
-                        to={`/event/${event._id}`}
-                        className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white font-medium rounded-xl transition-all duration-300 shadow-md hover:shadow-lg group-hover:shadow-xl text-sm sm:text-base"
-                      >
-                        <span>View Details</span>
-                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
-                      </Link>
-                    </div>
-                  </div>
-                </motion.div>
+                <EventCard key={event._id} event={event} variant="upcoming" />
               ))
             ) : (
               <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-12">
@@ -268,64 +206,7 @@ const Impact = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {pastEvents.length > 0 ? (
               pastEvents.map((event) => (
-                <motion.div 
-                  key={event._id}
-                  whileHover={{ y: -8 }}
-                  className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group"
-                >
-                  {event.image && (
-                    <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden">
-                      <img
-                        src={urlFor(event.image).width(800).height(400).url()}
-                        alt={event.title}
-                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 filter grayscale-[30%] group-hover:grayscale-0"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                      <div className="absolute top-4 right-4">
-                        <span className="px-3 py-1 bg-gray-500 text-white text-sm font-medium rounded-full">
-                          Completed
-                        </span>
-                      </div>
-                      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                        <span className="px-3 py-1.5 bg-gray-700 text-white text-sm font-medium rounded-full inline-flex items-center">
-                          <Calendar className="w-3.5 h-3.5 mr-1.5" />
-                          {format(new Date(event.date), 'MMM d, yyyy')}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  <div className="p-4 sm:p-6 md:p-8 flex flex-col flex-grow">
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 text-gray-700 group-hover:text-gray-900 transition-colors duration-300">{event.title}</h3>
-                    
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-center text-gray-600">
-                        <Clock className="w-5 h-5 mr-3 text-gray-500 min-w-[20px] min-h-[20px]" />
-                        <span>{format(new Date(event.date), 'h:mm a')}</span>
-                      </div>
-                      <div className="flex items-center text-gray-600">
-                        <MapPin className="w-5 h-5 mr-3 text-gray-500 min-w-[20px] min-h-[20px]" />
-                        <span className="line-clamp-1">{event.location}</span>
-                      </div>
-                    </div>
-                    
-                    {event.desc && (
-                      <div className="flex items-start text-gray-600 mb-6">
-                        <Heart className="w-5 h-5 mr-3 mt-1 text-gray-500 min-w-[20px] min-h-[20px]" />
-                        <p className="line-clamp-2 text-sm sm:text-base">{event.desc}</p>
-                      </div>
-                    )}
-                    
-                    <div className="mt-auto">
-                      <Link 
-                        to={`/event/${event._id}`}
-                        className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-gray-700 text-white font-medium rounded-xl hover:bg-gray-600 transition-colors duration-300 shadow-md hover:shadow-lg text-sm sm:text-base"
-                      >
-                        <span>View Details</span>
-                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
-                      </Link>
-                    </div>
-                  </div>
-                </motion.div>
+                <EventCard key={event._id} event={event} variant="past" />
               ))
             ) : (
               <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-12">
@@ -347,4 +228,4 @@ const Impact = () => {
   );
 };
 
-export default Impact; 
+export default Impact;

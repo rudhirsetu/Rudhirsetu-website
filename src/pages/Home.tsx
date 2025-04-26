@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Heart, Calendar, MapPin, Users, ExternalLink, Activity, Zap, Award, Image } from 'lucide-react';
+import { ArrowRight, Heart, Calendar, ExternalLink, Activity, Zap, Award, Image } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Hero from '../components/Hero';
 import { Event, GalleryImage } from '../types/sanity';
 import { eventService } from '../services/sanity-client';
-import { urlFor } from '../lib/sanity';
-import { format } from 'date-fns';
 import { FeaturedCarousel, ImageLightbox } from '../components/GalleryComponents';
 import { client } from '../lib/sanity';
 import { QUERIES } from '../lib/sanity';
+import EventCard from '../components/EventCard';
 
 const Home = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
@@ -199,53 +198,8 @@ const Home = () => {
                 <motion.div 
                   key={event._id} 
                   variants={itemVariants}
-                  whileHover={{ y: -8, transition: { duration: 0.3 } }}
-                  className="bg-white rounded-xl shadow-md overflow-hidden group"
                 >
-                  {event.image && (
-                    <div className="relative h-64 overflow-hidden">
-                      <img
-                        src={urlFor(event.image).width(600).height(400).url()}
-                        alt={event.title}
-                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                        <span className="px-3 py-1.5 bg-red-900 text-white text-sm font-medium rounded-full inline-flex items-center">
-                          <Calendar className="w-3.5 h-3.5 mr-1.5" />
-                          {format(new Date(event.date), 'MMM d, yyyy')}
-                        </span>
-                        {event.location && (
-                          <span className="px-3 py-1.5 bg-black/50 text-white text-sm font-medium rounded-full inline-flex items-center">
-                            <MapPin className="w-3.5 h-3.5 mr-1.5" />
-                            {event.location}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  <div className="p-8">
-                    <h3 className="text-2xl font-bold mb-3 text-gray-900 group-hover:text-red-900 transition-colors duration-300">
-                      {event.title}
-                    </h3>
-                    <p className="text-gray-600 mb-6 line-clamp-2 text-base">{event.shortDesc || event.desc}</p>
-                    <div className="flex items-center justify-between">
-                      <Link
-                        to={`/event/${event._id}`}
-                        className="inline-flex items-center font-medium text-red-900 group-hover:text-red-700 transition-colors duration-300"
-                      >
-                        <span>View Details</span>
-                        <ArrowRight className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
-                      </Link>
-                      
-                      {event.expectedParticipants && (
-                        <span className="inline-flex items-center text-gray-500 text-sm">
-                          <Users className="w-4 h-4 mr-1.5" />
-                          {event.expectedParticipants} expected
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                  <EventCard event={event} variant="upcoming" />
                 </motion.div>
               ))}
             </div>
@@ -433,4 +387,4 @@ const Home = () => {
   );
 };
 
-export default Home; 
+export default Home;
