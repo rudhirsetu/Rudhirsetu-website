@@ -73,8 +73,22 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-gradient-to-br from-red-950 to-red-900 text-white py-16">
-      <div className="container mx-auto px-4">
+    <footer className="text-white py-16 relative overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'url(/rudhirsetu-bg.png)',
+          transform: 'rotate(180deg)'
+        }}
+        
+      >
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-black/40" />
+      </div>
+      
+      {/* Content with relative positioning to appear above background */}
+      <div className="container mx-auto px-4 relative z-10">
         {/* Main Footer Sections */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 mb-12">
           {/* About & Logo Section */}
@@ -230,4 +244,4 @@ const Footer = () => {
   );
 };
 
-export default Footer; 
+export default Footer;

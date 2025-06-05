@@ -25,14 +25,22 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col justify-center items-center">
-      {/* Background with overlay gradient */}
+    <div className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden">
+      {/* Background image */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-red-900/95 via-red-800/90 to-red-700/80" />
+        {/* Background image */}
+        <img 
+          src="/rudhirsetu-bg.png" 
+          alt="Rudhirsetu Background" 
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-black/25" />
       </div>
 
       {/* Overlay pattern */}
-      <div className="absolute inset-0 z-[1] bg-black opacity-50 mix-blend-overlay pattern-grid-lg pointer-events-none" />
+      <div className="absolute inset-0 z-[1] bg-black opacity-30 mix-blend-overlay pattern-grid-lg pointer-events-none" />
 
       {/* Content */}
       <motion.div
@@ -120,13 +128,13 @@ const Hero = () => {
               <motion.div 
                 key={index}
                 whileHover={{ y: -5 }}
-                className="bg-white/10 backdrop-blur-sm p-5 rounded-2xl border border-white/20 shadow-lg"
+                className="bg-red/10 p-5 rounded-2xl border border-white/80 shadow-lg"
               >
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.1 * index + 0.7, duration: 0.5 }}
-                  className="text-3xl sm:text-4xl font-bold text-[#FECACA]"
+                  className="text-3xl sm:text-4xl font-bold text-white"
                 >
                   {stat.count}
                 </motion.div>

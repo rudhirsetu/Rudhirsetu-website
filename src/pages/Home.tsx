@@ -192,7 +192,7 @@ const Home = () => {
                 </motion.div>
               ))}
             </div>
-          ) : (
+          ) : upcomingEvents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {upcomingEvents.map((event) => (
                 <motion.div 
@@ -203,6 +203,21 @@ const Home = () => {
                 </motion.div>
               ))}
             </div>
+          ) : (
+            <motion.div 
+              variants={itemVariants}
+              className="text-center py-16"
+            >
+              <div className="max-w-md mx-auto">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+                  <Calendar className="w-12 h-12 text-gray-400" />
+                </div>
+                <h3 className="text-2xl font-semibold mb-4 text-gray-900">No Currently Ongoing Events</h3>
+                <p className="text-gray-600 mb-6">
+                  We don't have any upcoming camps or events scheduled at the moment. Please check back soon for new announcements.
+                </p>
+              </div>
+            </motion.div>
           )}
 
           <motion.div 
