@@ -415,19 +415,6 @@ export default {
    - Strapi: Requires separate backend hosting
    - Sanity: Hosted service, only frontend deployment needed
 
-## Environment Variables
-
-```env
-# Current Strapi Setup
-VITE_STRAPI_API_URL=http://localhost:1337
-VITE_STRAPI_URL=http://localhost:1337
-
-# For Sanity Migration
-VITE_SANITY_PROJECT_ID=your-project-id
-VITE_SANITY_DATASET=production
-VITE_SANITY_API_VERSION=2023-05-03
-```
-
 ## Pagination
 
 All list endpoints support pagination with the following parameters:
