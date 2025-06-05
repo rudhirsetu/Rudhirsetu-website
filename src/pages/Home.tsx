@@ -119,35 +119,76 @@ const Home = () => {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={containerVariants}
-        className="mx-auto px-4 py-24 bg-white"
+        className="mx-auto px-4 py-32 bg-gradient-to-br from-slate-50 via-white to-red-50/30 relative overflow-hidden"
       >
-        <motion.div 
-          variants={itemVariants} 
-          className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16"
-        >
-          <span className="px-4 py-1.5 bg-red-100 text-red-900 text-sm font-medium rounded-full mb-6 inline-flex items-center">
-            <Heart className="w-4 h-4 mr-2" />
-            Our Focus
-          </span>
-          <h2 className="text-4xl font-bold mb-6 text-gray-900">Our Key Focus Areas</h2>
-          <p className="text-xl text-gray-600">
-            We're dedicated to creating positive impact through these key initiatives, each designed to address critical community needs
-          </p>
-        </motion.div>
+        {/* Background Elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-red-100/40 to-transparent rounded-full blur-3xl -translate-y-20 translate-x-20"></div>
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-emerald-100/40 to-transparent rounded-full blur-3xl translate-y-20 -translate-x-20"></div>
+        
+        <div className="relative z-10">
+          <motion.div 
+            variants={itemVariants} 
+            className="flex flex-col items-center text-center max-w-4xl mx-auto mb-20"
+          >
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/80 backdrop-blur-sm border border-red-200/50 rounded-2xl mb-8 shadow-sm">
+              <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center">
+                <Heart className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-red-800 font-semibold text-sm tracking-wide uppercase">Our Focus</span>
+            </div>
+            <h2 className="text-4xl lg:text-6xl font-bold mb-8 text-gray-900 tracking-tight">
+              <span className="bg-black bg-clip-text text-transparent">
+                Key Focus Areas
+              </span>
+            </h2>
+            <p className="text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-3xl">
+              We're dedicated to creating positive impact through these key initiatives, each designed to address critical community needs
+            </p>
+          </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {keyAreas.map((area) => (
-            <motion.div 
-              key={area.title}
-              variants={itemVariants}
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
-              className="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-all border-b-2 border-red-900"
-            >
-              <div className="mb-6 text-red-900">{area.icon}</div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-900">{area.title}</h3>
-              <p className="text-gray-700">{area.description}</p>
-            </motion.div>
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6">
+            {keyAreas.map((area) => (
+              <motion.div 
+                key={area.title}
+                variants={itemVariants}
+                whileHover={{ 
+                  y: -12, 
+                  scale: 1.02,
+                  transition: { duration: 0.4, ease: "easeOut" } 
+                }}
+                className="group relative"
+              >
+                <div className="relative h-full bg-white/90 backdrop-blur-sm p-8 rounded-3xl border border-gray-200/50 hover:border-red-300/60 transition-all duration-500 overflow-hidden">
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-red-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
+                  
+                  {/* Content */}
+                  <div className="relative z-10">
+                    {/* Icon Container */}
+                    <div className="mb-6 relative">
+                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-500 group-hover:scale-110">
+                        <div className="text-white">
+                          {area.icon}
+                        </div>
+                      </div>
+                      {/* Floating decoration */}
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200"></div>
+                    </div>
+                    
+                    <h3 className="text-xl font-bold mb-4 text-gray-900 group-hover:text-red-800 transition-colors duration-300">
+                      {area.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
+                      {area.description}
+                    </p>
+                  </div>
+
+                  {/* Bottom accent line */}
+                  <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-red-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </motion.section>
 
@@ -241,9 +282,19 @@ const Home = () => {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={containerVariants}
-        className="py-24 bg-red-900 text-white"
+        className="py-24 text-white relative overflow-hidden"
       >
-        <div className="container mx-auto px-4">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/rudhirsetu-bg.png" 
+            alt="Impact Background" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/30"></div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div 
             variants={itemVariants}
             className="text-center mb-16 max-w-3xl mx-auto"
@@ -265,7 +316,7 @@ const Home = () => {
                 variants={itemVariants}
                 whileHover={{ y: -8, transition: { duration: 0.3 } }}
               >
-                <div className="bg-white/10 rounded-xl p-6 border border-white/10 hover:border-white/30 transition-all h-full">
+                <div className="bg-white/10 rounded-xl p-6 border border-white/10 hover:border-white/30 transition-all h-full backdrop-blur-sm">
                   <h3 className="text-4xl sm:text-5xl font-bold mb-3 text-white">
                     {stat.value}
                   </h3>
