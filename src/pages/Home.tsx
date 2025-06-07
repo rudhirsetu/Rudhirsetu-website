@@ -287,7 +287,7 @@ const Home = () => {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/rudhirsetu-bg.png" 
+            src="/rudhirsetu-bg.webp" 
             alt="Impact Background" 
             className="w-full h-full object-cover"
           />

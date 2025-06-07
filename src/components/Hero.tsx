@@ -30,7 +30,7 @@ const Hero = () => {
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Background image */}
         <img 
-          src="/rudhirsetu-bg.png" 
+          src="/rudhirsetu-bg.webp" 
           alt="Rudhirsetu Background" 
           className="absolute inset-0 w-full h-full object-cover"
         />

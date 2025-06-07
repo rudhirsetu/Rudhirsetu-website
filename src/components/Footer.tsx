@@ -78,7 +78,7 @@ const Footer = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: 'url(/rudhirsetu-bg.png)',
+          backgroundImage: 'url(/rudhirsetu-bg.webp)',
           transform: 'rotate(180deg)'
         }}
         
