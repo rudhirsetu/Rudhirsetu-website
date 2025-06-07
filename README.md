@@ -2,6 +2,9 @@
 
 A modern web application for Rudhirsetu Seva Sanstha built with React, TypeScript, and Tailwind CSS.
 
+![image](https://github.com/user-attachments/assets/7c8bee97-c574-4391-9f87-780c9b53508e)
+
+
 ## For NGO Workers: Content Management Guide
 
 ### Accessing Sanity Studio
