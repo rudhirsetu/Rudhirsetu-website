@@ -1,0 +1,24 @@
+{
+  "name": "Rudhirsetu Seva Sanstha",
+  "short_name": "Rudhirsetu",
+  "description": "Blood donation, healthcare support, and social initiatives",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#991B1B",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/logo.ico",
+      "sizes": "180x180",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["health", "social", "nonprofit"],
+  "lang": "en"
+} 

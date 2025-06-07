@@ -31,28 +31,6 @@ const Navbar = () => {
     loadSocialLinks();
   }, []);
 
-  // Effect to move translate element between desktop and mobile containers
-  useEffect(() => {
-    const translateElement = document.getElementById('google_translate_element');
-    const desktopContainer = document.getElementById('desktop_translate_container');
-    const mobileContainer = document.getElementById('mobile_translate_container');
-
-    if (translateElement && desktopContainer && mobileContainer) {
-      const moveTranslateElement = () => {
-        const isMobile = window.innerWidth < 768; // md breakpoint
-        if (isMobile) {
-          mobileContainer.appendChild(translateElement);
-        } else {
-          desktopContainer.appendChild(translateElement);
-        }
-      };
-
-      moveTranslateElement();
-      window.addEventListener('resize', moveTranslateElement);
-      return () => window.removeEventListener('resize', moveTranslateElement);
-    }
-  }, []);
-
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/impact', label: 'Camps', icon: Heart },
@@ -187,7 +165,6 @@ const Navbar = () => {
 
           {/* Mobile Controls */}
           <div className="flex items-center gap-4 md:hidden">
-            <div id="mobile_translate_container" />
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsOpen(!isOpen)}
