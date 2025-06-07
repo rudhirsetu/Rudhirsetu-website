@@ -8,6 +8,8 @@
     
     <!-- Preload critical resources -->
     <link rel="preload" href="/rudhirsetu-bg.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="/images/logo-dark.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="/images/logo-light.svg" as="image" type="image/svg+xml">
     
     <!-- Primary Meta Tags -->
     <title>Rudhirsetu Seva Sanstha | Blood Donation, Healthcare Support & Social Initiatives</title>
@@ -44,12 +46,103 @@
     <!-- Preconnect to important domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin>
+    <link rel="dns-prefetch" href="//backend.spendingcalculator.xyz">
+    
+    <!-- Preload key Google Fonts for faster loading -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"></noscript>
+    
+    <!-- Preload critical font files (most common weights) -->
+    <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v23/pxiEyp8kv8JHgFVrJJfecg.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v23/pxiByp8kv8JHgFVrLDD4Z1xlFQ.woff2" as="font" type="font/woff2" crossorigin>
     
     <!-- Theme Color -->
     <meta name="theme-color" content="#991B1B">
+    
+    <!-- Critical CSS for font fallbacks and initial layout -->
+    <style>
+      /* Critical font fallback styles to prevent layout shift */
+      body {
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', 'Helvetica Neue', sans-serif;
+        font-display: swap;
+      }
+      
+      /* Preload spinner for faster perceived performance */
+      .page-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+      
+      .spinner {
+        width: 32px;
+        height: 32px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #B91C1C;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Hide loader once page is loaded */
+      .loaded .page-loader {
+        display: none;
+      }
+    </style>
   </head>
   <body>
+    <!-- Loading indicator -->
+    <div class="page-loader">
+      <div class="spinner"></div>
+    </div>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Script to handle loading states -->
+    <script>
+      // Add loaded class when page is fully loaded
+      window.addEventListener('load', function() {
+        document.body.classList.add('loaded');
+      });
+      
+      // Fallback to hide loader after 3 seconds
+      setTimeout(function() {
+        document.body.classList.add('loaded');
+      }, 3000);
+      
+      // Performance monitoring (Core Web Vitals)
+      if ('PerformanceObserver' in window) {
+        const observer = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (entry.name === 'FCP') {
+              console.log('First Contentful Paint:', entry.startTime);
+            }
+            if (entry.name === 'LCP') {
+              console.log('Largest Contentful Paint:', entry.startTime);
+            }
+          }
+        });
+        
+        try {
+          observer.observe({ type: 'largest-contentful-paint', buffered: true });
+          observer.observe({ type: 'first-contentful-paint', buffered: true });
+        } catch (e) {
+          // Fallback for browsers that don't support these metrics
+        }
+      }
+    </script>
   </body>
 </html>
