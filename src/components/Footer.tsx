@@ -117,6 +117,7 @@ const Footer = () => {
                   href={socialLinks.facebookUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
+                  aria-label="Follow us on Facebook"
                   className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
                 >
                   {getSocialIcon('facebook')}
@@ -127,6 +128,7 @@ const Footer = () => {
                   href={socialLinks.instagramUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
+                  aria-label="Follow us on Instagram"
                   className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
                 >
                   {getSocialIcon('instagram')}
@@ -137,6 +139,7 @@ const Footer = () => {
                   href={socialLinks.linkedinUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
+                  aria-label="Connect with us on LinkedIn"
                   className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
                 >
                   {getSocialIcon('linkedin')}
@@ -147,6 +150,7 @@ const Footer = () => {
                   href={socialLinks.youtubeUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
+                  aria-label="Subscribe to our YouTube channel"
                   className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
                 >
                   {getSocialIcon('youtube')}
