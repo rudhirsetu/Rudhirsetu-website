@@ -28,12 +28,20 @@ const Hero = () => {
     <div className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden">
       {/* Background image */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Background image */}
-        <img 
-          src="/rudhirsetu-bg.webp" 
-          alt="Rudhirsetu Background" 
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        {/* Background image with optimized loading */}
+        <picture>
+          <source srcSet="/rudhirsetu-bg.webp" type="image/webp" />
+          <img 
+            src="/rudhirsetu-bg.webp" 
+            alt="Rudhirsetu Background" 
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+            decoding="sync"
+            width="1920"
+            height="1080"
+          />
+        </picture>
         
         {/* Dark overlay for readability */}
         <div className="absolute inset-0 bg-black/25" />
