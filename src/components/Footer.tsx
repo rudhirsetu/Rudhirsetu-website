@@ -72,6 +72,13 @@ const Footer = () => {
     { label: "Social Media", path: "/social" }
   ];
 
+  // SEO-focused links for search engine discovery
+  const seoLinks = [
+    { label: "Sitemap", path: "/sitemap.xml", external: true },
+    { label: "Privacy Policy", path: "/privacy-policy" },
+    { label: "Terms of Service", path: "/terms" }
+  ];
+
   return (
     <footer className="text-white py-16 relative overflow-hidden">
       {/* Background Image */}
@@ -92,7 +99,7 @@ const Footer = () => {
         {/* Main Footer Sections */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 mb-12">
           {/* About & Logo Section */}
-          <div className="md:col-span-4 space-y-5">
+          <div className="md:col-span-3 space-y-5">
             <div className="flex items-center space-x-3">
               <img 
                 src="/images/logo-light.svg" 
@@ -180,9 +187,45 @@ const Footer = () => {
               ))}
             </ul>
           </div>
+
+          {/* SEO & Legal Links Section */}
+          <div className="md:col-span-2 space-y-4">
+            <h3 className="text-lg font-bold border-b border-white/20 pb-2 mb-4">
+              Site Info
+            </h3>
+            <ul className="space-y-2.5">
+              {seoLinks.map((link, index) => (
+                <li key={index}>
+                  {link.external ? (
+                    <a 
+                      href={link.path}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white/80 hover:text-white transition-colors inline-flex items-center group"
+                    >
+                      <span className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ExternalLink className="w-3 h-3" />
+                      </span>
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link 
+                      to={link.path} 
+                      className="text-white/80 hover:text-white transition-colors inline-flex items-center group"
+                    >
+                      <span className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ArrowRight className="w-3 h-3" />
+                      </span>
+                      {link.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
           
           {/* Contact Section */}
-          <div className="md:col-span-5 space-y-4">
+          <div className="md:col-span-4 space-y-4">
             <h3 className="text-lg font-bold border-b border-white/20 pb-2 mb-4">
               Contact Us
             </h3>
