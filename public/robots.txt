@@ -1,8 +1,17 @@
 User-agent: *
 Allow: /
+Allow: /donations
+Allow: /impact
+Allow: /contact
+Allow: /gallery
+Allow: /social
+Allow: /event/*
 
 # Sitemap location
 Sitemap: https://www.rudhirsetu.org/sitemap.xml
 
-# Crawl-delay (optional - gives servers a break)
-Crawl-delay: 0
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Preferred domain (helps with canonicalization)
+Host: https://www.rudhirsetu.org

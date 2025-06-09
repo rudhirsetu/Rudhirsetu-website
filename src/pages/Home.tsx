@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, Calendar, ExternalLink, Activity, Zap, Award, Image } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Hero from '../components/Hero';
+import SEO from '../components/SEO';
 import { Event, GalleryImage } from '../types/sanity';
 import { eventService } from '../services/sanity-client';
 import { FeaturedCarousel, ImageLightbox } from '../components/GalleryComponents';
@@ -109,8 +110,64 @@ const Home = () => {
     { label: 'Cancer Awareness', value: '20,000+', subtext: 'Women reached', color: 'from-indigo-500 to-indigo-600' },
   ];
 
+  const homeStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Rudhirsetu Seva Sanstha",
+    "url": "https://www.rudhirsetu.org/",
+    "logo": "https://www.rudhirsetu.org/images/logo-dark.svg",
+    "description": "Rudhirsetu Seva Sanstha drives community empowerment through blood donation, healthcare support, and transformative social initiatives since 2010.",
+    "foundingDate": "2010",
+    "areaServed": "India",
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Our Services",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Blood Donation Camps",
+            "description": "Monthly blood donation camps and emergency support"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Cancer Awareness Programs",
+            "description": "Cervical and breast cancer awareness with free testing"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Thalassemia Support",
+            "description": "Free testing and comprehensive patient support"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Eye Care Services",
+            "description": "Free eye checkups and cataract operations"
+          }
+        }
+      ]
+    }
+  };
+
   return (
     <div className="space-y-0 overflow-x-hidden">
+      <SEO 
+        title="Rudhirsetu Seva Sanstha | Blood Donation, Healthcare Support & Social Initiatives"
+        description="Rudhirsetu Seva Sanstha drives community empowerment through blood donation, healthcare support, and transformative social initiatives. Join us in making a difference in communities across India since 2010."
+        canonical="https://www.rudhirsetu.org/"
+        keywords="Rudhirsetu, blood donation, healthcare support, social initiatives, community empowerment, cancer awareness, thalassemia support, eye care, India"
+        jsonLd={homeStructuredData}
+      />
       <Hero />
       
       {/* Key Focus Areas */}

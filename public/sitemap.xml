@@ -1,39 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Main Homepage - Highest Priority -->
   <url>
     <loc>https://www.rudhirsetu.org/</loc>
-    <lastmod>2025-06-07</lastmod>
+    <lastmod>2025-01-09</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-  <url>
-    <loc>https://www.rudhirsetu.org/impact</loc>
-    <lastmod>2025-06-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.rudhirsetu.org/gallery</loc>
-    <lastmod>2025-06-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
+  
+  <!-- Core Service Pages - High Priority for Sitelinks -->
   <url>
     <loc>https://www.rudhirsetu.org/donations</loc>
-    <lastmod>2025-06-07</lastmod>
+    <lastmod>2025-01-09</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://www.rudhirsetu.org/social</loc>
-    <lastmod>2025-06-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://www.rudhirsetu.org/impact</loc>
+    <lastmod>2025-01-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
   </url>
   <url>
     <loc>https://www.rudhirsetu.org/contact</loc>
-    <lastmod>2025-06-07</lastmod>
+    <lastmod>2025-01-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <!-- Content & Engagement Pages -->
+  <url>
+    <loc>https://www.rudhirsetu.org/gallery</loc>
+    <lastmod>2025-01-09</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://www.rudhirsetu.org/social</loc>
+    <lastmod>2025-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  
+  <!-- Potential Event URLs (even if dynamic, helps Google discover patterns) -->
+  <url>
+    <loc>https://www.rudhirsetu.org/events</loc>
+    <lastmod>2025-01-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.70</priority>
   </url>
 </urlset> 

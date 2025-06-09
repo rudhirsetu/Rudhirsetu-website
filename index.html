@@ -144,5 +144,104 @@
         }
       }
     </script>
+    
+    <!-- Comprehensive Structured Data for Sitelinks -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://www.rudhirsetu.org/#organization",
+          "name": "Rudhirsetu Seva Sanstha",
+          "alternateName": "Rudhirsetu",
+          "url": "https://www.rudhirsetu.org/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://www.rudhirsetu.org/images/logo-dark.svg",
+            "width": 300,
+            "height": 300
+          },
+          "description": "Rudhirsetu Seva Sanstha drives community empowerment through blood donation, healthcare support, and transformative social initiatives since 2010.",
+          "foundingDate": "2010",
+          "areaServed": "India",
+          "knowsAbout": ["Blood Donation", "Healthcare Support", "Social Initiatives", "Community Empowerment", "Cancer Awareness"],
+          "sameAs": [
+            "https://www.facebook.com/rudhirsetu",
+            "https://www.instagram.com/rudhirsetu",
+            "https://twitter.com/rudhirsetu",
+            "https://www.youtube.com/rudhirsetu"
+          ],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "url": "https://www.rudhirsetu.org/contact"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://www.rudhirsetu.org/#website",
+          "url": "https://www.rudhirsetu.org/",
+          "name": "Rudhirsetu Seva Sanstha",
+          "description": "Official website of Rudhirsetu Seva Sanstha - Blood Donation, Healthcare Support & Social Initiatives",
+          "publisher": {
+            "@id": "https://www.rudhirsetu.org/#organization"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://www.rudhirsetu.org/?search={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://www.rudhirsetu.org/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://www.rudhirsetu.org/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Impact",
+              "item": "https://www.rudhirsetu.org/impact"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Gallery",
+              "item": "https://www.rudhirsetu.org/gallery"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "Donations",
+              "item": "https://www.rudhirsetu.org/donations"
+            },
+            {
+              "@type": "ListItem",
+              "position": 5,
+              "name": "Social",
+              "item": "https://www.rudhirsetu.org/social"
+            },
+            {
+              "@type": "ListItem",
+              "position": 6,
+              "name": "Contact",
+              "item": "https://www.rudhirsetu.org/contact"
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+    
+    <!-- Page-specific structured data will be injected by React components -->
   </body>
 </html>
