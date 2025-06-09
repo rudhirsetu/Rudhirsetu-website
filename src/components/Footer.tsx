@@ -75,8 +75,8 @@ const Footer = () => {
   // SEO-focused links for search engine discovery
   const seoLinks = [
     { label: "Sitemap", path: "/sitemap.xml", external: true },
-    { label: "Privacy Policy", path: "/privacy-policy" },
-    { label: "Terms of Service", path: "/terms" }
+    // { label: "Privacy Policy", path: "/privacy-policy" },
+    // { label: "Terms of Service", path: "/terms" }
   ];
 
   return (
