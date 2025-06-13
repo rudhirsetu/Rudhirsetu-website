@@ -5,6 +5,7 @@ import { QUERIES } from '../lib/sanity';
 import { urlFor } from '../lib/sanity';
 import type { GalleryImage } from '../types/sanity';
 import { FeaturedCarousel, ImageLightbox } from '../components/GalleryComponents';
+import { StructuredData, GalleryPageData } from '../components/StructuredData';
 
 const Gallery = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);
@@ -342,130 +343,108 @@ const Gallery = () => {
   }
 
   return (
-    <div className="pt-8 pb-16 sm:pt-12 sm:pb-24">
-      <div className="container mx-auto px-4 sm:px-8">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 inline-flex items-center">
-            <Camera className="w-4 h-4 mr-2" />
-            Media Gallery
-          </span>
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-gray-900">Our Gallery</h1>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-            Take a look at the moments we've captured while serving our community through various healthcare initiatives.
-          </p>
-        </div>
+    <>
+      <StructuredData data={GalleryPageData} id="gallery-page-structured-data" />
+      <div className="pt-8 pb-16 sm:pt-12 sm:pb-24">
+        <div className="container mx-auto px-4 sm:px-8">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 inline-flex items-center">
+              <Camera className="w-4 h-4 mr-2" />
+              Media Gallery
+            </span>
+            <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-gray-900">Our Gallery</h1>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+              Take a look at the moments we've captured while serving our community through various healthcare initiatives.
+            </p>
+          </div>
 
-        {/* Custom CSS for Gallery Layout */}
-        <style>
-          {`
-            .gallery-masonry {
-              columns: 2 180px;
-              column-gap: 12px;
-            }
-            
-            @media (min-width: 640px) {
+          {/* Custom CSS for Gallery Layout */}
+          <style>
+            {`
               .gallery-masonry {
-                columns: 3 250px;
-                column-gap: 16px;
+                columns: 2 180px;
+                column-gap: 12px;
               }
-            }
-            
-            @media (min-width: 1024px) {
-              .gallery-masonry {
-                columns: 4 300px;
-                column-gap: 20px;
-              }
-            }
-            
-            .gallery-item {
-              break-inside: avoid;
-              margin-bottom: 16px;
-              display: block;
-              border-radius: 8px;
-              overflow: hidden;
-              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-              transition: transform 0.3s ease, box-shadow 0.3s ease;
-            }
-            
-            .gallery-item:hover {
-              transform: translateY(-4px);
-              box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            }
-            
-            .gallery-item img {
-              display: block;
-              width: 100%;
-              height: auto;
-              transition: all 0.3s ease;
-            }
-            
-            .gallery-item:hover img {
-              transform: scale(1.03);
-            }
-          `}
-        </style>
-
-        {/* Featured Images Carousel */}
-        {featuredImages.length > 0 && 
-          <div className="mb-16 sm:mb-24">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold">Featured Moments</h2>
-            </div>
-            <FeaturedCarousel 
-              featuredImages={featuredImages}
-              onImageClick={(image) => {
-                // When clicking a featured image, set isViewingFeatured to true
-                setIsViewingFeatured(true);
-                
-                // Find index in featured images array
-                const index = featuredImages.findIndex(img => img._id === image._id);
-                if (index >= 0) {
-                  setSelectedImage(image);
-                  setSelectedImageIndex(index);
+              
+              @media (min-width: 640px) {
+                .gallery-masonry {
+                  columns: 3 250px;
+                  column-gap: 16px;
                 }
-              }}
-            />
-          </div>
-        }
+              }
+              
+              @media (min-width: 1024px) {
+                .gallery-masonry {
+                  columns: 4 300px;
+                  column-gap: 20px;
+                }
+              }
+              
+              .gallery-item {
+                break-inside: avoid;
+                margin-bottom: 16px;
+                display: block;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+              }
+              
+              .gallery-item:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+              }
+              
+              .gallery-item img {
+                display: block;
+                width: 100%;
+                height: auto;
+                transition: all 0.3s ease;
+              }
+              
+              .gallery-item:hover img {
+                transform: scale(1.03);
+              }
+            `}
+          </style>
 
-        {/* Filters */}
-        <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm py-4 border-b border-gray-100 shadow-sm mb-8 -mx-4 px-4 sm:-mx-8 sm:px-8">
-          <div className="flex flex-col md:flex-row justify-between gap-4">
-
-            {/* Desktop Categories */}
-            <div className="flex flex-wrap items-center gap-3">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => handleCategoryChange(category.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center ${
-                    selectedCategory === category.id
-                      ? 'bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <span className="mr-2">{category.icon}</span>
-                  {category.label}
-                </button>
-              ))}
+          {/* Featured Images Carousel */}
+          {featuredImages.length > 0 && 
+            <div className="mb-16 sm:mb-24">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl sm:text-3xl font-bold">Featured Moments</h2>
+              </div>
+              <FeaturedCarousel 
+                featuredImages={featuredImages}
+                onImageClick={(image) => {
+                  // When clicking a featured image, set isViewingFeatured to true
+                  setIsViewingFeatured(true);
+                  
+                  // Find index in featured images array
+                  const index = featuredImages.findIndex(img => img._id === image._id);
+                  if (index >= 0) {
+                    setSelectedImage(image);
+                    setSelectedImageIndex(index);
+                  }
+                }}
+              />
             </div>
-          </div>
+          }
 
-          {/* Mobile Categories */}
-          {showFilters && (
-            <div
-              ref={filterRef}
-              className="md:hidden mt-4 overflow-hidden"
-            >
-              <div className="grid grid-cols-2 gap-2">
+          {/* Filters */}
+          <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm py-4 border-b border-gray-100 shadow-sm mb-8 -mx-4 px-4 sm:-mx-8 sm:px-8">
+            <div className="flex flex-col md:flex-row justify-between gap-4">
+
+              {/* Desktop Categories */}
+              <div className="flex flex-wrap items-center gap-3">
                 {categories.map((category) => (
                   <button
                     key={category.id}
                     onClick={() => handleCategoryChange(category.id)}
-                    className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center ${
                       selectedCategory === category.id
-                        ? 'bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white'
+                        ? 'bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white shadow-md'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -475,67 +454,92 @@ const Gallery = () => {
                 ))}
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Gallery Stats */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 text-gray-600">
-          <p className="mb-4 sm:mb-0">
-            Showing <span className="font-semibold">{Math.min(indexOfFirstImage + 1, filteredImages.length)}-{Math.min(indexOfLastImage, filteredImages.length)}</span> of <span className="font-semibold">{filteredImages.length}</span> {filteredImages.length === 1 ? 'image' : 'images'}
-            {selectedCategory !== 'all' && (
-              <> in <span className="font-semibold">{categories.find(c => c.id === selectedCategory)?.label}</span></>
+            {/* Mobile Categories */}
+            {showFilters && (
+              <div
+                ref={filterRef}
+                className="md:hidden mt-4 overflow-hidden"
+              >
+                <div className="grid grid-cols-2 gap-2">
+                  {categories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => handleCategoryChange(category.id)}
+                      className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center ${
+                        selectedCategory === category.id
+                          ? 'bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <span className="mr-2">{category.icon}</span>
+                      {category.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
-          </p>
+          </div>
 
-          {filteredImages.length > 0 && selectedCategory !== 'all' && (
-            <button 
-              onClick={() => {
-                setSelectedCategory('all');
+          {/* Gallery Stats */}
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-8 text-gray-600">
+            <p className="mb-4 sm:mb-0">
+              Showing <span className="font-semibold">{Math.min(indexOfFirstImage + 1, filteredImages.length)}-{Math.min(indexOfLastImage, filteredImages.length)}</span> of <span className="font-semibold">{filteredImages.length}</span> {filteredImages.length === 1 ? 'image' : 'images'}
+              {selectedCategory !== 'all' && (
+                <> in <span className="font-semibold">{categories.find(c => c.id === selectedCategory)?.label}</span></>
+              )}
+            </p>
+
+            {filteredImages.length > 0 && selectedCategory !== 'all' && (
+              <button 
+                onClick={() => {
+                  setSelectedCategory('all');
+                }}
+                className="text-sm text-red-600 hover:text-red-800 font-medium flex items-center"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Clear Filter
+              </button>
+            )}
+          </div>
+
+          {/* Gallery Grid with CSS Grid Layout */}
+          <div id="gallery-grid" className="overflow-hidden">
+            <GalleryGrid images={currentImages} />
+          </div>
+
+          {/* Pagination */}
+          <PaginationControls />
+
+          {/* Lightbox */}
+          {selectedImage && (
+            <ImageLightbox
+              selectedImage={selectedImage}
+              images={isViewingFeatured ? featuredImages : filteredImages}
+              selectedIndex={selectedImageIndex}
+              onClose={() => {
+                setSelectedImage(null);
+                setIsViewingFeatured(false);
               }}
-              className="text-sm text-red-600 hover:text-red-800 font-medium flex items-center"
-            >
-              <X className="w-4 h-4 mr-1" />
-              Clear Filter
-            </button>
+              onPrev={() => {
+                // Use the appropriate array based on what we're viewing
+                const imageArray = isViewingFeatured ? featuredImages : filteredImages;
+                const newIndex = (selectedImageIndex - 1 + imageArray.length) % imageArray.length;
+                setSelectedImage(imageArray[newIndex]);
+                setSelectedImageIndex(newIndex);
+              }}
+              onNext={() => {
+                // Use the appropriate array based on what we're viewing
+                const imageArray = isViewingFeatured ? featuredImages : filteredImages;
+                const newIndex = (selectedImageIndex + 1) % imageArray.length;
+                setSelectedImage(imageArray[newIndex]);
+                setSelectedImageIndex(newIndex);
+              }}
+            />
           )}
         </div>
-
-        {/* Gallery Grid with CSS Grid Layout */}
-        <div id="gallery-grid" className="overflow-hidden">
-          <GalleryGrid images={currentImages} />
-        </div>
-
-        {/* Pagination */}
-        <PaginationControls />
-
-        {/* Lightbox */}
-        {selectedImage && (
-          <ImageLightbox
-            selectedImage={selectedImage}
-            images={isViewingFeatured ? featuredImages : filteredImages}
-            selectedIndex={selectedImageIndex}
-            onClose={() => {
-              setSelectedImage(null);
-              setIsViewingFeatured(false);
-            }}
-            onPrev={() => {
-              // Use the appropriate array based on what we're viewing
-              const imageArray = isViewingFeatured ? featuredImages : filteredImages;
-              const newIndex = (selectedImageIndex - 1 + imageArray.length) % imageArray.length;
-              setSelectedImage(imageArray[newIndex]);
-              setSelectedImageIndex(newIndex);
-            }}
-            onNext={() => {
-              // Use the appropriate array based on what we're viewing
-              const imageArray = isViewingFeatured ? featuredImages : filteredImages;
-              const newIndex = (selectedImageIndex + 1) % imageArray.length;
-              setSelectedImage(imageArray[newIndex]);
-              setSelectedImageIndex(newIndex);
-            }}
-          />
-        )}
       </div>
-    </div>
+    </>
   );
 };
 

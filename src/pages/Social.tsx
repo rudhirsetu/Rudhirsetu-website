@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Linkedin, Facebook, Instagram, Youtube, ExternalLink, MessageSquare } from 'lucide-react';
 import { SocialMediaSettings } from '../types/sanity';
 import { settingsService } from '../services/sanity-client';
+import { StructuredData, SocialPageData } from '../components/StructuredData';
 
 const SocialMedia = () => {
   const [settings, setSettings] = useState<SocialMediaSettings | null>(null);
@@ -98,59 +99,62 @@ const SocialMedia = () => {
   }
 
   return (
-    <div className="py-12">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="text-center mb-16">
-        <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 inline-flex items-center">
-            <MessageSquare className="w-4 h-4 mr-2" />
-            Connect
-          </span>
-          <h1 className="text-4xl font-bold mb-4">Connect With Us</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto text-balance">
-            {settings?.description || 'Follow us on social media to stay updated with our latest events, initiatives, and community stories.'}
-          </p>
-        </div>
+    <>
+      <StructuredData data={SocialPageData} id="social-page-structured-data" />
+      <div className="py-12">
+        <div className="container mx-auto px-4">
+          {/* Header */}
+          <div className="text-center mb-16">
+          <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 inline-flex items-center">
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Connect
+            </span>
+            <h1 className="text-4xl font-bold mb-4">Connect With Us</h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto text-balance">
+              {settings?.description || 'Follow us on social media to stay updated with our latest events, initiatives, and community stories.'}
+            </p>
+          </div>
 
-        {/* Social Media Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {socialLinks.map((platform) => (
-            platform.url && (
-              <a
-                key={platform.name}
-                href={platform.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`group relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl ${platform.color} text-white ${platform.hoverColor}`}
-              >
-                <div className="p-8 relative z-10">
-                  <div className="flex items-center justify-between mb-4">
-                    <platform.icon className="w-8 h-8" />
-                    <ExternalLink className="w-5 h-5 opacity-75 group-hover:opacity-100 transition-opacity" />
+          {/* Social Media Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {socialLinks.map((platform) => (
+              platform.url && (
+                <a
+                  key={platform.name}
+                  href={platform.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`group relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl ${platform.color} text-white ${platform.hoverColor}`}
+                >
+                  <div className="p-8 relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <platform.icon className="w-8 h-8" />
+                      <ExternalLink className="w-5 h-5 opacity-75 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <h2 className="text-2xl font-bold mb-2">{platform.name}</h2>
+                    <p className="text-white/90">{platform.description}</p>
                   </div>
-                  <h2 className="text-2xl font-bold mb-2">{platform.name}</h2>
-                  <p className="text-white/90">{platform.description}</p>
-                </div>
-              </a>
-            )
-          ))}
-        </div>
+                </a>
+              )
+            ))}
+          </div>
 
-        {/* Call to Action */}
-        <div className="text-center mt-16">
-          <h2 className="text-2xl font-bold mb-4">Join Our Community</h2>
-          <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-            Follow us on social media to stay connected and be part of our journey in making a difference.
-          </p>
-          <a
-            href="/contact"
-            className="inline-block bg-red-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-800 transition-colors"
-          >
-            Get Involved
-          </a>
+          {/* Call to Action */}
+          <div className="text-center mt-16">
+            <h2 className="text-2xl font-bold mb-4">Join Our Community</h2>
+            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+              Follow us on social media to stay connected and be part of our journey in making a difference.
+            </p>
+            <a
+              href="/contact"
+              className="inline-block bg-red-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-800 transition-colors"
+            >
+              Get Involved
+            </a>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

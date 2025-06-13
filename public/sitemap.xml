@@ -1,29 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Main Homepage - Highest Priority -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" 
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+  
+  <!-- Main Homepage - Highest Priority for Rich Results -->
   <url>
     <loc>https://www.rudhirsetu.org/</loc>
-    <lastmod>2025-06-09</lastmod>
+    <lastmod>2024-12-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://www.rudhirsetu.org/og-thumbnail.png</image:loc>
+      <image:title>Rudhirsetu Seva Sanstha - Blood Donation and Healthcare</image:title>
+      <image:caption>Leading NGO for blood donation, healthcare support, and social initiatives</image:caption>
+    </image:image>
   </url>
   
-  <!-- Core Service Pages - High Priority for Sitelinks -->
+  <!-- Primary Service Pages - High Priority for Sitelinks -->
   <url>
     <loc>https://www.rudhirsetu.org/donations</loc>
-    <lastmod>2025-06-09</lastmod>
+    <lastmod>2024-12-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://www.rudhirsetu.org/og-thumbnail.png</image:loc>
+      <image:title>Support Rudhirsetu - Make a Donation</image:title>
+      <image:caption>Support blood donation drives and healthcare programs</image:caption>
+    </image:image>
   </url>
+  
   <url>
     <loc>https://www.rudhirsetu.org/impact</loc>
-    <lastmod>2025-06-09</lastmod>
+    <lastmod>2024-12-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.90</priority>
+    <image:image>
+      <image:loc>https://www.rudhirsetu.org/og-thumbnail.png</image:loc>
+      <image:title>Our Impact - Community Healthcare Initiatives</image:title>
+      <image:caption>See the impact of our blood donation and healthcare programs</image:caption>
+    </image:image>
   </url>
+  
   <url>
     <loc>https://www.rudhirsetu.org/contact</loc>
-    <lastmod>2025-06-09</lastmod>
+    <lastmod>2024-12-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
@@ -31,14 +51,23 @@
   <!-- Content & Engagement Pages -->
   <url>
     <loc>https://www.rudhirsetu.org/gallery</loc>
-    <lastmod>2025-06-09</lastmod>
+    <lastmod>2024-12-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
+    <image:image>
+      <image:loc>https://www.rudhirsetu.org/og-thumbnail.png</image:loc>
+      <image:title>Photo Gallery - Blood Donation Events</image:title>
+      <image:caption>Photos from blood donation camps and healthcare events</image:caption>
+    </image:image>
   </url>
+  
   <url>
     <loc>https://www.rudhirsetu.org/social</loc>
-    <lastmod>2025-06-09</lastmod>
+    <lastmod>2024-12-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.75</priority>
   </url>
+  
+
+  
 </urlset> 

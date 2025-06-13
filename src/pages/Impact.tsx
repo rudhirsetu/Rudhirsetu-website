@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Event, Pagination } from '../types/sanity';
 import { eventService } from '../services/sanity-client';
 import EventCard from '../components/EventCard';
+import { StructuredData, ImpactPageData } from '../components/StructuredData';
 
 const Impact = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
@@ -156,75 +157,78 @@ const Impact = () => {
   }
 
   return (
-    <div className="py-12 sm:py-16">
-      <div className="container mx-auto px-4">
-        {/* Page Header */}
-        <div className="text-center max-w-4xl mx-auto mb-12 sm:mb-16">
-          <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 sm:mb-6 inline-flex items-center">
-            <Activity className="w-4 h-4 mr-2" />
-            Our Events & Camps
-          </span>
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4 sm:mb-6 text-gray-900">Making a Difference Together</h1>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-            Together, we're making a difference in our community through various healthcare initiatives and awareness programs.
-          </p>
+    <>
+      <StructuredData data={ImpactPageData} id="impact-page-structured-data" />
+      <div className="py-12 sm:py-16">
+        <div className="container mx-auto px-4">
+          {/* Page Header */}
+          <div className="text-center max-w-4xl mx-auto mb-12 sm:mb-16">
+            <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 sm:mb-6 inline-flex items-center">
+              <Activity className="w-4 h-4 mr-2" />
+              Our Events & Camps
+            </span>
+            <h1 className="text-4xl sm:text-5xl font-bold mb-4 sm:mb-6 text-gray-900">Making a Difference Together</h1>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+              Together, we're making a difference in our community through various healthcare initiatives and awareness programs.
+            </p>
+          </div>
+
+          {/* Upcoming Events */}
+          <section className="mb-16 sm:mb-24">
+            <div className="mb-8">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Upcoming & Ongoing Events</h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {upcomingEvents.length > 0 ? (
+                upcomingEvents.map((event) => (
+                  <EventCard key={event._id} event={event} variant="upcoming" />
+                ))
+              ) : (
+                <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-12">
+                  <p className="text-gray-600 text-lg">No upcoming events at this time. Check back soon!</p>
+                </div>
+              )}
+            </div>
+            
+            <div>
+              <PaginationControls
+                pagination={upcomingPagination}
+                onPageChange={(page) => loadEvents(page, pastPagination?.page || 1)}
+                label="Page"
+              />
+            </div>
+          </section>
+
+          {/* Past Events */}
+          <section>
+            <div className="mb-8">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Past Events & Camps</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {pastEvents.length > 0 ? (
+                pastEvents.map((event) => (
+                  <EventCard key={event._id} event={event} variant="past" />
+                ))
+              ) : (
+                <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-12">
+                  <p className="text-gray-600 text-lg">No past events found.</p>
+                </div>
+              )}
+            </div>
+            
+            <div>
+              <PaginationControls
+                pagination={pastPagination}
+                onPageChange={(page) => loadEvents(upcomingPagination?.page || 1, page)}
+                label="Page"
+              />
+            </div>
+          </section>
         </div>
-
-        {/* Upcoming Events */}
-        <section className="mb-16 sm:mb-24">
-          <div className="mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Upcoming & Ongoing Events</h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {upcomingEvents.length > 0 ? (
-              upcomingEvents.map((event) => (
-                <EventCard key={event._id} event={event} variant="upcoming" />
-              ))
-            ) : (
-              <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-12">
-                <p className="text-gray-600 text-lg">No upcoming events at this time. Check back soon!</p>
-              </div>
-            )}
-          </div>
-          
-          <div>
-            <PaginationControls
-              pagination={upcomingPagination}
-              onPageChange={(page) => loadEvents(page, pastPagination?.page || 1)}
-              label="Page"
-            />
-          </div>
-        </section>
-
-        {/* Past Events */}
-        <section>
-          <div className="mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Past Events & Camps</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {pastEvents.length > 0 ? (
-              pastEvents.map((event) => (
-                <EventCard key={event._id} event={event} variant="past" />
-              ))
-            ) : (
-              <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-12">
-                <p className="text-gray-600 text-lg">No past events found.</p>
-              </div>
-            )}
-          </div>
-          
-          <div>
-            <PaginationControls
-              pagination={pastPagination}
-              onPageChange={(page) => loadEvents(upcomingPagination?.page || 1, page)}
-              label="Page"
-            />
-          </div>
-        </section>
       </div>
-    </div>
+    </>
   );
 };
 

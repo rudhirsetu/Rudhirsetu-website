@@ -1,11 +1,24 @@
 User-agent: *
 Allow: /
+
+# Allow all major pages for better indexing
 Allow: /donations
-Allow: /impact
+Allow: /impact  
 Allow: /contact
 Allow: /gallery
 Allow: /social
 Allow: /event/*
+
+# Allow specific service sections for better categorization
+# Note: Fragment links removed as they don't exist on the actual pages
+
+# Disallow unnecessary technical files
+Disallow: /src/
+Disallow: /node_modules/
+Disallow: /_next/
+Disallow: /api/
+Disallow: *.json$
+Disallow: *.map$
 
 # Sitemap location
 Sitemap: https://www.rudhirsetu.org/sitemap.xml
@@ -15,3 +28,24 @@ Crawl-delay: 1
 
 # Preferred domain (helps with canonicalization)
 Host: https://www.rudhirsetu.org
+
+# Additional directives for better SEO
+# Allow favicon and important assets
+Allow: /favicon.ico
+Allow: /og-thumbnail.png
+Allow: /images/
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.webp$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.svg$
+
+# Specific crawlers
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2
