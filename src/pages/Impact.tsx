@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { Event, Pagination } from '../types/sanity';
 import { eventService } from '../services/sanity-client';
 import EventCard from '../components/EventCard';
-import { StructuredData, ImpactPageData } from '../components/StructuredData';
+import { StructuredData } from '../components/StructuredData';
+import { ImpactPageData } from '../lib/structured-data';
 
 const Impact = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);

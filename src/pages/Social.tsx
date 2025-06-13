@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Linkedin, Facebook, Instagram, Youtube, ExternalLink, MessageSquare } from 'lucide-react';
 import { SocialMediaSettings } from '../types/sanity';
 import { settingsService } from '../services/sanity-client';
-import { StructuredData, SocialPageData } from '../components/StructuredData';
+import { StructuredData } from '../components/StructuredData';
+import { SocialPageData } from '../lib/structured-data';
 
 const SocialMedia = () => {
   const [settings, setSettings] = useState<SocialMediaSettings | null>(null);

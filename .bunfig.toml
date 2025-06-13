@@ -1,0 +1,18 @@
+[install]
+# Use the exact dependency resolution strategy
+resolution = "exact"
+# Cache packages to speed up installs
+cache = true
+# Auto-install peer dependencies
+install-peer-deps = true
+
+[install.scopes]
+# Configure package manager behavior
+
+[run]
+# Use Bun's runtime by default
+runtime = "bun"
+
+[test]
+# Configure test runner
+preload = ["./src/test-setup.ts"] 

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Phone, Mail, MapPin, MessageSquare } from 'lucide-react';
 import { ContactSettings } from '../types/sanity';
 import { settingsService } from '../services/sanity-client';
-import { StructuredData, ContactPageData } from '../components/StructuredData';
+import { StructuredData } from '../components/StructuredData';
+import { ContactPageData } from '../lib/structured-data';
 
 const Contact = () => {
   const [settings, setSettings] = useState<ContactSettings | null>(null);

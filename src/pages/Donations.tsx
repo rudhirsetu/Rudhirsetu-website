@@ -3,7 +3,8 @@ import { QrCode, CreditCard, Heart, ArrowRight, Gift, Users } from 'lucide-react
 import { DonationSettings } from '../types/sanity';
 import { settingsService } from '../services/sanity-client';
 import { urlFor } from '../lib/sanity';
-import { StructuredData, DonationsPageData } from '../components/StructuredData';
+import { StructuredData } from '../components/StructuredData';
+import { DonationsPageData } from '../lib/structured-data';
 
 const Donations = () => {
   const [settings, setSettings] = useState<DonationSettings | null>(null);

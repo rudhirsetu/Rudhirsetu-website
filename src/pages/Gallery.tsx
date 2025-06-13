@@ -5,7 +5,8 @@ import { QUERIES } from '../lib/sanity';
 import { urlFor } from '../lib/sanity';
 import type { GalleryImage } from '../types/sanity';
 import { FeaturedCarousel, ImageLightbox } from '../components/GalleryComponents';
-import { StructuredData, GalleryPageData } from '../components/StructuredData';
+import { StructuredData } from '../components/StructuredData';
+import { GalleryPageData } from '../lib/structured-data';
 
 const Gallery = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);
