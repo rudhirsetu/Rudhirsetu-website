@@ -17,10 +17,6 @@
       "dest": "/robots.txt"
     },
     {
-      "src": "/images/(.*)",
-      "dest": "/images/$1"
-    },
-    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
