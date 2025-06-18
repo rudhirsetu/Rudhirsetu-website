@@ -7,6 +7,7 @@ import type { GalleryImage } from '../types/sanity';
 import { FeaturedCarousel, ImageLightbox } from '../components/GalleryComponents';
 import { StructuredData } from '../components/StructuredData';
 import { GalleryPageData } from '../lib/structured-data';
+import SEO from '../components/SEO';
 
 const Gallery = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);
@@ -345,6 +346,14 @@ const Gallery = () => {
 
   return (
     <>
+      <SEO 
+        title="Photo Gallery - Rudhirsetu Seva Sanstha | Blood Donation Events"
+        description="View photos from our blood donation drives, healthcare camps, and community events across India. See our work in action through our comprehensive photo gallery."
+        canonical="https://www.rudhirsetu.org/gallery"
+        keywords="rudhirsetu photos, blood donation events, healthcare camps photos, NGO gallery, community events, medical camps gallery"
+        ogImage="https://www.rudhirsetu.org/og-thumbnail.png"
+        jsonLd={GalleryPageData}
+      />
       <StructuredData data={GalleryPageData} id="gallery-page-structured-data" />
       <div className="pt-8 pb-16 sm:pt-12 sm:pb-24">
         <div className="container mx-auto px-4 sm:px-8">
