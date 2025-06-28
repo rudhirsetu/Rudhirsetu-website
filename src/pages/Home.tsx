@@ -145,7 +145,7 @@ const Home = () => {
               </span>
             </h2>
             <p className="text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-3xl">
-              We're dedicated to creating positive impact through these key initiatives, each designed to address critical community needs
+              We&apos;re dedicated to creating positive impact through these key initiatives, each designed to address critical community needs
             </p>
           </motion.div>
 
@@ -258,7 +258,7 @@ const Home = () => {
                 </div>
                 <h3 className="text-2xl font-semibold mb-4 text-gray-900">No Currently Ongoing Events</h3>
                 <p className="text-gray-600 mb-6">
-                  We don't have any upcoming camps or events scheduled at the moment. Please check back soon for new announcements.
+                  We don&apos;t have any upcoming camps or events scheduled at the moment. Please check back soon for new announcements.
                 </p>
               </div>
             </motion.div>
@@ -306,9 +306,9 @@ const Home = () => {
               <Activity className="w-4 h-4 mr-2" />
               Our Impact
             </span>
-            <h2 className="text-4xl font-bold mb-6">The Change We're Making</h2>
+            <h2 className="text-4xl font-bold mb-6">The Change We&apos;re Making</h2>
             <p className="text-xl text-white/90">
-              With your support, we've achieved significant milestones in our mission to transform lives
+              With your support, we&apos;ve achieved significant milestones in our mission to transform lives
             </p>
           </motion.div>
 
@@ -352,7 +352,7 @@ const Home = () => {
               </span>
               <h2 className="text-4xl font-bold mb-6 text-gray-900">Moments That Matter</h2>
               <p className="text-xl text-gray-600">
-                Take a glimpse at the remarkable moments we've captured during our journey of service
+                Take a glimpse at the remarkable moments we&apos;ve captured during our journey of service
               </p>
             </motion.div>
 

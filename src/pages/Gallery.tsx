@@ -357,7 +357,7 @@ const Gallery = () => {
             </span>
             <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-gray-900">Our Gallery</h1>
             <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-              Take a look at the moments we've captured while serving our community through various healthcare initiatives.
+              Take a look at the moments we&apos;ve captured while serving our community through various healthcare initiatives.
             </p>
           </div>
 

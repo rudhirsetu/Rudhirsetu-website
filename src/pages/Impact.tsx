@@ -170,7 +170,7 @@ const Impact = () => {
             </span>
             <h1 className="text-4xl sm:text-5xl font-bold mb-4 sm:mb-6 text-gray-900">Making a Difference Together</h1>
             <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-              Together, we're making a difference in our community through various healthcare initiatives and awareness programs.
+              Together, we&apos;re making a difference in our community through various healthcare initiatives and awareness programs.
             </p>
           </div>
 

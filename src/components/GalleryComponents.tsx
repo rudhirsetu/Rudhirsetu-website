@@ -4,7 +4,7 @@ import { urlFor } from '../lib/sanity';
 import type { GalleryImage } from '../types/sanity';
 
 // Reusable FeaturedCarousel component
-export const FeaturedCarousel = memo(({ 
+const FeaturedCarouselComponent = ({ 
   featuredImages, 
   onImageClick,
   autoplayInterval = 5000,
@@ -120,7 +120,10 @@ export const FeaturedCarousel = memo(({
       )}
     </div>
   );
-});
+};
+
+FeaturedCarouselComponent.displayName = 'FeaturedCarousel';
+export const FeaturedCarousel = memo(FeaturedCarouselComponent);
 
 // Reusable Lightbox component
 export const ImageLightbox = ({ 
