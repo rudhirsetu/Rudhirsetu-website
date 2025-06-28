@@ -4,8 +4,29 @@ import { client } from '../../../lib/sanity';
 import { Event } from '../../../types/sanity';
 import { notFound } from 'next/navigation';
 
+// Force dynamic rendering for all event pages
+export const dynamic = 'force-dynamic';
+
 interface EventPageProps {
   params: Promise<{ id: string }>;
+}
+
+// Generate static params for known events (helps with Vercel deployment)
+export async function generateStaticParams() {
+  try {
+    const events = await client.fetch(
+      `*[_type == "event"]{
+        _id
+      }`
+    );
+
+    return events.map((event: { _id: string }) => ({
+      id: event._id,
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
 }
 
 // Generate metadata for each event
