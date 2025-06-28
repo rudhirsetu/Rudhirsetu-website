@@ -1,3 +1,5 @@
+'use client';
+
 import { AlertTriangle, X } from 'lucide-react';
 import { useState } from 'react';
 

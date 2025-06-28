@@ -1,8 +1,10 @@
+'use client';
 import { Home, ArrowLeft } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const NotFound = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
@@ -20,14 +22,14 @@ const NotFound = () => {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => router.back()}
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 border-2 border-red-700 text-red-700 rounded-lg font-semibold hover:bg-red-700 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               Go Back
             </button>
             <Link
-              to="/"
+              href="/"
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-red-700 text-white rounded-lg font-semibold hover:bg-red-800 transition-colors"
             >
               <Home className="w-5 h-5" />

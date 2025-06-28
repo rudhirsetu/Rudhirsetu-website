@@ -1,0 +1,21 @@
+@import './animations.css';
+
+@import "tailwindcss";
+
+:root {
+  --primary: #B91C1C;  /* red-700 */
+  --primary-dark: #991B1B;  /* red-800 */
+  --primary-light: #FEF2F2;  /* red-50 */
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  top: 0 !important;
+}
+
+.text-balance {
+  text-wrap: balance;
+} 

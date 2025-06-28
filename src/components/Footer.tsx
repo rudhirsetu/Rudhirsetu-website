@@ -1,5 +1,7 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { ContactSettings, SocialMediaSettings } from '../types/sanity';
 import { settingsService } from '../services/sanity-client';
 import { Mail, Phone, MapPin, Heart, ArrowRight, ExternalLink } from 'lucide-react';
@@ -175,7 +177,7 @@ const Footer = () => {
               {quickLinks.map((link, index) => (
                 <li key={index}>
                   <Link 
-                    to={link.path} 
+                    href={link.path} 
                     className="text-white/80 hover:text-white transition-colors inline-flex items-center group"
                   >
                     <span className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -210,7 +212,7 @@ const Footer = () => {
                     </a>
                   ) : (
                     <Link 
-                      to={link.path} 
+                      href={link.path} 
                       className="text-white/80 hover:text-white transition-colors inline-flex items-center group"
                     >
                       <span className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 interface NavigationItem {
   label: string;
@@ -49,7 +49,7 @@ const SiteNavigation: React.FC = () => {
           {navigationItems.map((item) => (
             <div key={item.href} className="navigation-item">
               <Link
-                to={item.href}
+                href={item.href}
                 className={`block p-4 rounded-lg border transition-colors hover:bg-gray-50 ${
                   item.priority === 'high' ? 'border-red-200 hover:border-red-300' : 'border-gray-200'
                 }`}

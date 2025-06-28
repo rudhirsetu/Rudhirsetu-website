@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { ArrowRight, Heart, Calendar, ExternalLink, Activity, Zap, Award, Image } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Hero from '../components/Hero';
-import SEO from '../components/SEO';
+
 import { Event, GalleryImage } from '../types/sanity';
 import { eventService } from '../services/sanity-client';
 import { FeaturedCarousel, ImageLightbox } from '../components/GalleryComponents';
@@ -110,64 +110,10 @@ const Home = () => {
     { label: 'Cancer Awareness', value: '20,000+', subtext: 'Women reached', color: 'from-indigo-500 to-indigo-600' },
   ];
 
-  const homeStructuredData = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Rudhirsetu Seva Sanstha",
-    "url": "https://www.rudhirsetu.org/",
-    "logo": "https://www.rudhirsetu.org/images/logo-dark.svg",
-    "description": "Rudhirsetu Seva Sanstha drives community empowerment through blood donation, healthcare support, and transformative social initiatives since 2010.",
-    "foundingDate": "2010",
-    "areaServed": "India",
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": "Our Services",
-      "itemListElement": [
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Blood Donation Camps",
-            "description": "Monthly blood donation camps and emergency support"
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Cancer Awareness Programs",
-            "description": "Cervical and breast cancer awareness with free testing"
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Thalassemia Support",
-            "description": "Free testing and comprehensive patient support"
-          }
-        },
-        {
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": "Eye Care Services",
-            "description": "Free eye checkups and cataract operations"
-          }
-        }
-      ]
-    }
-  };
+
 
   return (
     <div className="space-y-0 overflow-x-hidden">
-      <SEO 
-        title="Rudhirsetu Seva Sanstha | Blood Donation, Healthcare Support & Social Initiatives"
-        description="Rudhirsetu Seva Sanstha drives community empowerment through blood donation, healthcare support, and transformative social initiatives. Join us in making a difference in communities across India since 2010."
-        canonical="https://www.rudhirsetu.org/"
-        keywords="Rudhirsetu, blood donation, healthcare support, social initiatives, community empowerment, cancer awareness, thalassemia support, eye care, India"
-        jsonLd={homeStructuredData}
-      />
       <Hero />
       
       {/* Key Focus Areas */}
@@ -323,7 +269,7 @@ const Home = () => {
             className="text-center mt-16"
           >
             <Link
-              to="/impact"
+              href="/impact"
               className="inline-flex items-center justify-center px-8 py-4 bg-red-900 text-white rounded-lg font-semibold shadow-md hover:bg-red-800 transition-all duration-300 group"
             >
               <span>View All Events</span>
@@ -429,7 +375,7 @@ const Home = () => {
               className="text-center"
             >
               <Link
-                to="/gallery"
+                href="/gallery"
                 className="inline-flex items-center justify-center px-8 py-4 bg-red-900 text-white rounded-lg font-semibold shadow-md hover:bg-red-800 transition-all duration-300 group"
               >
                 <span>View Full Gallery</span>
@@ -462,7 +408,7 @@ const Home = () => {
               whileTap={{ scale: 0.95 }}
             >
               <Link
-                to="/contact"
+                href="/contact"
                 className="h-[52px] inline-flex items-center justify-center px-8 py-4 bg-red-900 text-white rounded-lg font-semibold shadow-md hover:bg-red-800 transition-all duration-200 gap-2 group"
               >
                 <span>Contact Us</span>
@@ -474,7 +420,7 @@ const Home = () => {
               whileTap={{ scale: 0.95 }}
             >
               <Link
-                to="/donations"
+                href="/donations"
                 className="h-[52px] inline-flex items-center justify-center px-8 py-4 border-2 border-red-900 text-red-900 hover:bg-red-900 hover:text-white rounded-lg font-semibold transition-all duration-200 gap-2 group"
               >
                 <span>Donate Now</span>

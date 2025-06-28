@@ -1,5 +1,8 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Heart, Phone, Menu, X, Home, Share2, Image, Gift, Linkedin, Facebook, Instagram, Youtube } from 'lucide-react';
 import { settingsService } from '../services/sanity-client';
 import type { SocialMediaSettings } from '../types/sanity';
@@ -9,7 +12,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [socialLinks, setSocialLinks] = useState<SocialMediaSettings | null>(null);
-  const location = useLocation();
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,7 +44,7 @@ const Navbar = () => {
   ];
 
   const isActive = (path: string) => {
-    return location.pathname === path;
+    return pathname === path;
   };
 
   const SocialLinkSize = 'w-8 h-8 md:w-6 md:h-6';
@@ -117,7 +120,7 @@ const Navbar = () => {
             whileHover={{ scale: 1.05 }}
             className="flex items-center"
           >
-            <Link to="/" className="flex items-center space-x-3">
+            <Link href="/" className="flex items-center space-x-3">
               <img
                 className="h-12 w-auto"
                 src="/images/logo-dark.svg"
@@ -145,7 +148,7 @@ const Navbar = () => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Link
-                    to={item.path}
+                    href={item.path}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
                       isActive(item.path)
                         ? 'bg-[#9B2C2C] text-white shadow-md'
@@ -202,7 +205,7 @@ const Navbar = () => {
                       whileTap={{ scale: 0.98 }}
                     >
                       <Link
-                        to={item.path}
+                        href={item.path}
                         className={`flex items-center space-x-4 px-4 py-4 rounded-xl text-base font-medium ${
                           isActive(item.path)
                             ? 'bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white shadow-md'

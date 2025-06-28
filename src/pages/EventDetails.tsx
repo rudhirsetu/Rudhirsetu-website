@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import Link from 'next/link';
 import { MapPin, Users, Heart, Clock, ArrowLeft, X, ChevronLeft, ChevronRight, Calendar, Share2, ExternalLink, FileText, Camera, CalendarHeart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Event } from '../types/sanity';
@@ -7,8 +7,12 @@ import { client } from '../lib/sanity';
 import { urlFor } from '../lib/sanity';
 import { format } from 'date-fns';
 
-const EventDetails = () => {
-  const { id } = useParams();
+interface EventDetailsProps {
+  eventId?: string;
+}
+
+const EventDetails = ({ eventId }: EventDetailsProps = {}) => {
+  const id = eventId;
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -225,7 +229,7 @@ const EventDetails = () => {
             <p className="text-red-700 text-lg mb-8">{error || 'We couldn\'t find the event you\'re looking for. It may have been removed or is temporarily unavailable.'}</p>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
-                to="/impact"
+                href="/impact"
                 className="inline-flex items-center px-6 py-3 bg-red-900 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-300"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
@@ -299,7 +303,7 @@ const EventDetails = () => {
                 transition={{ delay: 0.2 }}
               >
                 <Link
-                  to="/impact"
+                  href="/impact"
                   className="inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 bg-black/30 hover:bg-red-900 text-white rounded-full backdrop-blur-sm border border-white/20 transition-all duration-300 group shadow-lg text-sm sm:text-base"
                 >
                   <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
@@ -446,7 +450,7 @@ const EventDetails = () => {
                 >
                   {event.isUpcoming ? (
                     <Link
-                      to="/contact"
+                      href="/contact"
                       className="w-full inline-flex items-center justify-center px-6 py-3.5 bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-300 group"
                     >
                       <Heart className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />

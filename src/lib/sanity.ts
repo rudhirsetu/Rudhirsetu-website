@@ -4,9 +4,9 @@ import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
 // Initialize the Sanity client
 export const client = createClient({
-  projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
-  dataset: import.meta.env.VITE_SANITY_DATASET,
-  apiVersion: import.meta.env.VITE_SANITY_API_VERSION,
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '',
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
+  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2023-05-03',
   useCdn: true,
 });
 

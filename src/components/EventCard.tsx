@@ -1,5 +1,7 @@
+'use client';
+
 import { MapPin, Users, Heart, Clock, ArrowRight, Calendar } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { urlFor } from '../lib/sanity';
@@ -73,7 +75,7 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'grid' }: EventC
                 
                 <div className="mt-auto">
                     <Link 
-                        to={`/event/${event._id}`}
+                        href={`/event/${event._id}`}
                         className={`inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 ${
                             isUpcoming 
                                 ? 'bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white' 

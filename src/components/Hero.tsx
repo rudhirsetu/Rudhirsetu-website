@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Heart, ChevronRight } from 'lucide-react';
 
@@ -98,7 +100,7 @@ const Hero = () => {
               whileTap={{ scale: 0.95 }}
             >
               <Link
-                to="/contact"
+                href="/contact"
                 className="h-[52px] w-full sm:w-auto text-center px-8 py-4 bg-white text-[#9B2C2C] rounded-lg font-semibold hover:bg-[#FECACA] shadow-xl hover:shadow-2xl transition-all duration-300 inline-flex items-center justify-center gap-2 group"
               >
                 <span>Get Involved</span>
@@ -113,7 +115,7 @@ const Hero = () => {
               whileTap={{ scale: 0.95 }}
             >
               <Link
-                to="/donations"
+                href="/donations"
                 className="h-[52px] w-full sm:w-auto text-center px-8 py-4 border-2 border-white text-white rounded-lg font-semibold hover:bg-white/10 backdrop-blur-sm transition-all duration-300 inline-flex items-center justify-center gap-2 group"
               >
                 <span>Donate Now</span>
