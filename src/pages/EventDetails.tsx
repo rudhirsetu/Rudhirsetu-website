@@ -9,12 +9,13 @@ import { format } from 'date-fns';
 
 interface EventDetailsProps {
   eventId?: string;
+  eventData?: Event;
 }
 
-const EventDetails = ({ eventId }: EventDetailsProps = {}) => {
+const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
   const id = eventId;
-  const [event, setEvent] = useState<Event | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [event, setEvent] = useState<Event | null>(eventData || null);
+  const [loading, setLoading] = useState(!eventData);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -54,6 +55,14 @@ const EventDetails = ({ eventId }: EventDetailsProps = {}) => {
   }, [selectedImage, handlePrevImage, handleNextImage]);
 
   useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+    
+    // Only fetch if we don't have eventData from the server
+    if (eventData) {
+      return;
+    }
+
     const fetchEvent = async () => {
       try {
         const data = await client.fetch(
@@ -75,8 +84,6 @@ const EventDetails = ({ eventId }: EventDetailsProps = {}) => {
           { id }
         );
         setEvent(data);
-        // Scroll to top when component mounts
-        window.scrollTo(0, 0);
       } catch (err) {
         console.error('Error fetching event:', err);
         setError('Failed to load event details');
@@ -85,10 +92,10 @@ const EventDetails = ({ eventId }: EventDetailsProps = {}) => {
       }
     };
 
-    if (id) {
+    if (id && !eventData) {
       fetchEvent();
     }
-  }, [id]);
+  }, [id, eventData]);
 
   const Lightbox = () => {
     if (selectedImage === null || !event?.gallery) return null;

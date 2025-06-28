@@ -2,6 +2,7 @@ import EventDetailsClient from '../../../components/EventDetailsClient';
 import { Metadata } from 'next';
 import { client } from '../../../lib/sanity';
 import { Event } from '../../../types/sanity';
+import { notFound } from 'next/navigation';
 
 interface EventPageProps {
   params: Promise<{ id: string }>;
@@ -92,8 +93,37 @@ export default async function EventDetailsPage({ params }: EventPageProps) {
   const { id } = await params;
   
   if (!id) {
-    return <div>Event not found</div>;
+    notFound();
   }
   
-  return <EventDetailsClient eventId={id} />;
+  try {
+    // Fetch event data on the server
+    const event: Event = await client.fetch(
+      `*[_type == "event" && _id == $id][0]{
+        _id,
+        _type,
+        title,
+        date,
+        location,
+        expectedParticipants,
+        isUpcoming,
+        desc,
+        image,
+        shortDesc,
+        gallery,
+        _createdAt,
+        _updatedAt
+      }`,
+      { id }
+    );
+
+    if (!event) {
+      notFound();
+    }
+
+    return <EventDetailsClient eventId={id} eventData={event} />;
+  } catch (error) {
+    console.error('Error fetching event:', error);
+    notFound();
+  }
 } 
