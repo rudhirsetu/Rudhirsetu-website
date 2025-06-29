@@ -70,13 +70,6 @@ export const metadata: Metadata = {
     description: 'Discover how we\'ve been empowering communities across India since 2010. From life-saving blood donation drives to comprehensive healthcare support - join thousands who trust us to make a real difference.',
     images: [
       {
-        url: '/api/og?title=Rudhirsetu Seva Sanstha&description=Empowering communities through healthcare&route=home',
-        width: 1200,
-        height: 628,
-        alt: 'Rudhirsetu Seva Sanstha - Healthcare & Blood Donation',
-        type: 'image/png',
-      },
-      {
         url: 'https://www.rudhirsetu.org/og-thumbnail.png',
         width: 1200,
         height: 628,

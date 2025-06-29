@@ -1,5 +1,7 @@
-import type { Metadata } from 'next';
+import { Metadata } from "next";
 import HomeClient from './HomeClient';
+
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
 
 export const metadata: Metadata = {
   title: 'Rudhirsetu Seva Sanstha | Transforming Lives Through Blood Donation & Healthcare',
@@ -26,16 +28,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Rudhirsetu Seva Sanstha: Transforming Lives Through Blood Donation & Healthcare',
     description: 'Discover how we\'ve been empowering communities across India since 2010. From life-saving blood donation drives to comprehensive healthcare support - join thousands who trust us to make a real difference.',
-    url: 'https://www.rudhirsetu.org/',
+    url: `${baseUrl}/`,
     type: 'website',
     siteName: 'Rudhirsetu Seva Sanstha',
     locale: 'en_US',
     images: [
       {
-        url: 'https://www.rudhirsetu.org/og-thumbnail.png',
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('Rudhirsetu Seva Sanstha')}&description=${encodeURIComponent('Transforming Lives Through Blood Donation & Healthcare')}&route=home`,
         width: 1200,
-        height: 628,
-        alt: 'Rudhirsetu Seva Sanstha Fallback Banner',
+        height: 630,
+        alt: 'Rudhirsetu Seva Sanstha - Transforming Lives',
       },
     ],
   },
@@ -45,19 +47,19 @@ export const metadata: Metadata = {
     creator: '@rudhirsetu',
     title: 'Rudhirsetu Seva Sanstha | Transforming Lives Through Blood Donation & Healthcare',
     description: 'Since 2010, empowering communities across India through life-saving healthcare initiatives and blood donation drives.',
-    images: ['/api/og?title=Rudhirsetu Seva Sanstha&description=Transforming lives through healthcare&route=home'],
+    images: [`${baseUrl}/api/og?title=${encodeURIComponent('Rudhirsetu Seva Sanstha')}&description=${encodeURIComponent('Transforming Lives Through Blood Donation & Healthcare')}&route=home`],
   },
   alternates: {
-    canonical: 'https://www.rudhirsetu.org/',
+    canonical: `${baseUrl}/`,
   },
   other: {
     'article:section': 'Homepage',
     'article:tag': 'Blood Donation, Healthcare, NGO, Community Service, Social Impact',
     'article:published_time': '2010-01-01T00:00:00.000Z',
     'og:see_also': [
-      'https://www.rudhirsetu.org/camp',
-      'https://www.rudhirsetu.org/gallery',
-      'https://www.rudhirsetu.org/donations'
+      `${baseUrl}/camp`,
+      `${baseUrl}/gallery`,
+      `${baseUrl}/donations`
     ].join(','),
   },
 };

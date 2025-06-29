@@ -4,6 +4,8 @@ import { client } from '../../../lib/sanity';
 import { Event } from '../../../types/sanity';
 import { notFound } from 'next/navigation';
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+
 interface EventPageProps {
   params: Promise<{ id: string }>;
 }
@@ -95,7 +97,7 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
         title,
         description,
         type: 'article',
-        url: `https://www.rudhirsetu.org/event/${id}`,
+        url: `${baseUrl}/event/${id}`,
         images: [
           {
             url: ogImageUrl,
@@ -114,7 +116,7 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
         images: [ogImageUrl],
       },
       alternates: {
-        canonical: `https://www.rudhirsetu.org/event/${id}`,
+        canonical: `${baseUrl}/event/${id}`,
       },
     };
   } catch (error) {

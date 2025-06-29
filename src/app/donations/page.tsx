@@ -1,59 +1,45 @@
-import type { Metadata } from 'next';
+import { Metadata } from "next";
 import DonationsClient from './DonationsClient';
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+
 export const metadata: Metadata = {
-  title: 'Support Our Mission - Make a Life-Saving Donation',
-  description: 'Your contribution powers life-saving blood donation drives, essential healthcare programs, and transformative community initiatives. Join thousands who trust us to make a real difference.',
-  keywords: [
-    'donation', 
-    'support cause', 
-    'blood donation funding', 
-    'healthcare support', 
-    'NGO contribution', 
-    'charity donation',
-    'community support',
-    'life-saving donation',
-    'social impact funding',
-    'medical aid support'
-  ],
+  title: "Support Our Mission | Rudhirsetu Seva Sanstha",
+  description: "Make a meaningful impact with your donation. Support our blood donation camps, healthcare initiatives, and community outreach programs across India.",
+  keywords: ["donations", "support", "contribute", "blood donation", "healthcare", "NGO", "charity", "rudhirsetu"],
   openGraph: {
-    title: 'Support Our Mission: Make a Life-Saving Donation | Rudhirsetu Seva Sanstha',
-    description: 'Transform lives with your contribution. Fund blood donation drives, healthcare programs, and community initiatives that have saved thousands of lives across India.',
-    url: 'https://www.rudhirsetu.org/donations',
-    type: 'website',
-    siteName: 'Rudhirsetu Seva Sanstha',
-    locale: 'en_US',
+    title: "Support Our Mission | Rudhirsetu Seva Sanstha",
+    description: "Transform lives with your contribution",
+    url: `${baseUrl}/donations`,
+    siteName: "Rudhirsetu Seva Sanstha",
     images: [
       {
-        url: '/api/og?title=Support Our Mission&description=Transform lives with your contribution&route=donations',
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('Support Our Mission')}&description=${encodeURIComponent('Transform lives with your contribution')}&route=donations`,
         width: 1200,
-        height: 628,
-        alt: 'Support Rudhirsetu Seva Sanstha - Make a Life-Saving Donation',
-        type: 'image/png',
-      },
-      {
-        url: 'https://www.rudhirsetu.org/og-thumbnail.png',
-        width: 1200,
-        height: 628,
-        alt: 'Rudhirsetu Seva Sanstha Fallback Image',
+        height: 630,
+        alt: "Rudhirsetu Seva Sanstha - Support Our Mission",
       },
     ],
+    locale: "en_US",
+    type: "website",
   },
   twitter: {
-    card: 'summary_large_image',
-    site: '@rudhirsetu',
-    creator: '@rudhirsetu',
-    title: 'Support Our Mission - Make a Life-Saving Donation | Rudhirsetu Seva Sanstha',
-    description: 'Transform lives with your contribution. Fund life-saving healthcare programs and community initiatives.',
-    images: ['/api/og?title=Support Our Mission&description=Transform lives with your contribution&route=donations'],
+    card: "summary_large_image",
+    title: "Support Our Mission | Rudhirsetu Seva Sanstha",
+    description: "Transform lives with your contribution",
+    images: [`${baseUrl}/api/og?title=${encodeURIComponent('Support Our Mission')}&description=${encodeURIComponent('Transform lives with your contribution')}&route=donations`],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
   alternates: {
-    canonical: 'https://www.rudhirsetu.org/donations',
+    canonical: `${baseUrl}/donations`,
   },
   other: {
     'article:section': 'Donations',
     'article:tag': 'Donation, Charity, Healthcare Funding, Blood Donation Support',
-    'og:see_also': 'https://www.rudhirsetu.org/camp',
+    'og:see_also': `${baseUrl}/camp`,
   },
 };
 

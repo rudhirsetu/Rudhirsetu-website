@@ -1,55 +1,40 @@
-import type { Metadata } from 'next';
+import { Metadata } from "next";
 import SocialClient from './SocialClient';
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+
 export const metadata: Metadata = {
-  title: 'Connect With Us - Stay Updated on Our Impact',
-  description: 'Follow Rudhirsetu Seva Sanstha across social platforms for real-time updates on blood donation drives, healthcare camps, success stories, and opportunities to get involved in our mission.',
-  keywords: [
-    'social media', 
-    'follow us', 
-    'Facebook', 
-    'Instagram', 
-    'Twitter', 
-    'YouTube',
-    'LinkedIn',
-    'community updates',
-    'blood donation news',
-    'healthcare updates',
-    'NGO social presence'
-  ],
+  title: "Connect With Us | Rudhirsetu Seva Sanstha",
+  description: "Stay connected with our life-saving mission. Follow us on social media for updates on blood donation camps, healthcare initiatives, and community impact stories.",
+  keywords: ["social media", "follow us", "community", "updates", "blood donation", "healthcare", "rudhirsetu", "NGO"],
   openGraph: {
-    title: 'Connect With Us: Stay Updated on Our Impact | Rudhirsetu Seva Sanstha',
-    description: 'Join our growing community across social platforms. Get real-time updates on life-saving blood donation drives, healthcare initiatives, inspiring success stories, and ways to contribute.',
-    url: 'https://www.rudhirsetu.org/social',
-    type: 'website',
-    siteName: 'Rudhirsetu Seva Sanstha',
-    locale: 'en_US',
+    title: "Connect With Us | Rudhirsetu Seva Sanstha",
+    description: "Stay updated on our community impact",
+    url: `${baseUrl}/social`,
+    siteName: "Rudhirsetu Seva Sanstha",
     images: [
       {
-        url: '/api/og?title=Connect With Us&description=Stay updated on our community impact&route=social',
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('Connect With Us')}&description=${encodeURIComponent('Stay updated on our community impact')}&route=social`,
         width: 1200,
-        height: 628,
-        alt: 'Connect with Rudhirsetu Seva Sanstha on Social Media',
-        type: 'image/png',
-      },
-      {
-        url: 'https://www.rudhirsetu.org/og-thumbnail.png',
-        width: 1200,
-        height: 628,
-        alt: 'Rudhirsetu Seva Sanstha Fallback Image',
+        height: 630,
+        alt: "Rudhirsetu Seva Sanstha - Connect With Us",
       },
     ],
+    locale: "en_US",
+    type: "website",
   },
   twitter: {
-    card: 'summary_large_image',
-    site: '@rudhirsetu',
-    creator: '@rudhirsetu',
-    title: 'Connect With Us - Stay Updated on Our Impact | Rudhirsetu Seva Sanstha',
-    description: 'Join our community for real-time updates on blood donation drives and healthcare initiatives.',
-    images: ['/api/og?title=Connect With Us&description=Stay updated on our impact&route=social'],
+    card: "summary_large_image",
+    title: "Connect With Us | Rudhirsetu Seva Sanstha",
+    description: "Stay updated on our community impact",
+    images: [`${baseUrl}/api/og?title=${encodeURIComponent('Connect With Us')}&description=${encodeURIComponent('Stay updated on our community impact')}&route=social`],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
   alternates: {
-    canonical: 'https://www.rudhirsetu.org/social',
+    canonical: `${baseUrl}/social`,
   },
   other: {
     'article:section': 'Social Media',

@@ -1,4 +1,6 @@
-import type { Metadata } from 'next';
+import { Metadata } from "next";
+
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
 
 export const metadata: Metadata = {
   title: 'Page Not Found - 404',
@@ -6,17 +8,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Page Not Found | Rudhirsetu Seva Sanstha',
     description: 'This page could not be found. Discover our life-saving blood donation and healthcare initiatives instead.',
-    url: 'https://www.rudhirsetu.org/404',
+    url: `${baseUrl}/404`,
     type: 'website',
     siteName: 'Rudhirsetu Seva Sanstha',
     locale: 'en_US',
     images: [
       {
-        url: '/api/og?title=Page Not Found&description=Discover our life-saving initiatives instead&route=home',
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('Page Not Found')}&description=${encodeURIComponent('Discover our life-saving initiatives instead')}&route=home`,
         width: 1200,
-        height: 628,
+        height: 630,
         alt: 'Rudhirsetu Seva Sanstha - Page Not Found',
-        type: 'image/png',
       },
     ],
   },
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
     site: '@rudhirsetu',
     title: 'Page Not Found | Rudhirsetu Seva Sanstha',
     description: 'This page could not be found. Discover our life-saving healthcare initiatives instead.',
-    images: ['/api/og?title=Page Not Found&description=Discover our initiatives&route=home'],
+    images: [`${baseUrl}/api/og?title=${encodeURIComponent('Page Not Found')}&description=${encodeURIComponent('Discover our initiatives')}&route=home`],
   },
   robots: {
     index: false,

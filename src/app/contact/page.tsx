@@ -1,54 +1,40 @@
-import type { Metadata } from 'next';
+import { Metadata } from "next";
 import ContactClient from './ContactClient';
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+
 export const metadata: Metadata = {
-  title: 'Get in Touch - Join Our Life-Saving Mission',
-  description: 'Connect with Rudhirsetu Seva Sanstha for partnerships, volunteering opportunities, event collaborations, or support inquiries. Together, we can create a healthier, more caring community.',
-  keywords: [
-    'contact us', 
-    'get in touch', 
-    'volunteer opportunities', 
-    'partnership inquiries', 
-    'blood donation inquiry',
-    'healthcare support',
-    'NGO collaboration',
-    'community partnership',
-    'join our mission',
-    'support inquiries'
-  ],
+  title: "Get in Touch | Rudhirsetu Seva Sanstha",
+  description: "Connect with Rudhirsetu Seva Sanstha. Join our life-saving mission of blood donation and healthcare services. Get in touch to volunteer, donate, or learn more about our community impact.",
+  keywords: ["contact", "rudhirsetu", "blood donation", "volunteer", "healthcare", "NGO", "community service"],
   openGraph: {
-    title: 'Get in Touch: Join Our Life-Saving Mission | Rudhirsetu Seva Sanstha',
-    description: 'Ready to make a difference? Connect with us for volunteer opportunities, partnerships, or to learn how you can contribute to our life-saving healthcare and blood donation initiatives.',
-    url: 'https://www.rudhirsetu.org/contact',
-    type: 'website',
-    siteName: 'Rudhirsetu Seva Sanstha',
-    locale: 'en_US',
+    title: "Get in Touch | Rudhirsetu Seva Sanstha",
+    description: "Join our life-saving mission of blood donation and healthcare services",
+    url: `${baseUrl}/contact`,
+    siteName: "Rudhirsetu Seva Sanstha",
     images: [
       {
-        url: '/api/og?title=Get in Touch&description=Join our life-saving mission&route=contact',
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('Get in Touch')}&description=${encodeURIComponent('Join our life-saving mission')}&route=contact`,
         width: 1200,
-        height: 628,
-        alt: 'Contact Rudhirsetu Seva Sanstha - Join Our Mission',
-        type: 'image/png',
-      },
-      {
-        url: 'https://www.rudhirsetu.org/og-thumbnail.png',
-        width: 1200,
-        height: 628,
-        alt: 'Rudhirsetu Seva Sanstha Fallback Image',
+        height: 630,
+        alt: "Rudhirsetu Seva Sanstha - Get in Touch",
       },
     ],
+    locale: "en_US",
+    type: "website",
   },
   twitter: {
-    card: 'summary_large_image',
-    site: '@rudhirsetu',
-    creator: '@rudhirsetu',
-    title: 'Get in Touch - Join Our Life-Saving Mission | Rudhirsetu Seva Sanstha',
-    description: 'Connect with us for volunteer opportunities, partnerships, or to join our healthcare initiatives.',
-    images: ['/api/og?title=Get in Touch&description=Join our life-saving mission&route=contact'],
+    card: "summary_large_image",
+    title: "Get in Touch | Rudhirsetu Seva Sanstha",
+    description: "Join our life-saving mission of blood donation and healthcare services",
+    images: [`${baseUrl}/api/og?title=${encodeURIComponent('Get in Touch')}&description=${encodeURIComponent('Join our life-saving mission')}&route=contact`],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
   alternates: {
-    canonical: 'https://www.rudhirsetu.org/contact',
+    canonical: `${baseUrl}/contact`,
   },
   other: {
     'article:section': 'Contact',

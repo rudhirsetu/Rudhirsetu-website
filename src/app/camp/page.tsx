@@ -1,59 +1,45 @@
-import type { Metadata } from 'next';
+import { Metadata } from "next";
 import CampClient from './CampClient';
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+
 export const metadata: Metadata = {
-  title: 'Our Camps - Life-Saving Healthcare & Blood Donation Initiatives',
-  description: 'Explore our comprehensive healthcare camps and blood donation drives that have transformed communities across India. From rural health screenings to urban blood drives, we bring healthcare to those who need it most.',
-  keywords: [
-    'health camps', 
-    'blood donation camps', 
-    'healthcare initiatives', 
-    'medical camps', 
-    'community healthcare',
-    'rural health programs',
-    'health screenings',
-    'medical outreach',
-    'preventive healthcare',
-    'community wellness'
-  ],
+  title: "Our Camps | Rudhirsetu Seva Sanstha",
+  description: "Discover our impactful blood donation and healthcare camps across India. Join us in our mission to save lives through organized community health initiatives.",
+  keywords: ["camps", "blood donation camps", "healthcare camps", "community health", "medical camps", "rudhirsetu", "NGO"],
   openGraph: {
-    title: 'Our Camps: Life-Saving Healthcare Initiatives | Rudhirsetu Seva Sanstha',
-    description: 'Discover our life-saving healthcare camps and blood donation drives. From rural communities to urban centers, we bring essential medical care and blood collection services where they are needed most.',
-    url: 'https://www.rudhirsetu.org/camp',
-    type: 'website',
-    siteName: 'Rudhirsetu Seva Sanstha',
-    locale: 'en_US',
+    title: "Our Camps | Rudhirsetu Seva Sanstha",
+    description: "Life-saving healthcare initiatives across India",
+    url: `${baseUrl}/camp`,
+    siteName: "Rudhirsetu Seva Sanstha",
     images: [
       {
-        url: '/api/og?title=Our Camps&description=Life-saving healthcare initiatives across India&route=camp',
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('Our Camps')}&description=${encodeURIComponent('Life-saving healthcare initiatives across India')}&route=camp`,
         width: 1200,
-        height: 628,
-        alt: 'Rudhirsetu Seva Sanstha Healthcare Camps and Blood Donation Drives',
-        type: 'image/png',
-      },
-      {
-        url: 'https://www.rudhirsetu.org/og-thumbnail.png',
-        width: 1200,
-        height: 628,
-        alt: 'Rudhirsetu Seva Sanstha Fallback Image',
+        height: 630,
+        alt: "Rudhirsetu Seva Sanstha - Our Camps",
       },
     ],
+    locale: "en_US",
+    type: "website",
   },
   twitter: {
-    card: 'summary_large_image',
-    site: '@rudhirsetu',
-    creator: '@rudhirsetu',
-    title: 'Our Camps - Life-Saving Healthcare Initiatives | Rudhirsetu Seva Sanstha',
-    description: 'Discover our healthcare camps and blood donation drives transforming communities across India.',
-    images: ['/api/og?title=Our Camps&description=Life-saving healthcare initiatives&route=camp'],
+    card: "summary_large_image",
+    title: "Our Camps | Rudhirsetu Seva Sanstha",
+    description: "Life-saving healthcare initiatives across India",
+    images: [`${baseUrl}/api/og?title=${encodeURIComponent('Our Camps')}&description=${encodeURIComponent('Life-saving healthcare initiatives across India')}&route=camp`],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
   alternates: {
-    canonical: 'https://www.rudhirsetu.org/camp',
+    canonical: `${baseUrl}/camp`,
   },
   other: {
     'article:section': 'Healthcare Camps',
     'article:tag': 'Health Camps, Medical Camps, Blood Donation, Healthcare Initiatives',
-    'og:see_also': 'https://www.rudhirsetu.org/gallery',
+    'og:see_also': `${baseUrl}/gallery`,
   },
 };
 

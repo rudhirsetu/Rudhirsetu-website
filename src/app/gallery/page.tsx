@@ -1,53 +1,40 @@
-import type { Metadata } from 'next';
+import { Metadata } from "next";
 import GalleryClient from './GalleryClient';
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+
 export const metadata: Metadata = {
-  title: 'Photo Gallery - Our Impact in Pictures',
-  description: 'Witness the power of community service through our visual journey. Browse inspiring photos from blood donation drives, healthcare camps, and life-changing events across India.',
-  keywords: [
-    'photo gallery', 
-    'blood donation events', 
-    'healthcare camps', 
-    'community impact', 
-    'NGO activities', 
-    'social service photos',
-    'volunteer moments',
-    'life-saving events',
-    'community empowerment'
-  ],
+  title: "Gallery | Rudhirsetu Seva Sanstha",
+  description: "Explore our journey through powerful images. Witness the impact of our blood donation camps, healthcare initiatives, and community outreach programs across India.",
+  keywords: ["gallery", "photos", "blood donation camps", "healthcare", "community impact", "rudhirsetu", "NGO"],
   openGraph: {
-    title: 'Gallery: Our Impact in Pictures | Rudhirsetu Seva Sanstha',
-    description: 'Discover the faces behind the mission. Browse inspiring photos showcasing our blood donation drives, healthcare initiatives, and community transformation moments.',
-    url: 'https://www.rudhirsetu.org/gallery',
-    type: 'website',
-    siteName: 'Rudhirsetu Seva Sanstha',
-    locale: 'en_US',
+    title: "Gallery | Rudhirsetu Seva Sanstha",
+    description: "Witness our community impact through inspiring moments",
+    url: `${baseUrl}/gallery`,
+    siteName: "Rudhirsetu Seva Sanstha",
     images: [
       {
-        url: '/api/og?title=Gallery&description=Witness our community impact through inspiring moments&route=gallery',
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('Gallery')}&description=${encodeURIComponent('Witness our community impact through inspiring moments')}&route=gallery`,
         width: 1200,
-        height: 628,
-        alt: 'Rudhirsetu Seva Sanstha Photo Gallery - Community Impact Stories',
-        type: 'image/png',
-      },
-      {
-        url: 'https://www.rudhirsetu.org/og-thumbnail.png',
-        width: 1200,
-        height: 628,
-        alt: 'Rudhirsetu Seva Sanstha Fallback Image',
+        height: 630,
+        alt: "Rudhirsetu Seva Sanstha - Gallery",
       },
     ],
+    locale: "en_US",
+    type: "website",
   },
   twitter: {
-    card: 'summary_large_image',
-    site: '@rudhirsetu',
-    creator: '@rudhirsetu',
-    title: 'Gallery: Our Impact in Pictures | Rudhirsetu Seva Sanstha',
-    description: 'Discover inspiring moments from our blood donation drives, healthcare camps, and community transformation events.',
-    images: ['/api/og?title=Gallery&description=Witness our community impact&route=gallery'],
+    card: "summary_large_image",
+    title: "Gallery | Rudhirsetu Seva Sanstha",
+    description: "Witness our community impact through inspiring moments",
+    images: [`${baseUrl}/api/og?title=${encodeURIComponent('Gallery')}&description=${encodeURIComponent('Witness our community impact through inspiring moments')}&route=gallery`],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
   alternates: {
-    canonical: 'https://www.rudhirsetu.org/gallery',
+    canonical: `${baseUrl}/gallery`,
   },
   other: {
     'article:section': 'Gallery',
