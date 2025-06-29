@@ -87,12 +87,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.ico' },
-      { url: '/favicon.ico', sizes: '16x16', type: 'image/x-icon' },
+      { url: '/icons/favicon.ico' },
+      { url: '/icons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/icons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
     ],
-    shortcut: '/favicon.ico',
+    shortcut: '/icons/favicon.ico',
     apple: [
-      { url: '/favicon.ico', sizes: '180x180' },
+      { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
   manifest: '/site.webmanifest',
@@ -182,7 +183,7 @@ export default function RootLayout({
                     },
                     {
                       "@type": "ImageObject",
-                      "url": "https://www.rudhirsetu.org/favicon.ico",
+                      "url": "https://www.rudhirsetu.org/icons/favicon.ico",
                       "width": 32,
                       "height": 32,
                       "caption": "Rudhirsetu Favicon"

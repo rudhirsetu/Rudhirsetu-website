@@ -31,7 +31,7 @@ Host: https://www.rudhirsetu.org
 
 # Additional directives for better SEO
 # Allow favicon and important assets
-Allow: /favicon.ico
+Allow: /icons/
 Allow: /og-thumbnail.png
 Allow: /images/
 Allow: /*.css$
