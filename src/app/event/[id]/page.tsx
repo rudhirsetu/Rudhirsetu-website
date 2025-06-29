@@ -4,9 +4,6 @@ import { client } from '../../../lib/sanity';
 import { Event } from '../../../types/sanity';
 import { notFound } from 'next/navigation';
 
-// Force dynamic rendering for all event pages
-export const dynamic = 'force-dynamic';
-
 interface EventPageProps {
   params: Promise<{ id: string }>;
 }
@@ -14,17 +11,36 @@ interface EventPageProps {
 // Generate static params for known events (helps with Vercel deployment)
 export async function generateStaticParams() {
   try {
+    console.log('Generating static params for events...');
+    
+    // Use a more reliable client configuration for build time
     const events = await client.fetch(
       `*[_type == "event"]{
         _id
-      }`
+      }`,
+      {},
+      {
+        cache: 'no-store', // Don't cache during build
+        next: { revalidate: 0 }
+      }
     );
 
-    return events.map((event: { _id: string }) => ({
+    console.log(`Found ${events?.length || 0} events for static generation`);
+    
+    if (!events || events.length === 0) {
+      console.warn('No events found during static generation');
+      return [];
+    }
+
+    const params = events.map((event: { _id: string }) => ({
       id: event._id,
     }));
+    
+    console.log('Generated params:', params);
+    return params;
   } catch (error) {
     console.error('Error generating static params:', error);
+    // Return empty array to prevent build failure, but routes will be handled dynamically
     return [];
   }
 }
