@@ -215,7 +215,7 @@ export async function GET(
                   display: 'flex',
                 }}
               >
-                {event.title}
+                {event.title.length > 40 ? event.title.substring(0, 40) + '...' : event.title}
               </h1>
 
               {/* Event Description */}
