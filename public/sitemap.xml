@@ -6,7 +6,7 @@
   <!-- Main Homepage - Highest Priority for Rich Results -->
   <url>
     <loc>https://www.rudhirsetu.org/</loc>
-    <lastmod>2024-12-28</lastmod>
+    <lastmod>2025-06-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -19,7 +19,7 @@
   <!-- Primary Service Pages - High Priority for Sitelinks -->
   <url>
     <loc>https://www.rudhirsetu.org/donations</loc>
-    <lastmod>2024-12-28</lastmod>
+    <lastmod>2025-06-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
     <image:image>
@@ -30,20 +30,20 @@
   </url>
   
   <url>
-    <loc>https://www.rudhirsetu.org/impact</loc>
-    <lastmod>2024-12-28</lastmod>
+    <loc>https://www.rudhirsetu.org/camp</loc>
+    <lastmod>2025-06-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.90</priority>
     <image:image>
       <image:loc>https://www.rudhirsetu.org/og-thumbnail.png</image:loc>
-      <image:title>Our Impact - Community Healthcare Initiatives</image:title>
-      <image:caption>See the impact of our blood donation and healthcare programs</image:caption>
+      <image:title>Our Camps - Healthcare &amp; Blood Donation Initiatives</image:title>
+      <image:caption>See our blood donation drives and healthcare camps</image:caption>
     </image:image>
   </url>
   
   <url>
     <loc>https://www.rudhirsetu.org/contact</loc>
-    <lastmod>2024-12-28</lastmod>
+    <lastmod>2025-06-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
@@ -51,7 +51,7 @@
   <!-- Content & Engagement Pages -->
   <url>
     <loc>https://www.rudhirsetu.org/gallery</loc>
-    <lastmod>2024-12-28</lastmod>
+    <lastmod>2025-06-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
     <image:image>
@@ -63,7 +63,7 @@
   
   <url>
     <loc>https://www.rudhirsetu.org/social</loc>
-    <lastmod>2024-12-28</lastmod>
+    <lastmod>2025-06-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.75</priority>
   </url>

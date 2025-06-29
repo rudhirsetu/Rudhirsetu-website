@@ -36,7 +36,7 @@ const Navbar = () => {
 
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
-    { path: '/impact', label: 'Camps', icon: Heart },
+    { path: '/camp', label: 'Camps', icon: Heart },
     { path: '/gallery', label: 'Gallery', icon: Image },
     { path: '/donations', label: 'Donate', icon: Gift },
     { path: '/social', label: 'Socials', icon: Share2 },

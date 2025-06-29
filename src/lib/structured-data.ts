@@ -80,24 +80,24 @@ export const ContactPageData = {
   }
 };
 
-export const ImpactPageData = {
+export const CampPageData = {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  "@id": "https://www.rudhirsetu.org/impact#webpage",
-  "url": "https://www.rudhirsetu.org/impact",
-  "name": "Our Impact - Rudhirsetu Seva Sanstha",
-  "description": "See the transformative impact of Rudhirsetu's blood donation drives, healthcare programs, and community initiatives across India.",
+  "@id": "https://www.rudhirsetu.org/camp#webpage",
+  "url": "https://www.rudhirsetu.org/camp",
+  "name": "Our Camps - Rudhirsetu Seva Sanstha",
+  "description": "See our blood donation drives, healthcare camps, and community initiatives across India.",
   "isPartOf": {
     "@id": "https://www.rudhirsetu.org/#website"
   },
   "mainEntity": {
     "@type": "ItemList",
-    "name": "Impact Areas",
+            "name": "Camp Areas",
     "itemListElement": [
       {
         "@type": "ListItem",
         "position": 1,
-        "name": "Blood Donation Impact",
+                  "name": "Blood Donation Camps",
         "description": "Lives saved through blood donation drives"
       },
       {
@@ -126,8 +126,8 @@ export const ImpactPageData = {
       {
         "@type": "ListItem",
         "position": 2,
-        "name": "Impact",
-        "item": "https://www.rudhirsetu.org/impact"
+        "name": "Camps",
+        "item": "https://www.rudhirsetu.org/camp"
       }
     ]
   }

@@ -95,11 +95,11 @@ export const pageSEOConfigs = {
     ogImage: 'https://www.rudhirsetu.org/og-thumbnail.png'
   },
   
-  impact: {
-    title: 'Our Impact - Rudhirsetu Seva Sanstha | Community Healthcare Initiatives',
-    description: 'See the transformative impact of Rudhirsetu\'s blood donation drives, healthcare programs, and community initiatives across India. Lives saved, communities empowered.',
-    keywords: ['rudhirsetu impact', 'blood donation results', 'healthcare impact', 'community programs', 'NGO achievements', 'lives saved'],
-    canonical: 'https://www.rudhirsetu.org/impact',
+  camp: {
+    title: 'Our Camps - Rudhirsetu Seva Sanstha | Healthcare & Blood Donation Initiatives',
+    description: 'See our blood donation drives, healthcare camps, and community initiatives across India. Join Rudhirsetu Seva Sanstha in making a difference.',
+    keywords: ['health camps', 'blood donation camps', 'healthcare initiatives', 'community camps', 'medical camps', 'NGO camps'],
+    canonical: 'https://www.rudhirsetu.org/camp',
     ogImage: 'https://www.rudhirsetu.org/og-thumbnail.png'
   },
   
@@ -134,21 +134,7 @@ export const generateBreadcrumbStructuredData = (breadcrumbs: Array<{name: strin
   };
 };
 
-// Function to generate FAQ structured data
-export const generateFAQStructuredData = (faqs: Array<{question: string, answer: string}>) => {
-  return {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": faqs.map(faq => ({
-      "@type": "Question",
-      "name": faq.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": faq.answer
-      }
-    }))
-  };
-};
+
 
 // Function to generate Event structured data
 export const generateEventStructuredData = (event: {

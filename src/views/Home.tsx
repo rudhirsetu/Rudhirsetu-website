@@ -269,7 +269,7 @@ const Home = () => {
             className="text-center mt-16"
           >
             <Link
-              href="/impact"
+              href="/camp"
               className="inline-flex items-center justify-center px-8 py-4 bg-red-900 text-white rounded-lg font-semibold shadow-md hover:bg-red-800 transition-all duration-300 group"
             >
               <span>View All Events</span>

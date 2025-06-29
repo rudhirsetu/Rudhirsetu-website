@@ -236,7 +236,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
             <p className="text-red-700 text-lg mb-8">{error || 'We couldn\'t find the event you\'re looking for. It may have been removed or is temporarily unavailable.'}</p>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
-                href="/impact"
+                href="/camp"
                 className="inline-flex items-center px-6 py-3 bg-red-900 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-300"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
@@ -310,7 +310,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
                 transition={{ delay: 0.2 }}
               >
                 <Link
-                  href="/impact"
+                  href="/camp"
                   className="inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 bg-black/30 hover:bg-red-900 text-white rounded-full backdrop-blur-sm border border-white/20 transition-all duration-300 group shadow-lg text-sm sm:text-base"
                 >
                   <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />

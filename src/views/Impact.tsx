@@ -5,7 +5,7 @@ import { Event, Pagination } from '../types/sanity';
 import { eventService } from '../services/sanity-client';
 import EventCard from '../components/EventCard';
 import { StructuredData } from '../components/StructuredData';
-import { ImpactPageData } from '../lib/structured-data';
+import { CampPageData } from '../lib/structured-data';
 
 const Impact = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
@@ -159,7 +159,7 @@ const Impact = () => {
 
   return (
     <>
-      <StructuredData data={ImpactPageData} id="impact-page-structured-data" />
+      <StructuredData data={CampPageData} id="camp-page-structured-data" />
       <div className="py-12 sm:py-16">
         <div className="container mx-auto px-4">
           {/* Page Header */}

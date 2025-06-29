@@ -67,7 +67,7 @@ const Footer = () => {
   // Quick links data
   const quickLinks = [
     { label: "Home", path: "/" },
-    { label: "Events & Camps", path: "/impact" },
+          { label: "Events & Camps", path: "/camp" },
     { label: "Gallery", path: "/gallery" },
     { label: "Donate Now", path: "/donations" },
     { label: "Contact Us", path: "/contact" },

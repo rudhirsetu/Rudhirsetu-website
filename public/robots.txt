@@ -3,7 +3,7 @@ Allow: /
 
 # Allow all major pages for better indexing
 Allow: /donations
-Allow: /impact  
+Allow: /camp  
 Allow: /contact
 Allow: /gallery
 Allow: /social

@@ -15,9 +15,9 @@ const navigationItems: NavigationItem[] = [
     description: 'Support our blood donation and healthcare initiatives',
     priority: 'high'
   },
-  {
-    label: 'Our Impact',
-    href: '/impact',
+      {
+      label: 'Our Camps',
+      href: '/camp',
     description: 'See the difference we are making in communities',
     priority: 'high'
   },
