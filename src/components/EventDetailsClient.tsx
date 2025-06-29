@@ -1,6 +1,6 @@
 'use client';
 
-import EventDetails from '../pages/EventDetails';
+import EventDetails from '../views/EventDetails';
 import { Event } from '../types/sanity';
 
 interface EventDetailsClientProps {

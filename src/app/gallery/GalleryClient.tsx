@@ -1,6 +1,6 @@
 'use client';
 
-import Gallery from '../../pages/Gallery';
+import Gallery from '../../views/Gallery';
 
 export default function GalleryClient() {
   return <Gallery />;

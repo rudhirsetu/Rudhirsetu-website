@@ -9,6 +9,17 @@ const nextConfig = {
   },
   compress: true,
   poweredByHeader: false,
+  // Optimize build performance  
+  eslint: {
+    ignoreDuringBuilds: process.env.NODE_ENV === 'development',
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  // Speed up builds
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
   async headers() {
     return [
       {

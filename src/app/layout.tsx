@@ -108,6 +108,8 @@ export default function RootLayout({
         <link rel="preload" href="/rudhirsetu-bg.webp" as="image" type="image/webp" />
         <link rel="preload" href="/images/logo-dark.svg" as="image" type="image/svg+xml" />
         <link rel="preload" href="/images/logo-light.svg" as="image" type="image/svg+xml" />
+        {/* Add Google Search Console verification meta tag here when you get it */}
+        {/* Example: <meta name="google-site-verification" content="your-verification-code" /> */}
       </head>
       <body className={`${poppins.className} font-sans antialiased`}>
         <DevelopmentWarning />

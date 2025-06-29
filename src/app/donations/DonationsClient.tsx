@@ -1,6 +1,6 @@
 'use client';
 
-import Donations from '../../pages/Donations';
+import Donations from '../../views/Donations';
 
 export default function DonationsClient() {
   return <Donations />;

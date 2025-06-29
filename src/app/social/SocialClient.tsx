@@ -1,6 +1,6 @@
 'use client';
 
-import Social from '../../pages/Social';
+import Social from '../../views/Social';
 
 export default function SocialClient() {
   return <Social />;
