@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                maxWidth: '700px',
+                maxWidth: '800px',
                 flex: 1,
               }}
             >
@@ -138,11 +138,11 @@ export async function GET(request: NextRequest) {
               <div
                 style={{
                   display: 'flex',
-                  background: 'rgba(255, 255, 255, 0.2)',
+                  // background: 'rgba(255, 255, 255, 0.2)',
                   borderRadius: '16px',
-                  padding: '16px 32px',
+                  padding: '16px 0px',
                   alignItems: 'center',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  // border: '1px solid rgba(255, 255, 255, 0.3)',
                 }}
               >
                 <div
@@ -153,7 +153,7 @@ export async function GET(request: NextRequest) {
                     fontFamily: 'Poppins',
                   }}
                 >
-                  Since 2010 • Transforming Lives Across India
+                  Saving lives since 2010
                 </div>
               </div>
             </div>
@@ -182,7 +182,7 @@ export async function GET(request: NextRequest) {
                   borderRadius: '12px',
                 }}
               >
-                rudhirsetu.org
+                hello@rudhirsetu.org
               </div>
             </div>
           </div>
