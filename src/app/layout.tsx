@@ -17,13 +17,13 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Rudhirsetu Seva Sanstha | Blood Donation, Healthcare Support & Social Initiatives',
+    default: 'Rudhirsetu Seva Sanstha | Transforming Lives Through Blood Donation & Healthcare',
     template: '%s | Rudhirsetu Seva Sanstha',
   },
-  description: 'Rudhirsetu Seva Sanstha drives community empowerment through blood donation, healthcare support, and transformative social initiatives. Join us in making a difference.',
+  description: 'Since 2010, Rudhirsetu Seva Sanstha has been empowering communities across India through life-saving blood donation drives, comprehensive healthcare support, and transformative social initiatives. Join thousands who trust us to make a real difference.',
   keywords: [
-    'Rudhirsetu',
-    'blood donation',
+    'Rudhirsetu Seva Sanstha',
+    'blood donation India',
     'healthcare support',
     'social initiatives',
     'community empowerment',
@@ -36,10 +36,20 @@ export const metadata: Metadata = {
     'thalassemia support',
     'community health',
     'social service',
+    'life saving',
+    'healthcare NGO',
+    'blood bank support',
+    'rural healthcare',
+    'medical camps'
   ],
-  authors: [{ name: 'Rudhirsetu Seva Sanstha' }],
+  authors: [{ name: 'Rudhirsetu Seva Sanstha', url: 'https://www.rudhirsetu.org' }],
   creator: 'Rudhirsetu Seva Sanstha',
   publisher: 'Rudhirsetu Seva Sanstha',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   robots: {
     index: true,
     follow: true,
@@ -56,22 +66,31 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://www.rudhirsetu.org/',
     siteName: 'Rudhirsetu Seva Sanstha',
-    title: 'Rudhirsetu Seva Sanstha: Empowering Communities through Blood Donation, Healthcare, and Social Initiatives',
-    description: 'Join Rudhirsetu Seva Sanstha in empowering communities through regular blood donation drives, comprehensive healthcare support, and innovative social initiatives since 2010.',
+    title: 'Rudhirsetu Seva Sanstha: Transforming Lives Through Blood Donation & Healthcare',
+    description: 'Discover how we\'ve been empowering communities across India since 2010. From life-saving blood donation drives to comprehensive healthcare support - join thousands who trust us to make a real difference.',
     images: [
+      {
+        url: '/api/og?title=Rudhirsetu Seva Sanstha&description=Empowering communities through healthcare&route=home',
+        width: 1200,
+        height: 628,
+        alt: 'Rudhirsetu Seva Sanstha - Healthcare & Blood Donation',
+        type: 'image/png',
+      },
       {
         url: 'https://www.rudhirsetu.org/og-thumbnail.png',
         width: 1200,
         height: 628,
-        alt: 'Rudhirsetu Seva Sanstha Banner',
+        alt: 'Rudhirsetu Seva Sanstha Fallback Banner',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Rudhirsetu Seva Sanstha | Blood Donation, Healthcare Support & Social Initiatives',
-    description: 'Rudhirsetu Seva Sanstha drives community empowerment through blood donation, healthcare support, and transformative social initiatives.',
-    images: ['https://www.rudhirsetu.org/og-thumbnail.png'],
+    site: '@rudhirsetu',
+    creator: '@rudhirsetu',
+    title: 'Rudhirsetu Seva Sanstha | Transforming Lives Through Blood Donation & Healthcare',
+    description: 'Since 2010, empowering communities across India through life-saving healthcare initiatives and blood donation drives.',
+    images: ['/api/og?title=Rudhirsetu Seva Sanstha&description=Empowering communities through healthcare&route=home'],
   },
   icons: {
     icon: [

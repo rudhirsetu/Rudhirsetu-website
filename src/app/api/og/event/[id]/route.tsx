@@ -61,7 +61,7 @@ export async function GET(
             display: 'flex',
             flexDirection: 'column',
             position: 'relative',
-            background: 'linear-gradient(135deg, #991B1B 0%, #DC2626 50%, #B91C1C 100%)',
+            background: 'linear-gradient(113.9deg, rgba(241,106,56,1) 13%, rgba(213,32,39,1) 48.8%, rgba(170,65,39,1) 85.9%)',
             fontFamily: 'Poppins',
           }}
         >

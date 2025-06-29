@@ -26,3 +26,5 @@ my-ngo-cms
 *.sw?
 .env*
 .next
+
+coverage
