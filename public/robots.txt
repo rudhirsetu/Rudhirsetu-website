@@ -1,5 +1,5 @@
 User-agent: *
-Allow: /
+Allow: /*
 
 # Allow all major pages for better indexing
 Allow: /donations
@@ -11,14 +11,6 @@ Allow: /event/*
 
 # Allow specific service sections for better categorization
 # Note: Fragment links removed as they don't exist on the actual pages
-
-# Disallow unnecessary technical files
-Disallow: /src/
-Disallow: /node_modules/
-Disallow: /_next/
-Disallow: /api/
-Disallow: *.json$
-Disallow: *.map$
 
 # Sitemap location
 Sitemap: https://www.rudhirsetu.org/sitemap.xml
