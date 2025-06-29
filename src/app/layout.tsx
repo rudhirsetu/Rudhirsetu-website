@@ -105,11 +105,51 @@ export default function RootLayout({
     <html lang="en" className={poppins.variable}>
       <head>
         <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
-        <link rel="preload" href="/rudhirsetu-bg.webp" as="image" type="image/webp" />
-        <link rel="preload" href="/images/logo-dark.svg" as="image" type="image/svg+xml" />
+        <link rel="preload" href="/images/logo-dark.svg" as="image" type="image/svg+xml" fetchPriority="high" />
         <link rel="preload" href="/images/logo-light.svg" as="image" type="image/svg+xml" />
+        <link rel="preload" href="/rudhirsetu-bg.webp" as="image" type="image/webp" />
         {/* Add Google Search Console verification meta tag here when you get it */}
         {/* Example: <meta name="google-site-verification" content="your-verification-code" /> */}
+        
+        {/* Structured Data for Google Search Results */}
+        <script 
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "NGO",
+              "name": "Rudhirsetu Seva Sanstha",
+              "alternateName": ["Rudhirsetu", "Rudhir Setu"],
+              "url": "https://www.rudhirsetu.org/",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://www.rudhirsetu.org/images/logo-dark.svg",
+                "width": 300,
+                "height": 300,
+                "caption": "Rudhirsetu Seva Sanstha Logo"
+              },
+              "image": {
+                "@type": "ImageObject",
+                "url": "https://www.rudhirsetu.org/images/logo-dark.svg",
+                "width": 300,
+                "height": 300,
+                "caption": "Rudhirsetu Seva Sanstha Logo"
+              },
+              "description": "Rudhirsetu Seva Sanstha is a leading NGO empowering communities through blood donation drives, comprehensive healthcare support, and transformative social initiatives since 2010.",
+              "foundingDate": "2010",
+              "areaServed": {
+                "@type": "Country",
+                "name": "India"
+              },
+              "sameAs": [
+                "https://www.facebook.com/rudhirsetu",
+                "https://www.instagram.com/rudhirsetu",
+                "https://twitter.com/rudhirsetu",
+                "https://www.linkedin.com/company/rudhirsetu"
+              ]
+            })
+          }}
+        />
       </head>
       <body className={`${poppins.className} font-sans antialiased`}>
         <DevelopmentWarning />
