@@ -98,9 +98,6 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   metadataBase: new URL('https://www.rudhirsetu.org'),
-  alternates: {
-    canonical: 'https://www.rudhirsetu.org/',
-  },
   other: {
     'theme-color': '#991B1B',
     'apple-mobile-web-app-capable': 'yes',
