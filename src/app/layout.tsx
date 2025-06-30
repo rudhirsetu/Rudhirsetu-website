@@ -150,9 +150,6 @@ export default function RootLayout({
         <link rel="preload" href="/images/logo-light.svg" as="image" type="image/svg+xml" />
         <link rel="preload" href="/rudhirsetu-bg.webp" as="image" type="image/webp" />
         
-        {/* Add Google Search Console verification meta tag here when you get it */}
-        {/* Example: <meta name="google-site-verification" content="your-verification-code" /> */}
-        
         {/* Comprehensive Structured Data for Google Search Results & Sitelinks */}
         <script 
           type="application/ld+json"
@@ -184,8 +181,8 @@ export default function RootLayout({
                     {
                       "@type": "ImageObject",
                       "url": "https://www.rudhirsetu.org/icons/favicon.ico",
-                      "width": 32,
-                      "height": 32,
+                      "width": 48,
+                      "height": 48,
                       "caption": "Rudhirsetu Favicon"
                     }
                   ],

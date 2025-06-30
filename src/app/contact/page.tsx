@@ -39,8 +39,8 @@ export const metadata: Metadata = {
   other: {
     'article:section': 'Contact',
     'article:tag': 'Contact, Volunteer, Partnership, Community Engagement',
-    'contact:email': 'hello@rudhirsetu.org',
-    'contact:phone_number': '+91-XXXXXXXXXX',
+    'contact:email': 'rudhirsetu@rudhirsetu.org',
+    'contact:phone_number': '+91-9321606868',
   },
 };
 

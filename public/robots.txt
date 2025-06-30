@@ -9,21 +9,14 @@ Allow: /gallery
 Allow: /social
 Allow: /event/*
 
-# Allow specific service sections for better categorization
-# Note: Fragment links removed as they don't exist on the actual pages
 
 # Sitemap location
 Sitemap: https://www.rudhirsetu.org/sitemap.xml
 
-# Crawl-delay for respectful crawling
-Crawl-delay: 1
-
-# Preferred domain (helps with canonicalization)
-Host: https://www.rudhirsetu.org
 
 # Additional directives for better SEO
 # Allow favicon and important assets
-Allow: /icons/
+Allow: /icons/*
 Allow: /og-thumbnail.png
 Allow: /images/
 Allow: /*.css$
@@ -32,12 +25,8 @@ Allow: /*.webp$
 Allow: /*.png$
 Allow: /*.jpg$
 Allow: /*.svg$
+Allow: /*.ico$
 
-# Specific crawlers
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 1
 
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 2
+Disallow: /rudhirsetu-bg.png
+Disallow: /rudhirsetu-bg.webp
