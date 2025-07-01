@@ -67,15 +67,13 @@ const Hero = () => {
   return (
     <div className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden md:pt-0 pt-16">
       {/* Iridescence Background */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <Iridescence
-          color={[1, 0.2, 0.2]}
-          mouseReact={true}
-          amplitude={0.1}
-          speed={0.5}
+          color={[1, 0.1, 0.1]}
+          mouseReact={false}
+          amplitude={1}
+          speed={0.9}
         />
-        {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-red-800/30" />
       </div>
 
 

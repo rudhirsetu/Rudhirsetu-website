@@ -118,18 +118,10 @@ const Footer = () => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="text-white py-8 md:py-16 relative overflow-hidden rounded-t-4xl mx-0 md:mx-20"
+      className="text-white py-8 md:py-16 relative overflow-hidden rounded-t-4xl"
     >
-            {/* Background Image */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{
-                backgroundImage: 'url(/rudhirsetu-bg.webp)',
-                transform: 'rotate(180deg)'
-              }}
-            >
-              {/* Dark overlay for readability */}
-              <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute bg-red-800 inset-0 z-0 overflow-hidden pointer-events-none">
+            
             </div>
 
 

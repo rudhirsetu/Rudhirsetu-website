@@ -68,9 +68,25 @@ void main() {
   float mr = min(uResolution.x, uResolution.y);
   vec2 uv = (vUv.xy * 2.0 - 1.0) * uResolution.xy / mr;
   
-  // Mouse influence with liquid-like spread
-  vec2 mouseInfluence = (uMouse - vec2(0.5)) * uAmplitude * 2.0;
-  uv += mouseInfluence * (1.0 + sin(uTime * uSpeed * 0.5) * 0.3);
+  // Enhanced mouse interaction with ripples
+  vec2 mouseOffset = uMouse - vec2(0.5);
+  float mouseDistance = length(mouseOffset);
+  
+  // Create ripple effects from mouse position
+  vec2 mouseUv = (vUv - uMouse) * 2.0;
+  float rippleDistance = length(mouseUv);
+  float ripple1 = sin(rippleDistance * 15.0 - uTime * uSpeed * 3.0) * exp(-rippleDistance * 2.0) * 0.3;
+  float ripple2 = cos(rippleDistance * 8.0 - uTime * uSpeed * 2.0) * exp(-rippleDistance * 1.5) * 0.2;
+  
+  // Create a smooth falloff for mouse influence
+  float influence = smoothstep(0.0, 1.2, 1.0 - mouseDistance) * uAmplitude;
+  
+  // Add organic movement to mouse interaction
+  vec2 mouseInfluence = mouseOffset * influence;
+  mouseInfluence *= (1.0 + sin(uTime * uSpeed * 0.3) * 0.4);
+  
+  // Apply mouse influence with ripples
+  uv += mouseInfluence * 0.5 + vec2(ripple1 + ripple2) * 0.3;
   
   // Time-based liquid flow
   float time = uTime * uSpeed;
@@ -78,41 +94,60 @@ void main() {
   // Apply flow distortion for liquid movement
   vec2 distortedUv = uv + flowDistortion(uv, time);
   
-  // Create liquid wave patterns
-  float wave1 = sin(distortedUv.x * 4.0 + time * 0.8 + fractalNoise(distortedUv * 2.0 + time * 0.1) * 3.0) * 0.5;
-  float wave2 = cos(distortedUv.y * 3.5 + time * 0.6 + fractalNoise(distortedUv * 1.5 + time * 0.15) * 2.5) * 0.3;
-  float wave3 = sin((distortedUv.x + distortedUv.y) * 2.8 + time * 1.2 + fractalNoise(distortedUv * 3.0 + time * 0.05) * 4.0) * 0.4;
+  // Enhanced liquid wave patterns with mouse interaction
+  float wave1 = sin(distortedUv.x * 4.0 + time * 0.8 + fractalNoise(distortedUv * 2.0 + time * 0.1) * 3.0 + influence * 2.0) * 0.6;
+  float wave2 = cos(distortedUv.y * 3.5 + time * 0.6 + fractalNoise(distortedUv * 1.5 + time * 0.15) * 2.5 - influence * 1.5) * 0.4;
+  float wave3 = sin((distortedUv.x + distortedUv.y) * 2.8 + time * 1.2 + fractalNoise(distortedUv * 3.0 + time * 0.05) * 4.0) * 0.5;
   
-  // Combine waves for liquid surface
-  float liquidSurface = wave1 + wave2 + wave3;
+  // Add spiraling motion
+  float spiral = sin(atan(distortedUv.y, distortedUv.x) * 3.0 + length(distortedUv) * 5.0 - time * 2.0) * 0.3;
   
-  // Add turbulence for more organic feel
-  float turbulence = fractalNoise(distortedUv * 5.0 + time * 0.2) * 0.3;
-  liquidSurface += turbulence;
+  // Pulsing effect based on mouse distance
+  float pulse = sin(mouseDistance * 10.0 + time * 3.0) * exp(-mouseDistance * 2.0) * 0.4;
+  
+  // Combine all wave patterns
+  float liquidSurface = wave1 + wave2 + wave3 + spiral + pulse;
+  
+  // Enhanced turbulence with mouse influence
+  float turbulence = fractalNoise(distortedUv * 5.0 + time * 0.2 + mouseInfluence * 2.0) * 0.4;
+  float microTurbulence = fractalNoise(distortedUv * 15.0 + time * 0.5) * 0.1;
+  liquidSurface += turbulence + microTurbulence;
   
   // Create depth effect with multiple layers
   float depth1 = sin(liquidSurface * 2.0 + time * 0.4) * 0.5 + 0.5;
   float depth2 = cos(liquidSurface * 1.5 + time * 0.7) * 0.3 + 0.7;
   float depth3 = sin(liquidSurface * 3.0 + time * 0.3) * 0.2 + 0.8;
   
-  // Liquid color mixing
-  vec3 liquidColor1 = vec3(0.2, 0.6, 1.0); // Light blue
-  vec3 liquidColor2 = vec3(0.0, 0.3, 0.8); // Deep blue
-  vec3 liquidColor3 = vec3(0.1, 0.9, 0.7); // Cyan
+  // Dynamic color palette with mouse influence - toned down
+  vec3 baseColor1 = vec3(0.4, 0.05, 0.1); // Deep red - darker
+  vec3 baseColor2 = vec3(0.5, 0.2, 0.05); // Orange - darker
+  vec3 baseColor3 = vec3(0.4, 0.25, 0.35); // Pink - darker
+  vec3 accentColor = vec3(0.6, 0.4, 0.15); // Golden - darker
   
-  // Mix colors based on depth and wave patterns
-  vec3 color = mix(liquidColor1, liquidColor2, depth1);
-  color = mix(color, liquidColor3, depth2 * 0.5);
+  // Color shifts based on mouse proximity and ripples
+  float colorShift1 = sin(liquidSurface * 2.0 + uTime * uSpeed * 0.5 + mouseDistance * 5.0) * 0.5 + 0.5;
+  float colorShift2 = cos(liquidSurface * 1.8 + uTime * uSpeed * 0.7 - mouseDistance * 3.0) * 0.5 + 0.5;
+  float colorShift3 = sin(liquidSurface * 2.5 + uTime * uSpeed * 0.3 + ripple1 * 10.0) * 0.5 + 0.5;
   
-  // Add highlights and reflections
-  float highlight = pow(max(0.0, liquidSurface + 0.3), 3.0) * 0.8;
-  color += highlight * vec3(1.0, 1.0, 0.9);
+  // Mix colors dynamically
+  vec3 color = mix(baseColor1, baseColor2, colorShift1);
+  color = mix(color, baseColor3, colorShift2 * depth2);
+  color = mix(color, accentColor, colorShift3 * influence * 0.8);
+  
+  // Enhanced highlights and reflections - subdued
+  float highlight = pow(max(0.0, liquidSurface + 0.2), 2.5) * 0.4;
+  float shimmer = sin(liquidSurface * 8.0 + uTime * uSpeed * 2.0) * 0.15 + 0.3;
+  color += highlight * shimmer * vec3(0.4, 0.35, 0.25);
+  
+  // Add iridescent effects - more subtle
+  float iridescence = sin(liquidSurface * 6.0 + uTime * uSpeed * 1.5) * cos(mouseDistance * 8.0) * 0.15;
+  color += iridescence * vec3(0.3, 0.1, 0.4);
   
   // Apply user color tint
   color *= uColor;
   
-  // Add transparency effect for liquid appearance
-  float alpha = 0.85 + depth3 * 0.15;
+  // Add transparency effect for liquid appearance - more transparent
+  float alpha = 0.6 + depth3 * 0.1;
   
   gl_FragColor = vec4(color, alpha);
 }
@@ -134,6 +169,8 @@ export default function Iridescence({
 }: IridescenceProps) {
   const ctnDom = useRef<HTMLDivElement>(null);
   const mousePos = useRef({ x: 0.5, y: 0.5 });
+  const targetMousePos = useRef({ x: 0.5, y: 0.5 });
+  const smoothness = 0.15;
 
   useEffect(() => {
     if (!ctnDom.current) return;
@@ -180,7 +217,16 @@ export default function Iridescence({
 
     function update(t: number) {
       animateId = requestAnimationFrame(update);
+      
+      // Smooth mouse interpolation for natural movement
+      mousePos.current.x += (targetMousePos.current.x - mousePos.current.x) * smoothness;
+      mousePos.current.y += (targetMousePos.current.y - mousePos.current.y) * smoothness;
+      
+      // Update shader uniforms
       program.uniforms.uTime.value = t * 0.001;
+      program.uniforms.uMouse.value[0] = mousePos.current.x;
+      program.uniforms.uMouse.value[1] = mousePos.current.y;
+      
       renderer.render({ scene: mesh });
     }
     animateId = requestAnimationFrame(update);
@@ -190,9 +236,9 @@ export default function Iridescence({
       const rect = ctn.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
       const y = 1.0 - (e.clientY - rect.top) / rect.height;
-      mousePos.current = { x, y };
-      program.uniforms.uMouse.value[0] = x;
-      program.uniforms.uMouse.value[1] = y;
+      
+      // Update target position for smooth interpolation
+      targetMousePos.current = { x, y };
     }
     if (mouseReact) {
       ctn.addEventListener("mousemove", handleMouseMove);

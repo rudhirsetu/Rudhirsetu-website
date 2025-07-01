@@ -7,6 +7,14 @@
   --primary-dark: #991B1B;  /* red-800 */
   --primary-light: #FEF2F2;  /* red-50 */
   overflow-x: hidden;
+  ::selection {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+  ::-moz-selection {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
 }
 
 body {
