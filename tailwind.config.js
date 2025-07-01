@@ -15,7 +15,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Poppins', 'sans-serif'],
+        sans: ['var(--font-poppins)', 'Poppins', 'sans-serif'],
+        cursive: ['var(--font-pacifico)', 'Pacifico', 'cursive'],
       },
     },
   },

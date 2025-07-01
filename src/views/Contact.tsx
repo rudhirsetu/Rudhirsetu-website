@@ -67,7 +67,7 @@ const Contact = () => {
   return (
     <>
       <StructuredData data={ContactPageData} id="contact-page-structured-data" />
-      <div className="py-12">
+      <div className="py-12 pt-[100px]">
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-16">

@@ -347,7 +347,7 @@ const Gallery = () => {
   return (
     <>
       <StructuredData data={GalleryPageData} id="gallery-page-structured-data" />
-      <div className="pt-8 pb-16 sm:pt-12 sm:pb-24">
+      <div className="pt-[100px] pb-16 sm:pb-24">
         <div className="container mx-auto px-4 sm:px-8">
           {/* Header */}
           <div className="text-center mb-16">

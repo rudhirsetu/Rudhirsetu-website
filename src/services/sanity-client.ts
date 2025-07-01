@@ -10,20 +10,45 @@ import type {
 } from '../types/sanity';
 
 /**
+ * Helper function for retrying API calls
+ */
+const retryApiCall = async <T>(
+  apiCall: () => Promise<T>,
+  maxRetries: number = 2,
+  delay: number = 1000
+): Promise<T> => {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await apiCall();
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw error;
+      }
+      console.warn(`API call failed, retrying in ${delay}ms... (attempt ${attempt + 1}/${maxRetries + 1})`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      delay *= 1.5; // Exponential backoff
+    }
+  }
+  throw new Error('Max retries exceeded');
+};
+
+/**
  * Event-related services
  */
 export const eventService = {
   fetchUpcoming: async (page: number = 1, pageSize: number = 6): Promise<{ data: Event[], meta: { pagination: Pagination } } | null> => {
     try {
-      const [events, totalCount] = await Promise.all([
-        client.fetch(QUERIES.upcomingEvents(page, pageSize)),
-        client.fetch(QUERIES.upcomingEventsCount)
-      ]);
+      const [events, totalCount] = await retryApiCall(() => 
+        Promise.all([
+          client.fetch(QUERIES.upcomingEvents(page, pageSize)),
+          client.fetch(QUERIES.upcomingEventsCount)
+        ])
+      );
 
       const pageCount = Math.ceil(totalCount / pageSize);
 
       return {
-        data: events,
+        data: events || [],
         meta: {
           pagination: {
             page,
@@ -41,15 +66,17 @@ export const eventService = {
 
   fetchPast: async (page: number = 1, pageSize: number = 6): Promise<{ data: Event[], meta: { pagination: Pagination } } | null> => {
     try {
-      const [events, totalCount] = await Promise.all([
-        client.fetch(QUERIES.pastEvents(page, pageSize)),
-        client.fetch(QUERIES.pastEventsCount)
-      ]);
+      const [events, totalCount] = await retryApiCall(() =>
+        Promise.all([
+          client.fetch(QUERIES.pastEvents(page, pageSize)),
+          client.fetch(QUERIES.pastEventsCount)
+        ])
+      );
 
       const pageCount = Math.ceil(totalCount / pageSize);
 
       return {
-        data: events,
+        data: events || [],
         meta: {
           pagination: {
             page,

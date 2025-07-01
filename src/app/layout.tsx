@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Poppins } from 'next/font/google';
+import { Poppins, Pacifico } from 'next/font/google';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -13,6 +13,13 @@ const poppins = Poppins({
   weight: ['300', '400', '500', '600', '700'],
   display: 'swap',
   variable: '--font-poppins',
+});
+
+const pacifico = Pacifico({
+  subsets: ['latin'],
+  weight: ['400'],
+  display: 'swap',
+  variable: '--font-pacifico',
 });
 
 export const metadata: Metadata = {
@@ -134,7 +141,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={poppins.variable}>
+    <html lang="en" className={`${poppins.variable} ${pacifico.variable}`}>
       <head>
         {/* Preconnect to important domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -391,9 +398,9 @@ export default function RootLayout({
       </head>
       <body className={`${poppins.className} font-sans antialiased`}>
         <DevelopmentWarning />
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="min-h-screen min-h-dvh bg-gray-50 flex flex-col">
           <Navbar />
-          <main className="flex-grow mt-16">
+          <main className="flex-grow pb-4">
             {children}
           </main>
           <Footer />

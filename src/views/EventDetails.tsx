@@ -278,7 +278,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-white pb-16 overflow-hidden"
+      className="bg-gradient-to-br from-gray-50 via-white to-red-50/30 pb-16 overflow-hidden max-w-7xl mx-auto min-h-screen"
     >
       {/* Hero Section with Parallax */}
       <div className="relative w-full">
@@ -303,7 +303,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
             </motion.div>
             
             {/* Overlay Content */}
-            <div className="absolute inset-0 flex flex-col justify-between container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <div className="absolute inset-0 flex flex-col justify-between container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 mt-20">
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -380,28 +380,103 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mt-6 sm:mt-8">
+        {/* Background gradient overlay for glass morphism effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-red-50/30 via-white/10 to-red-100/20 pointer-events-none -mx-4 sm:-mx-6 lg:-mx-8"></div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Event Info Sidebar - For Mobile: Show at Top */}
-          <div className="lg:order-2 lg:col-span-1 lg:sticky lg:top-6 lg:self-start">
+          {/* About This Event - First on mobile */}
+          <motion.div 
+            className="order-1 lg:order-1 lg:col-span-2"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+          >
+            {/* Description */}
+            <motion.div 
+              variants={fadeIn}
+              custom={0.1}
+              className="mb-12"
+            >
+              <motion.h2 
+                variants={fadeIn}
+                className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8 flex items-center"
+              >
+                <FileText className="w-8 h-8 mr-3 text-red-600" />
+                About This Event
+              </motion.h2>
+              <motion.div 
+                variants={fadeIn}
+                className="prose prose-lg prose-red max-w-none"
+              >
+                <p className="text-gray-700 whitespace-pre-line leading-relaxed text-lg">{event.desc}</p>
+              </motion.div>
+            </motion.div>
+
+            {/* Event Gallery - Third on mobile, but on left column on desktop */}
+            {event.gallery && event.gallery.length > 0 && (
+              <motion.div 
+                className="order-3 lg:order-1"
+                variants={fadeIn}
+                custom={0.3}
+              >
+                <motion.h2 
+                  variants={fadeIn}
+                  className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8 flex items-center"
+                >
+                  <Camera className="w-8 h-8 mr-3 text-red-600" />
+                  Event Gallery
+                </motion.h2>
+                <motion.div 
+                  variants={fadeIn}
+                  className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
+                >
+                  {event.gallery.map((image, index) => (
+                    <motion.button
+                      key={index}
+                      onClick={() => setSelectedImage(index)}
+                      className="relative aspect-square group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-white/20 backdrop-blur-sm"
+                      whileHover={{ y: -8, scale: 1.03 }}
+                      whileTap={{ scale: 0.96 }}
+                    >
+                      <img
+                        src={urlFor(image).width(400).height(400).url()}
+                        alt={image.alt || `Gallery image ${index + 1}`}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3" />
+                      {image.caption && (
+                        <div className="absolute inset-x-0 bottom-0 p-3 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                          <p className="text-white text-sm font-medium">{image.caption}</p>
+                        </div>
+                      )}
+                    </motion.button>
+                  ))}
+                </motion.div>
+              </motion.div>
+            )}
+          </motion.div>
+
+          {/* Event Details - Sidebar on desktop */}
+          <div className="order-2 lg:order-2 lg:col-span-1 lg:sticky lg:top-6 lg:self-start">
             <motion.div 
               variants={fadeIn}
               initial="hidden" 
               whileInView="visible"
               viewport={{ once: true }}
               custom={0.2}
-              className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100"
+              className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20 relative"
             >
-              <div className="flex items-center bg-red-900 text-white p-6">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-transparent to-red-600/5 pointer-events-none"></div>
+              <div className="relative flex items-center bg-gradient-to-r from-red-900/90 to-red-800/90 backdrop-blur-sm text-white p-6">
                 <CalendarHeart className="w-5 h-5 mr-2" />
                 <h2 className="text-xl font-bold">Event Details</h2>
               </div>
               
-              <div className="p-6 space-y-5">
+              <div className="relative p-6 space-y-5 backdrop-blur-sm">
                 <motion.div 
                   variants={fadeIn}
-                  className="flex items-start"
+                  className="flex items-start p-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg"
                 >
-                  <div className="bg-red-50 p-2 rounded-lg mr-4">
+                  <div className="bg-gradient-to-br from-red-100 to-red-50 p-3 rounded-xl mr-4 shadow-sm">
                     <Calendar className="w-6 h-6 text-red-600" />
                   </div>
                   <div>
@@ -416,32 +491,49 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
 
                 <motion.div 
                   variants={fadeIn}
-                  className="flex items-start"
+                  className="p-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg"
                 >
-                  <div className="bg-red-50 p-2 rounded-lg mr-4">
-                    <MapPin className="w-6 h-6 text-red-600" />
+                  <div className="flex items-start mb-4">
+                    <div className="bg-gradient-to-br from-red-100 to-red-50 p-3 rounded-xl mr-4 shadow-sm">
+                      <MapPin className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-900">Location</h3>
+                      <p className="text-gray-600">{event.location}</p>
+                      <a 
+                        href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-red-600 hover:text-red-700 text-sm inline-flex items-center mt-1 transition-colors"
+                      >
+                        <span>View on map</span>
+                        <ExternalLink className="w-3.5 h-3.5 ml-1" />
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">Location</h3>
-                    <p className="text-gray-600">{event.location}</p>
-                    <a 
-                      href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-red-600 hover:text-red-700 text-sm inline-flex items-center mt-1 transition-colors"
-                    >
-                      <span>View on map</span>
-                      <ExternalLink className="w-3.5 h-3.5 ml-1" />
-                    </a>
+                  
+                  {/* Embedded Map */}
+                  <div className="rounded-xl overflow-hidden shadow-lg">
+                    <iframe
+                      src={`https://maps.google.com/maps?q=${encodeURIComponent(event.location)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                      width="100%"
+                      height="200"
+                      style={{ border: 0 }}
+                      allowFullScreen={true}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      className="w-full"
+                      title={`Map showing location: ${event.location}`}
+                    ></iframe>
                   </div>
                 </motion.div>
 
                 {event.expectedParticipants && (
                   <motion.div 
                     variants={fadeIn}
-                    className="flex items-start"
+                    className="flex items-start p-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg"
                   >
-                    <div className="bg-red-50 p-2 rounded-lg mr-4">
+                    <div className="bg-gradient-to-br from-red-100 to-red-50 p-3 rounded-xl mr-4 shadow-sm">
                       <Users className="w-6 h-6 text-red-600" />
                     </div>
                     <div>
@@ -453,7 +545,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
                 
                 <motion.div 
                   variants={fadeIn}
-                  className="pt-4 border-t border-gray-100"
+                  className="pt-6 mt-6 border-t border-white/30"
                 >
                   {event.isUpcoming ? (
                     <Link
@@ -464,16 +556,16 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
                       <span>Get Involved</span>
                     </Link>
                   ) : (
-                    <div className="bg-blue-50 rounded-xl p-4 text-blue-700 text-center">
+                    <div className="bg-gradient-to-r from-blue-100/80 to-blue-50/60 backdrop-blur-sm rounded-2xl p-5 text-blue-800 text-center border border-blue-200/50 shadow-lg">
                       <p className="font-medium">This event has already taken place</p>
-                      <p className="text-sm mt-1">Browse our gallery to see the highlights</p>
+                      <p className="text-sm mt-1 opacity-80">Browse our gallery to see the highlights</p>
                     </div>
                   )}
                 </motion.div>
                 
                 <motion.div 
                   variants={fadeIn}
-                  className="flex justify-center gap-4 pt-4 border-t border-gray-100"
+                  className="flex justify-center gap-4 pt-6 mt-6 border-t border-white/30"
                 >
                   <button 
                     onClick={() => {
@@ -488,85 +580,19 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
                         alert('Link copied to clipboard!');
                       }
                     }}
-                    className="flex flex-col items-center text-gray-600 hover:text-red-600 transition-colors"
+                    className="flex flex-col items-center text-gray-700 hover:text-red-600 transition-all duration-300 group"
                   >
-                    <div className="p-2 bg-gray-100 rounded-full mb-1 hover:bg-red-50 transition-colors">
+                    <div className="p-3 bg-white/70 backdrop-blur-sm rounded-2xl mb-2 hover:bg-red-50 transition-all duration-300 shadow-lg group-hover:shadow-xl border border-white/50">
                       <Share2 className="w-5 h-5" />
                     </div>
-                    <span className="text-xs">Share</span>
+                    <span className="text-xs font-medium">Share</span>
                   </button>
                 </motion.div>
               </div>
             </motion.div>
+
+
           </div>
-
-          {/* Description and Gallery */}
-          <motion.div 
-            className="lg:order-1 lg:col-span-2"
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-          >
-            {/* Description */}
-            <motion.div 
-              variants={fadeIn}
-              custom={0.1}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8"
-            >
-              <div className="bg-red-900 text-white p-6">
-                <h2 className="text-xl font-bold flex items-center">
-                  <FileText className="w-5 h-5 mr-2" />
-                  About This Event
-                </h2>
-              </div>
-              <div className="p-6 sm:p-8">
-                <div className="prose prose-red max-w-none">
-                  <p className="text-gray-700 whitespace-pre-line leading-relaxed">{event.desc}</p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Gallery Section */}
-            {event.gallery && event.gallery.length > 0 && (
-              <motion.div 
-                variants={fadeIn}
-                custom={0.3}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8"
-              >
-                <div className="bg-red-900 text-white p-6">
-                  <h2 className="text-xl font-bold flex items-center">
-                    <Camera className="w-5 h-5 mr-2" />
-                    Event Gallery
-                  </h2>
-                </div>
-                <div className="p-6 sm:p-8">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                    {event.gallery.map((image, index) => (
-                      <motion.button
-                        key={index}
-                        onClick={() => setSelectedImage(index)}
-                        className="relative aspect-square group overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
-                        whileHover={{ y: -5, scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <img
-                          src={urlFor(image).width(400).height(400).url()}
-                          alt={image.alt || `Gallery image ${index + 1}`}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3" />
-                        {image.caption && (
-                          <div className="absolute inset-x-0 bottom-0 p-3 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                            <p className="text-white text-sm font-medium">{image.caption}</p>
-                          </div>
-                        )}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </motion.div>
         </div>
       </div>
 

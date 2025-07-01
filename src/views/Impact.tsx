@@ -87,7 +87,7 @@ const Impact = () => {
 
   if (loading) {
     return (
-      <div className="py-12 sm:py-16">
+      <div className="pt-[100px] pb-12 sm:pb-16">
         <div className="container mx-auto px-4">
           {/* Skeleton Header */}
           <div className="text-center max-w-4xl mx-auto mb-12 sm:mb-16">
@@ -140,7 +140,7 @@ const Impact = () => {
 
   if (error) {
     return (
-      <div className="py-16 sm:py-24">
+      <div className="pt-[100px] pb-16 sm:pb-24">
         <div className="container mx-auto px-4 text-center">
           <div className="bg-red-50 p-6 sm:p-8 rounded-2xl inline-block max-w-md mx-auto shadow-lg">
             <Heart className="w-12 h-12 text-red-600 mx-auto mb-4 opacity-50" />
@@ -160,7 +160,7 @@ const Impact = () => {
   return (
     <>
       <StructuredData data={CampPageData} id="camp-page-structured-data" />
-      <div className="py-12 sm:py-16">
+      <div className="pt-[100px] pb-12 sm:pb-16">
         <div className="container mx-auto px-4">
           {/* Page Header */}
           <div className="text-center max-w-4xl mx-auto mb-12 sm:mb-16">
