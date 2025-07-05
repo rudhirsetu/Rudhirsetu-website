@@ -1,5 +1,5 @@
 import React from 'react';
-import Link from 'next/link';
+import PreloadLink from './PreloadLink';
 
 interface NavigationItem {
   label: string;
@@ -48,8 +48,9 @@ const SiteNavigation: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {navigationItems.map((item) => (
             <div key={item.href} className="navigation-item">
-              <Link
+              <PreloadLink
                 href={item.href}
+                priority={item.priority}
                 className={`block p-4 rounded-lg border transition-colors hover:bg-gray-50 ${
                   item.priority === 'high' ? 'border-red-200 hover:border-red-300' : 'border-gray-200'
                 }`}
@@ -64,7 +65,7 @@ const SiteNavigation: React.FC = () => {
                 >
                   {item.description}
                 </p>
-              </Link>
+              </PreloadLink>
             </div>
           ))}
         </div>

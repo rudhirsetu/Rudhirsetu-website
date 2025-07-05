@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import PreloadLink from './PreloadLink';
 import { Heart, Phone, Menu, X, Home, Share2, Image, Gift } from 'lucide-react';
   // import { settingsService } from '../services/sanity-client';
   // import type { SocialMediaSettings } from '../types/sanity';
@@ -112,7 +112,7 @@ const Navbar = () => {
                 whileHover={{ scale: 1.02 }}
                 className="flex items-center"
               >
-                <Link href="/" className="flex items-center space-x-2">
+                <PreloadLink href="/" priority="high" className="flex items-center space-x-2">
                   <img
                     className="h-10 w-auto"
                     src="/images/logo-dark.svg"
@@ -126,7 +126,7 @@ const Navbar = () => {
                       Seva Sanstha
                     </span>
                   </div>
-                </Link>
+                </PreloadLink>
               </motion.div>
 
               {/* Divider */}
@@ -164,8 +164,9 @@ const Navbar = () => {
                       transition={{ type: "spring", stiffness: 400, damping: 17 }}
                       style={{ zIndex: 1 }}
                     >
-                      <Link
+                      <PreloadLink
                         href={item.path}
+                        priority={item.path === '/' || item.path === '/donations' || item.path === '/camp' ? 'high' : 'medium'}
                         className={`relative px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 flex items-center space-x-2 group ${
                           isActive(item.path)
                             ? 'text-[#9B2C2C] font-semibold'
@@ -176,7 +177,7 @@ const Navbar = () => {
                           isActive(item.path) ? 'text-[#9B2C2C]' : 'group-hover:scale-110'
                         }`} />
                         <span className="font-semibold">{item.label}</span>
-                      </Link>
+                      </PreloadLink>
                     </motion.div>
                   );
                 })}
@@ -192,7 +193,7 @@ const Navbar = () => {
                 whileHover={{ scale: 1.02 }}
                 className="flex items-center"
               >
-                <Link href="/" className="flex items-center space-x-2">
+                <PreloadLink href="/" priority="high" className="flex items-center space-x-2">
                   <img
                     className="h-8 w-auto"
                     src="/images/logo-dark.svg"
@@ -206,7 +207,7 @@ const Navbar = () => {
                       Seva Sanstha
                     </span>
                   </div>
-                </Link>
+                </PreloadLink>
               </motion.div>
 
               {/* Mobile Menu Button */}
@@ -262,8 +263,9 @@ const Navbar = () => {
                       transition={{ delay: index * 0.05, duration: 0.2 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <Link
+                      <PreloadLink
                         href={item.path}
+                        priority={item.path === '/' || item.path === '/donations' || item.path === '/camp' ? 'high' : 'medium'}
                         className={`relative flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
                           isActive(item.path)
                             ? 'bg-[#9B2C2C] text-white shadow-lg shadow-red-900/25'
@@ -275,7 +277,7 @@ const Navbar = () => {
                           isActive(item.path) ? '' : 'group-hover:scale-110'
                         }`} />
                         <span className="font-semibold">{item.label}</span>
-                      </Link>
+                      </PreloadLink>
                     </motion.div>
                   );
                 })}

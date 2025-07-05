@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import PreloadLink from "../components/PreloadLink";
 import {
   ArrowRight,
   Heart,
@@ -279,7 +279,7 @@ const Home = () => {
                     <>
                       <div className="absolute hidden md:block top-60 right-4 scale-150 opacity-100 pointer-events-none">
                       <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"  x="0px" y="0px"
-	 width="100%" viewBox="0 0 1392 752" enable-background="new 0 0 1392 752">
+	 width="100%" viewBox="0 0 1392 752" enableBackground="new 0 0 1392 752">
 <path fill="transparent" opacity="1.000000" stroke="none" 
 	d="
 M1002.000000,753.000000 
@@ -1176,13 +1176,14 @@ z"/>
                           ))}
                         </div>
 
-                        <Link
+                        <PreloadLink
                           href="/camp"
+                          priority="high"
                           className="hidden md:inline-flex items-center justify-center w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors duration-200 group"
                         >
                           <span>Join Our Next Camp</span>
                           <ArrowRight className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-200" />
-                        </Link>
+                        </PreloadLink>
                       </div>
                     </>
                   ) : area.title === "Cancer Awareness" ? (
@@ -1337,13 +1338,14 @@ z"/>
           )}
 
           <motion.div variants={itemVariants} className="text-center mt-16">
-            <Link
+            <PreloadLink
               href="/camp"
+              priority="high"
               className="inline-flex items-center justify-center px-8 py-4 bg-red-900 text-white rounded-lg font-semibold shadow-md hover:bg-red-800 transition-all duration-300 group"
             >
               <span>View All Events</span>
               <ArrowRight className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
-            </Link>
+            </PreloadLink>
           </motion.div>
         </div>
       </motion.section>
@@ -1453,13 +1455,14 @@ z"/>
             </motion.div>
 
             <motion.div variants={itemVariants} className="text-center">
-              <Link
+              <PreloadLink
                 href="/gallery"
+                priority="medium"
                 className="inline-flex items-center justify-center px-8 py-4 bg-red-900 text-white rounded-lg font-semibold shadow-md hover:bg-red-800 transition-all duration-300 group"
               >
                 <span>View Full Gallery</span>
                 <ArrowRight className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
-              </Link>
+              </PreloadLink>
             </motion.div>
           </div>
         </motion.section>
@@ -1546,20 +1549,22 @@ z"/>
                 {/* Action Buttons Section */}
                 <div className="p-8 md:p-10">
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <Link
+                    <PreloadLink
                       href="/contact"
+                      priority="high"
                       className="flex-1 inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white font-medium rounded-xl transition-all duration-300 shadow-md hover:shadow-lg text-base border border-red-700/20"
                     >
                       <span>Contact Us</span>
                       <ExternalLink className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
-                    </Link>
-                    <Link
+                    </PreloadLink>
+                    <PreloadLink
                       href="/donations"
+                      priority="high"
                       className="flex-1 inline-flex items-center justify-center px-6 py-4 bg-gray-700 text-white hover:bg-gray-600 font-medium rounded-xl transition-all duration-300 shadow-md hover:shadow-lg text-base border border-gray-600"
                     >
                       <span>Donate Now</span>
                       <Heart className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
-                    </Link>
+                    </PreloadLink>
                   </div>
                 </div>
               </div>
