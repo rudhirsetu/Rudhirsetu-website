@@ -231,7 +231,7 @@ const Home = () => {
   ];
 
   return (
-    <div className="space-y-0 overflow-x-hidden">
+    <div className="space-y-0 overflow-x-hidden bg-white">
       <Hero />
 
       {/* Key Focus Areas */}
