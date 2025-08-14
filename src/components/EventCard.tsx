@@ -95,9 +95,9 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'grid' }: EventC
                         href={`/event/${event._id}`}
                         className={`inline-flex items-center justify-center w-full px-5 py-3 ${
                             isUpcoming 
-                                ? 'bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white border border-red-700/20' 
+                                ? 'bg-red-600 text-white border border-red-600 hover:bg-red-700' 
                                 : 'bg-gray-700 text-white hover:bg-gray-600 border border-gray-600'
-                        } font-medium rounded-xl transition-all duration-300 shadow-md hover:shadow-lg ${isUpcoming ? 'group-hover:shadow-xl' : ''} text-base border`}
+                        } font-medium rounded-md transition-all duration-300 shadow-md hover:shadow-lg ${isUpcoming ? 'group-hover:shadow-xl' : ''} text-base border`}
                     >
                         <span>View Details</span>
                         <ArrowRight className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
