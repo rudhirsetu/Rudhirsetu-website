@@ -277,8 +277,8 @@ const Home = () => {
 
                   {area.title === "Blood Donation" ? (
                     <>
-                      <div className="absolute hidden md:block top-60 right-4 scale-150 opacity-100 pointer-events-none">
-                        <img src="/images/blood-donation.svg" className="w-64 h-64 mb-80"/>
+                      <div className="absolute hidden md:block right-4 top-50 pointer-events-none">
+                        <img src="/images/blood-donation.svg" className="w-64 h-64"/>
                       </div>
 
                       <div className="flex-grow">
