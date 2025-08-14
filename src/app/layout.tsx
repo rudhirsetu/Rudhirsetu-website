@@ -94,13 +94,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: 'https://www.rudhirsetu.org/icons/favicon.ico', sizes: '48x48', type: 'image/x-icon' },
-      { url: 'https://www.rudhirsetu.org/icons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: 'https://www.rudhirsetu.org/icons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: 'https://www.rudhirsetu.org/icons/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: 'https://www.rudhirsetu.org/icons/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
+      { url: '/favicon.ico', sizes: '48x48', type: 'image/x-icon' },
+      { url: '/icons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/icons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+      { url: '/icons/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
-    shortcut: '/icons/favicon.ico',
+    shortcut: '/favicon.ico',
     apple: [
       { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
@@ -150,6 +151,12 @@ export default function RootLayout({
         
         {/* Sitemap */}
         <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+        
+        {/* Explicit favicon links for better browser compatibility */}
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="96x96" href="/icons/favicon-96x96.png" />
         
         {/* Preload critical images */}
         <link rel="preload" href="/images/logo-dark.svg" as="image" type="image/svg+xml" fetchPriority="high" />
