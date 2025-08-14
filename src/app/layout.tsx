@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Poppins, Pacifico } from 'next/font/google';
+import { Poppins, Pacifico} from 'next/font/google';
+// import localFont from 'next/font/local';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -21,6 +22,13 @@ const pacifico = Pacifico({
   display: 'swap',
   variable: '--font-pacifico',
 });
+
+
+// const league_script = localFont({
+//   src: '../../public/font/PPPlayground-Medium.otf',
+//   display: 'swap',
+//   variable: '--font-league-script',
+// });
 
 export const metadata: Metadata = {
   title: {
@@ -142,7 +150,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${poppins.variable} ${pacifico.variable}`}>
+    <html lang="en" className={`
+      ${poppins.variable} 
+      ${pacifico.variable} 
+    `}
+    >
+      {/* ${league_script.variable} ADD THIS BS LATER*/}
+
       <head>
         {/* Preconnect to important domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

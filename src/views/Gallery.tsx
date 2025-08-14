@@ -18,11 +18,10 @@ const Gallery = () => {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [showFilters, setShowFilters] = useState(false);
-  const filterRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [imagesPerPage] = useState(16);
   const [isViewingFeatured, setIsViewingFeatured] = useState(false);
+  const galleryRef = useRef<HTMLDivElement>(null);
 
   // Categories with icons
   const categories = [
@@ -101,17 +100,7 @@ const Gallery = () => {
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
-    setShowFilters(false);
     setCurrentPage(1);
-    
-    // Scroll to the gallery section smoothly
-    const gallerySection = document.getElementById('gallery-grid');
-    if (gallerySection) {
-      // Add a small delay to ensure state updates complete
-      setTimeout(() => {
-        gallerySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
   };
 
   const ImageCard = ({ image }: { image: GalleryImage }) => {
@@ -194,13 +183,17 @@ const Gallery = () => {
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
     
-    // Scroll to the gallery section smoothly
-    const gallerySection = document.getElementById('gallery-grid');
-    if (gallerySection) {
-      // Add a small delay to ensure state updates complete
-      setTimeout(() => {
-        gallerySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+    // Scroll to the gallery section smoothly with navbar offset
+    if (galleryRef.current) {
+      const element = galleryRef.current;
+      const navbarHeight = 100; // Adjust this value to match your navbar height
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - navbarHeight;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -210,28 +203,28 @@ const Gallery = () => {
 
     return (
       <div className="flex flex-col sm:flex-row items-center sm:justify-between mt-12">
-        <span className="text-sm text-gray-600 font-medium hidden sm:block">
+        <span className="text-sm text-gray-500 mb-4 sm:mb-0">
           Page {currentPage} of {totalPages}
         </span>
-        <div className="flex gap-2 sm:mx-0">
+        <div className="flex gap-1">
           <button
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
-            className="p-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+            className="p-2 rounded-md border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             aria-label="Previous page"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4" />
           </button>
-          {totalPages <= 5 ? (
-            // Show all page numbers if total pages <= 5
+          {totalPages <= 7 ? (
+            // Show all page numbers if total pages <= 7
             [...Array(totalPages)].map((_, index) => (
               <button
                 key={index}
                 onClick={() => paginate(index + 1)}
-                className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium transition-colors ${
+                className={`w-9 h-9 rounded-md flex items-center justify-center text-sm font-medium transition-colors border ${
                   currentPage === index + 1
-                    ? 'bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-red-600 text-white border-red-600'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
                 }`}
               >
                 {index + 1}
@@ -243,25 +236,25 @@ const Gallery = () => {
               {currentPage > 1 && (
                 <button
                   onClick={() => paginate(1)}
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  className="w-9 h-9 rounded-md flex items-center justify-center text-sm font-medium bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
                 >
                   1
                 </button>
               )}
               
-              {currentPage > 3 && <span className="mx-1 text-gray-400">...</span>}
+              {currentPage > 3 && <span className="px-2 text-gray-400">...</span>}
               
               {currentPage > 2 && (
                 <button
                   onClick={() => paginate(currentPage - 1)}
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  className="w-9 h-9 rounded-md flex items-center justify-center text-sm font-medium bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
                 >
                   {currentPage - 1}
                 </button>
               )}
               
               <button
-                className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white"
+                className="w-9 h-9 rounded-md flex items-center justify-center text-sm font-medium bg-red-600 text-white border border-red-600"
               >
                 {currentPage}
               </button>
@@ -269,18 +262,18 @@ const Gallery = () => {
               {currentPage < totalPages - 1 && (
                 <button
                   onClick={() => paginate(currentPage + 1)}
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  className="w-9 h-9 rounded-md flex items-center justify-center text-sm font-medium bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
                 >
                   {currentPage + 1}
                 </button>
               )}
               
-              {currentPage < totalPages - 2 && <span className="mx-1 text-gray-400">...</span>}
+              {currentPage < totalPages - 2 && <span className="px-2 text-gray-400">...</span>}
               
               {currentPage < totalPages && (
                 <button
                   onClick={() => paginate(totalPages)}
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  className="w-9 h-9 rounded-md flex items-center justify-center text-sm font-medium bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
                 >
                   {totalPages}
                 </button>
@@ -290,10 +283,10 @@ const Gallery = () => {
           <button
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="p-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+            className="p-2 rounded-md border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             aria-label="Next page"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -435,52 +428,23 @@ const Gallery = () => {
           }
 
           {/* Filters */}
-          <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm py-4 border-b border-gray-100 shadow-sm mb-8 -mx-4 px-4 sm:-mx-8 sm:px-8">
-            <div className="flex flex-col md:flex-row justify-between gap-4">
-
-              {/* Desktop Categories */}
-              <div className="flex flex-wrap items-center gap-3">
-                {categories.map((category) => (
-                  <button
-                    key={category.id}
-                    onClick={() => handleCategoryChange(category.id)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center ${
-                      selectedCategory === category.id
-                        ? 'bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    <span className="mr-2">{category.icon}</span>
-                    {category.label}
-                  </button>
-                ))}
-              </div>
+          <div className="mb-8">
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => handleCategoryChange(category.id)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border flex items-center gap-1.5 ${
+                    selectedCategory === category.id
+                      ? 'bg-red-600 text-white border-red-600'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {category.icon}
+                  {category.label}
+                </button>
+              ))}
             </div>
-
-            {/* Mobile Categories */}
-            {showFilters && (
-              <div
-                ref={filterRef}
-                className="md:hidden mt-4 overflow-hidden"
-              >
-                <div className="grid grid-cols-2 gap-2">
-                  {categories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => handleCategoryChange(category.id)}
-                      className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center ${
-                        selectedCategory === category.id
-                          ? 'bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      <span className="mr-2">{category.icon}</span>
-                      {category.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Gallery Stats */}
@@ -506,7 +470,7 @@ const Gallery = () => {
           </div>
 
           {/* Gallery Grid with CSS Grid Layout */}
-          <div id="gallery-grid" className="overflow-hidden">
+          <div ref={galleryRef} className="overflow-hidden">
             <GalleryGrid images={currentImages} />
           </div>
 

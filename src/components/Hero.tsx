@@ -105,7 +105,7 @@ const Hero = () => {
             >
               <span className="block sm:inline">
                 <span>Transforming </span>
-                <span style={{ fontFamily: 'var(--font-pacifico), Pacifico, cursive', fontWeight: 'lighter' }}>Lives,</span>
+                <span style={{ fontFamily: 'var(--font-pacifico), Pacifico, cursive', fontWeight: 'lighter' }}>Lives,</span><br/>
               </span>{' '}
               <span className="text-white">
                 <span style={{ fontFamily: 'var(--font-pacifico), Pacifico, cursive', fontWeight: 'lighter' }}>Empowering </span>
