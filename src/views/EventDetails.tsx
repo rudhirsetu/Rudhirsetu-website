@@ -67,11 +67,6 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
     // End transition when component mounts
     endTransition();
     
-    // Only scroll to top if user is significantly down the page
-    if (window.scrollY > window.innerHeight) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    
     // Only fetch if we don't have eventData from the server
     if (eventData) {
       return;
