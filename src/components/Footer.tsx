@@ -2,41 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { ContactSettings, SocialMediaSettings } from '../types/sanity';
 import { settingsService } from '../services/sanity-client';
 import { Mail, Phone, MapPin, Heart, ArrowRight, ExternalLink } from 'lucide-react';
-
-// Animation variants
-const containerVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.8,
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.6 },
-  },
-};
-
-const linkVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4 },
-  },
-};
 
 const Footer = () => {
   const [contactSettings, setContactSettings] = useState<ContactSettings | null>(null);
@@ -114,278 +82,210 @@ const Footer = () => {
   ];
 
   return (
-    <motion.footer 
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="text-white py-8 md:py-16 relative overflow-hidden rounded-t-4xl"
-    >
-            <div className="absolute bg-red-800 inset-0 z-0 overflow-hidden pointer-events-none">
+    <footer className="text-white py-8 md:py-16 relative overflow-hidden rounded-t-4xl">
+      <div className="absolute bg-red-800 inset-0 z-0 overflow-hidden pointer-events-none">
+      
+      </div>
+
+      
+      {/* Content with relative positioning to appear above background */}
+      <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-between">
+        {/* Main Footer Sections */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 mb-12">
+          {/* About & Logo Section */}
+          <div className="md:col-span-3 space-y-5">
             
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/images/logo-light.svg" 
+                alt="Rudhirsetu Logo" 
+                className="h-50 w-auto"
+              />
             </div>
-
-
             
-            {/* Content with relative positioning to appear above background */}
-            <div className="container mx-auto px-4 relative z-10 h-full flex flex-col justify-between">
-              {/* Main Footer Sections */}
-              <motion.div 
-                variants={containerVariants}
-                className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 mb-12"
-              >
-                {/* About & Logo Section */}
-                <motion.div variants={itemVariants} className="md:col-span-3 space-y-5">
-                  <motion.div 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3, duration: 0.5 }}
-                    className="flex items-center space-x-3"
+            {/* Social Media Links */}
+            <div className="flex space-x-4">
+              {socialLinks?.facebookUrl && (
+                <a 
+                  href={socialLinks.facebookUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on Facebook"
+                  className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
+                >
+                  {getSocialIcon('facebook')}
+                </a>
+              )}
+              {socialLinks?.instagramUrl && (
+                <a 
+                  href={socialLinks.instagramUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on Instagram"
+                  className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
+                >
+                  {getSocialIcon('instagram')}
+                </a>
+              )}
+              {socialLinks?.linkedinUrl && (
+                <a 
+                  href={socialLinks.linkedinUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  aria-label="Connect with us on LinkedIn"
+                  className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
+                >
+                  {getSocialIcon('linkedin')}
+                </a>
+              )}
+              {socialLinks?.youtubeUrl && (
+                <a 
+                  href={socialLinks.youtubeUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  aria-label="Subscribe to our YouTube channel"
+                  className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
+                >
+                  {getSocialIcon('youtube')}
+                </a>
+              )}
+            </div>
+          </div>
+          
+          {/* Quick Links Section */}
+          <div className="md:col-span-3 space-y-4">
+            <h3 className="text-lg font-bold border-b border-white/20 pb-2 mb-4">
+              Quick Links
+            </h3>
+            <ul className="space-y-2.5">
+              {quickLinks.map((link, index) => (
+                <li key={index}>
+                  <Link 
+                    href={link.path} 
+                    className="text-white/80 hover:text-white transition-colors inline-flex items-center group"
                   >
-                    <img 
-                      src="/images/logo-light.svg" 
-                      alt="Rudhirsetu Logo" 
-                      className="h-50 w-auto"
-                    />
-                  </motion.div>
-                  
-                  {/* Social Media Links */}
-                  <motion.div 
-                    variants={containerVariants}
-                    className="flex space-x-4"
-                  >
-                    {socialLinks?.facebookUrl && (
-                      <a 
-                        href={socialLinks.facebookUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        aria-label="Follow us on Facebook"
-                        className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
-                      >
-                        {getSocialIcon('facebook')}
-                      </a>
-                    )}
-                    {socialLinks?.instagramUrl && (
-                      <a 
-                        href={socialLinks.instagramUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        aria-label="Follow us on Instagram"
-                        className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
-                      >
-                        {getSocialIcon('instagram')}
-                      </a>
-                    )}
-                    {socialLinks?.linkedinUrl && (
-                      <a 
-                        href={socialLinks.linkedinUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        aria-label="Connect with us on LinkedIn"
-                        className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
-                      >
-                        {getSocialIcon('linkedin')}
-                      </a>
-                    )}
-                    {socialLinks?.youtubeUrl && (
-                      <a 
-                        href={socialLinks.youtubeUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        aria-label="Subscribe to our YouTube channel"
-                        className="text-white/80 hover:text-white transition-colors h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
-                      >
-                        {getSocialIcon('youtube')}
-                      </a>
-                    )}
-                  </motion.div>
-                </motion.div>
-                
-                {/* Quick Links Section */}
-                <motion.div variants={itemVariants} className="md:col-span-3 space-y-4">
-                  <motion.h3 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.5 }}
-                    className="text-lg font-bold border-b border-white/20 pb-2 mb-4"
-                  >
-                    Quick Links
-                  </motion.h3>
-                  <ul className="space-y-2.5">
-                    {quickLinks.map((link, index) => (
-                      <motion.li 
-                        key={index}
-                        variants={linkVariants}
-                        custom={index}
-                      >
-                        <Link 
-                          href={link.path} 
-                          className="text-white/80 hover:text-white transition-colors inline-flex items-center group"
-                        >
-                          <motion.span 
-                            className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                            whileHover={{ x: 3 }}
-                          >
-                            <ArrowRight className="w-3 h-3" />
-                          </motion.span>
-                          <span className="relative">
-                            {link.label}
-                          </span>
-                        </Link>
-                      </motion.li>
-                    ))}
-                  </ul>
-                </motion.div>
+                    <span className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <ArrowRight className="w-3 h-3" />
+                    </span>
+                    <span className="relative">
+                      {link.label}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-                {/* SEO & Legal Links Section */}
-                <motion.div variants={itemVariants} className="md:col-span-2 space-y-4">
-                  <motion.h3 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.5 }}
-                    className="text-lg font-bold border-b border-white/20 pb-2 mb-4"
+          {/* SEO & Legal Links Section */}
+          <div className="md:col-span-2 space-y-4">
+            <h3 className="text-lg font-bold border-b border-white/20 pb-2 mb-4">
+              Site Info
+            </h3>
+            <ul className="space-y-2.5">
+              {seoLinks.map((link, index) => (
+                <li key={index}>
+                  {link.external ? (
+                    <a 
+                      href={link.path}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white/80 hover:text-white transition-colors inline-flex items-center group"
+                    >
+                      <span className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ExternalLink className="w-3 h-3" />
+                      </span>
+                      <span className="relative">
+                        {link.label}
+                      </span>
+                    </a>
+                  ) : (
+                    <Link 
+                      href={link.path} 
+                      className="text-white/80 hover:text-white transition-colors inline-flex items-center group"
+                    >
+                      <span className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ArrowRight className="w-3 h-3" />
+                      </span>
+                      <span className="relative">
+                        {link.label}
+                      </span>
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          {/* Contact Section */}
+          <div className="md:col-span-4 space-y-4">
+            <h3 className="text-lg font-bold border-b border-white/20 pb-2 mb-4">
+              Contact Us
+            </h3>
+            <div className="space-y-4">
+              {/* Contact Info */}
+              <div className="space-y-3">
+                {contactSettings?.phone && (
+                  <a 
+                    href={`tel:${contactSettings.phone}`} 
+                    className="flex items-center space-x-3 text-white/80 hover:text-white transition-colors"
                   >
-                    Site Info
-                  </motion.h3>
-                  <ul className="space-y-2.5">
-                    {seoLinks.map((link, index) => (
-                      <motion.li 
-                        key={index}
-                        variants={linkVariants}
-                        custom={index}
-                      >
-                        {link.external ? (
-                          <a 
-                            href={link.path}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-white/80 hover:text-white transition-colors inline-flex items-center group"
-                          >
-                            <motion.span 
-                              className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                              whileHover={{ x: 3 }}
-                            >
-                              <ExternalLink className="w-3 h-3" />
-                            </motion.span>
-                            <span className="relative">
-                              {link.label}
-                            </span>
-                          </a>
-                        ) : (
-                          <Link 
-                            href={link.path} 
-                            className="text-white/80 hover:text-white transition-colors inline-flex items-center group"
-                          >
-                            <motion.span 
-                              className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                              whileHover={{ x: 3 }}
-                            >
-                              <ArrowRight className="w-3 h-3" />
-                            </motion.span>
-                            <span className="relative">
-                              {link.label}
-                            </span>
-                          </Link>
-                        )}
-                      </motion.li>
-                    ))}
-                  </ul>
-                </motion.div>
-                
-                {/* Contact Section */}
-                <motion.div variants={itemVariants} className="md:col-span-4 space-y-4">
-                  <motion.h3 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6, duration: 0.5 }}
-                    className="text-lg font-bold border-b border-white/20 pb-2 mb-4"
+                    <div className="p-2 bg-white/10 rounded-full">
+                      <Phone className="w-4 h-4" />
+                    </div>
+                    <span>{contactSettings.phone}</span>
+                  </a>
+                )}
+                {contactSettings?.email && (
+                  <a 
+                    href={`mailto:${contactSettings.email}`} 
+                    className="flex items-center space-x-3 text-white/80 hover:text-white transition-colors"
                   >
-                    Contact Us
-                  </motion.h3>
-                  <div className="space-y-4">
-                    {/* Contact Info */}
-                    <div className="space-y-3">
-                      {contactSettings?.phone && (
-                        <motion.a 
-                          whileHover={{ x: 5 }}
-                          href={`tel:${contactSettings.phone}`} 
-                          className="flex items-center space-x-3 text-white/80 hover:text-white transition-colors"
-                        >
-                          <div className="p-2 bg-white/10 rounded-full">
-                            <Phone className="w-4 h-4" />
-                          </div>
-                          <span>{contactSettings.phone}</span>
-                        </motion.a>
-                      )}
-                      {contactSettings?.email && (
-                        <motion.a 
-                          whileHover={{ x: 5 }}
-                          href={`mailto:${contactSettings.email}`} 
-                          className="flex items-center space-x-3 text-white/80 hover:text-white transition-colors"
-                        >
-                          <div className="p-2 bg-white/10 rounded-full">
-                            <Mail className="w-4 h-4" />
-                          </div>
-                          <span>{contactSettings.email}</span>
-                        </motion.a>
-                      )}
-                      {contactSettings?.address && (
-                        <motion.div 
-                          variants={linkVariants}
-                          className="flex items-start space-x-3 text-white/80"
-                        >
-                          <div className="p-2 bg-white/10 rounded-full flex-shrink-0 mt-0.5">
-                            <MapPin className="w-4 h-4" />
-                          </div>
-                          <div>
-                            {formatAddress(contactSettings.address).map((line, index) => (
-                              <p key={index} className="leading-snug">{line}</p>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
+                    <div className="p-2 bg-white/10 rounded-full">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <span>{contactSettings.email}</span>
+                  </a>
+                )}
+                {contactSettings?.address && (
+                  <div className="flex items-start space-x-3 text-white/80">
+                    <div className="p-2 bg-white/10 rounded-full flex-shrink-0 mt-0.5">
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                    <div>
+                      {formatAddress(contactSettings.address).map((line, index) => (
+                        <p key={index} className="leading-snug">{line}</p>
+                      ))}
                     </div>
                   </div>
-                </motion.div>
-              </motion.div>
-              
-              {/* Divider */}
-              <div className="h-px bg-white/20 my-8" />
-              
-              {/* Bottom Footer */}
-              <motion.div 
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1, duration: 0.8, ease: "easeOut" }}
-                className="flex flex-col md:flex-row justify-between items-center text-white text-lg"
-              >
-                <motion.div 
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1.2, duration: 0.6 }}
-                  className="mb-4 md:mb-0 text-center text-md"
-                >
-                  <p>&copy; {new Date().getFullYear()} Rudhirsetu Seva Sanstha. All rights reserved.</p>
-                </motion.div>
-                <motion.div 
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1.4, duration: 0.6 }}
-                  className="flex items-center justify-center"
-                >
-                  <a
-                    href="https://www.linkedin.com/in/deeptanshu-l-6868a4187/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-white flex items-center gap-1.5 font-medium hover:underline transition-colors duration-300 group"
-                  >
-                    <span>Made with</span>
-                    <Heart className="w-4 h-4 text-white transition-colors duration-300" />
-                    <span>by Deeptanshu</span>
-                  </a>
-                </motion.div>
-              </motion.div>
+                )}
+              </div>
             </div>
-          </motion.footer>
+          </div>
+        </div>
+        
+        {/* Divider */}
+        <div className="h-px bg-white/20 my-8" />
+        
+        {/* Bottom Footer */}
+        <div className="flex flex-col md:flex-row justify-between items-center text-white text-lg">
+          <div className="mb-4 md:mb-0 text-center text-md">
+            <p>&copy; {new Date().getFullYear()} Rudhirsetu Seva Sanstha. All rights reserved.</p>
+          </div>
+          <div className="flex items-center justify-center">
+            <a
+              href="https://www.linkedin.com/in/deeptanshu-l-6868a4187/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white flex items-center gap-1.5 font-medium hover:underline transition-colors duration-300 group"
+            >
+              <span>Made with</span>
+              <Heart className="w-4 h-4 text-white transition-colors duration-300" />
+              <span>by Deeptanshu</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 };
 

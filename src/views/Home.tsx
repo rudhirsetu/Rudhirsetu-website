@@ -147,8 +147,8 @@ const Home = () => {
       },
       {
         root: null,
-        rootMargin: '200px', // Increased margin to start loading earlier but still lazy
-        threshold: 0
+        rootMargin: '50px', // Reduced margin to prevent early loading that causes lag
+        threshold: 0.1
       }
     );
 
@@ -321,7 +321,6 @@ const Home = () => {
 
                   {area.title === "Blood Donation" ? (
                     <>
-
                       <div className="flex-grow">
                         <h3 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900">
                           {area.title}
@@ -593,7 +592,7 @@ const Home = () => {
         <motion.section
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: "-50px" }}
           variants={containerVariants}
           className="py-24 bg-white"
         >
@@ -644,7 +643,7 @@ const Home = () => {
       <motion.section
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
+        viewport={{ once: true, margin: "-50px" }}
         variants={containerVariants}
         className="container mx-auto px-4 py-20 md:py-24"
       >

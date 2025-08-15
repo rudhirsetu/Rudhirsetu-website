@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useCallback } from 'react';
 
 interface Position {
   x: number;
@@ -20,12 +20,25 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [opacity, setOpacity] = useState<number>(0);
 
-  const handleMouseMove: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    if (!divRef.current || isFocused) return;
-
-    const rect = divRef.current.getBoundingClientRect();
-    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
+  // Throttle mousemove for better performance
+  const throttledMouseMove = useCallback(
+    (() => {
+      let isThrottled = false;
+      return (e: React.MouseEvent<HTMLDivElement>) => {
+        if (isThrottled || !divRef.current || isFocused) return;
+        
+        isThrottled = true;
+        requestAnimationFrame(() => {
+          const rect = divRef.current?.getBoundingClientRect();
+          if (rect) {
+            setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+          }
+          isThrottled = false;
+        });
+      };
+    })(),
+    [isFocused]
+  );
 
   const handleFocus = () => {
     setIsFocused(true);
@@ -48,7 +61,7 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
   return (
     <div
       ref={divRef}
-      onMouseMove={handleMouseMove}
+      onMouseMove={throttledMouseMove}
       onFocus={handleFocus}
       onBlur={handleBlur}
       onMouseEnter={handleMouseEnter}
@@ -56,10 +69,11 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
       className={`relative rounded-3xl border border-gray-300 bg-white/90 backdrop-blur-sm overflow-hidden p-8 ${className}`}
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 ease-in-out"
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 ease-in-out"
         style={{
           opacity,
           background: `radial-gradient(circle at ${position.x}px ${position.y}px, ${spotlightColor}, transparent 80%)`,
+          transform: 'translateZ(0)', // Force hardware acceleration
         }}
       />
       {children}

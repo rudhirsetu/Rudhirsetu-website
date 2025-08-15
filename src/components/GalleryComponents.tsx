@@ -7,7 +7,7 @@ import type { GalleryImage } from '../types/sanity';
 const FeaturedCarouselComponent = ({ 
   featuredImages, 
   onImageClick,
-  autoplayInterval = 5000,
+  autoplayInterval = 8000, // Increased from 5000 to reduce redraws
   aspectRatio = 'md:aspect-[21/9] aspect-[4/3]'
 }: { 
   featuredImages: GalleryImage[], 
@@ -16,17 +16,18 @@ const FeaturedCarouselComponent = ({
   aspectRatio?: string
 }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
-  // Auto-advance carousel
+  // Auto-advance carousel with pause functionality
   useEffect(() => {
-    if (featuredImages.length <= 1) return;
+    if (featuredImages.length <= 1 || isPaused) return;
 
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % featuredImages.length);
     }, autoplayInterval);
 
     return () => clearInterval(timer);
-  }, [featuredImages, autoplayInterval]);
+  }, [featuredImages, autoplayInterval, isPaused]);
 
   if (featuredImages.length === 0) return null;
 
@@ -37,15 +38,22 @@ const FeaturedCarouselComponent = ({
   };
 
   return (
-    <div className="relative group">
+    <div 
+      className="relative group"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       <div className={`relative ${aspectRatio} rounded-2xl overflow-hidden shadow-xl`}>
         {featuredImages.map((image, index) => (
           <div
             key={image._id}
-            className={`absolute inset-0 transition-opacity duration-500 ${
+            className={`absolute inset-0 transition-opacity duration-700 ${
               index === currentSlide ? 'opacity-100' : 'opacity-0'
             }`}
-            style={{ pointerEvents: index === currentSlide ? 'auto' : 'none' }}
+            style={{ 
+              pointerEvents: index === currentSlide ? 'auto' : 'none',
+              willChange: index === currentSlide ? 'auto' : 'transform' // Performance hint
+            }}
           >
             <div 
               className="absolute inset-0 cursor-pointer"
@@ -55,8 +63,15 @@ const FeaturedCarouselComponent = ({
                 src={urlFor(image.image).url()}
                 alt={image.title || 'Featured Image'}
                 className="w-full h-full object-cover"
-                loading={index === 0 ? "eager" : "lazy"} // Only load first image eagerly
+                loading={index <= 1 ? "eager" : "lazy"} // Load first 2 images eagerly
                 style={{ minHeight: '300px' }}
+                onLoad={() => {
+                  // Preload next image
+                  if (index === currentSlide && index < featuredImages.length - 1) {
+                    const nextImage = new Image();
+                    nextImage.src = urlFor(featuredImages[index + 1].image).url();
+                  }
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
                 <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 lg:p-10">
@@ -80,7 +95,7 @@ const FeaturedCarouselComponent = ({
               e.stopPropagation();
               setCurrentSlide((prev) => (prev - 1 + featuredImages.length) % featuredImages.length);
             }}
-            className="pointer-events-auto w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 text-white hover:bg-white hover:text-black duration-300 flex items-center justify-center backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"
+            className="pointer-events-auto w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 text-white hover:bg-white hover:text-black duration-200 flex items-center justify-center backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"
             aria-label="Previous slide"
           >
             <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -90,7 +105,7 @@ const FeaturedCarouselComponent = ({
               e.stopPropagation();
               setCurrentSlide((prev) => (prev + 1) % featuredImages.length);
             }}
-            className="pointer-events-auto w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 text-white hover:bg-white hover:text-black duration-300 flex items-center justify-center backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all"
+            className="pointer-events-auto w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 text-white hover:bg-white hover:text-black duration-200 flex items-center justify-center backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all"
             aria-label="Next slide"
           >
             <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -108,10 +123,10 @@ const FeaturedCarouselComponent = ({
                 e.stopPropagation();
                 setCurrentSlide(index);
               }}
-              className={`pointer-events-auto h-1.5 rounded-full transition-all duration-300 ${
+              className={`pointer-events-auto h-1.5 rounded-full transition-all duration-200 ${
                 index === currentSlide 
                   ? 'bg-red-600 w-8 sm:w-12' 
-                  : 'bg-gray-300 w-2.5 sm:w-3 hover:bg-gray-400'
+                  : 'bg-white w-2.5 sm:w-3 hover:bg-red-300'
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />
