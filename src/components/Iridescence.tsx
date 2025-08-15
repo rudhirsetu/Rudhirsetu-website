@@ -320,7 +320,7 @@ export default function Iridescence({
       console.warn('WebGL Iridescence failed to initialize:', error);
       setHasError(true);
     }
-  }, [color, speed, amplitude, mouseReact, isInitialized, hasError]);
+  }, [color, speed, amplitude, mouseReact, isInitialized, hasError, frameInterval, isChrome]);
 
   useEffect(() => {
     // Use requestIdleCallback if available, otherwise use setTimeout
