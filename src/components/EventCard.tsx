@@ -1,10 +1,13 @@
 'use client';
 
 import { MapPin, Users, ArrowRight, Calendar } from 'lucide-react';
-import Link from 'next/link';
 import { format } from 'date-fns';
 import { urlFor } from '../lib/sanity';
 import { Event } from '../types/sanity';
+import { motion } from 'framer-motion';
+import { usePageTransition } from '../context/PageTransitionContext';
+import { useRouter } from 'next/navigation';
+import { useRef } from 'react';
 
 interface EventCardProps {
   event: Event;
@@ -15,15 +18,41 @@ interface EventCardProps {
 const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'grid' }: EventCardProps) => {
     const isUpcoming = variant === 'upcoming';
     const isList = layoutStyle === 'list';
+    const { startTransition } = usePageTransition();
+    const router = useRouter();
+    const cardRef = useRef<HTMLDivElement>(null);
+    
+    const handleCardClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        
+        if (cardRef.current) {
+            const rect = cardRef.current.getBoundingClientRect();
+            startTransition(event._id, rect);
+            
+            // Small delay to ensure transition state is set
+            setTimeout(() => {
+                router.push(`/event/${event._id}`);
+            }, 50);
+        }
+    };
     
     return (
-        <div 
+        <motion.div 
+            ref={cardRef}
+            layoutId={`event-card-${event._id}`}
             className={`bg-white rounded-2xl border border-gray-200/60 ${isUpcoming ? 'shadow-xl hover:shadow-2xl' : 'shadow-lg hover:shadow-xl'} 
-                transition-all duration-300 overflow-hidden group ${isList ? 'flex flex-col md:flex-row' : 'flex flex-col'}`}
+                transition-all duration-300 overflow-hidden group ${isList ? 'flex flex-col md:flex-row' : 'flex flex-col'} cursor-pointer`}
+            onClick={handleCardClick}
+            whileHover={{ y: -4, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
         >
             {event.image && (
-                <div className={`relative ${isList ? 'h-40 md:h-auto md:w-2/5' : 'h-40 sm:h-44 md:h-48'} overflow-hidden`}>
-                    <img
+                <motion.div 
+                    layoutId={`event-image-${event._id}`}
+                    className={`relative ${isList ? 'h-40 md:h-auto md:w-2/5' : 'h-40 sm:h-44 md:h-48'} overflow-hidden`}
+                >
+                    <motion.img
+                        layoutId={`event-img-${event._id}`}
                         src={urlFor(event.image).width(800).height(400).url()}
                         alt={event.title}
                         className={`w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ${!isUpcoming && 'filter grayscale-[30%] group-hover:grayscale-0'}`}
@@ -40,15 +69,18 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'grid' }: EventC
                             {format(new Date(event.date), 'MMM d, yyyy')}
                         </span>
                     </div>
-                </div>
+                </motion.div>
             )}
             
             <div className={`flex flex-col flex-grow ${isList && 'md:w-3/5'}`}>
                 {/* Title Section */}
                 <div className="p-2 sm:p-5 md:p-6 pb-2">
-                    <h3 className={`text-lg sm:text-xl md:text-xl font-bold ${isUpcoming ? 'text-gray-900 group-hover:text-[#9B2C2C]' : 'text-gray-700 group-hover:text-gray-900'} transition-colors duration-300`}>
+                    <motion.h3 
+                        layoutId={`event-title-${event._id}`}
+                        className={`text-lg sm:text-xl md:text-xl font-bold ${isUpcoming ? 'text-gray-900 group-hover:text-[#9B2C2C]' : 'text-gray-700 group-hover:text-gray-900'} transition-colors duration-300`}
+                    >
                         {event.title.slice(0, 60)}
-                    </h3>
+                    </motion.h3>
                 </div>
 
                     {/* Description Section */}
@@ -91,8 +123,7 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'grid' }: EventC
                 
                 {/* Action Button Section */}
                 <div className="p-4 sm:p-5 md:p-6 mt-auto">
-                    <Link 
-                        href={`/event/${event._id}`}
+                    <div 
                         className={`inline-flex items-center justify-center w-full px-5 py-3 ${
                             isUpcoming 
                                 ? 'bg-red-600 text-white border border-red-600 hover:bg-red-700' 
@@ -101,10 +132,10 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'grid' }: EventC
                     >
                         <span>View Details</span>
                         <ArrowRight className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
-                    </Link>
+                    </div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

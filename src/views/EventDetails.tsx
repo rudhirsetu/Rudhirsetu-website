@@ -6,6 +6,7 @@ import { Event } from '../types/sanity';
 import { client } from '../lib/sanity';
 import { urlFor } from '../lib/sanity';
 import { format } from 'date-fns';
+import { usePageTransition } from '../context/PageTransitionContext';
 
 interface EventDetailsProps {
   eventId?: string;
@@ -19,6 +20,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const { transitionState, endTransition } = usePageTransition();
 
   // Track scroll position for parallax and reveal effects
   useEffect(() => {
@@ -62,6 +64,9 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
   }, [selectedImage, handlePrevImage, handleNextImage]);
 
   useEffect(() => {
+    // End transition when component mounts
+    endTransition();
+    
     // Only scroll to top if user is significantly down the page
     if (window.scrollY > window.innerHeight) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -104,7 +109,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
     if (id && !eventData) {
       fetchEvent();
     }
-  }, [id, eventData]);
+  }, [id, eventData, endTransition]);
 
   const Lightbox = () => {
     if (selectedImage === null || !event?.gallery) return null;
@@ -134,7 +139,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
             <img
               src={urlFor(image).width(1500).url()}
               alt={image.alt || 'Gallery image'}
-              className="max-w-full max-h-[80vh] mb-10 object-contain rounded-lg shadow-2xl"
+              className="max-w-full max-h-[80vh] mb-10 object-fit rounded-lg shadow-2xl"
             />
             
             {image.caption && (
@@ -292,18 +297,22 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
       {/* Hero Section with Parallax */}
       <div className="relative w-full">
         {event.image && (
-          <div className="relative h-[65vh] md:h-[70vh] lg:h-[80vh] overflow-hidden">
+          <motion.div 
+            layoutId={`event-image-${event._id}`}
+            className="relative h-[65vh] md:h-[70vh] lg:h-[80vh] overflow-hidden"
+          >
             <motion.div
-              initial={{ scale: 1.1 }}
+              initial={transitionState.isTransitioning ? false : { scale: 1.1 }}
               animate={{ scale: 1 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: transitionState.isTransitioning ? 0 : 0.8 }}
               style={{ 
                 y: scrollPosition * 0.2,
                 scale: 1 + scrollPosition * 0.0005
               }}
               className="absolute inset-0 w-full h-full"
             >
-              <img
+              <motion.img
+                layoutId={`event-img-${event._id}`}
                 src={urlFor(event.image).width(1920).height(1080).url()}
                 alt={event.title}
                 className="w-full h-full object-cover object-center"
@@ -355,9 +364,10 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
                   </motion.div>
                   
                   <motion.h1 
-                    initial={{ opacity: 0, y: 30 }}
+                    layoutId={`event-title-${event._id}`}
+                    initial={transitionState.isTransitioning ? false : { opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.7 }}
+                    transition={{ delay: transitionState.isTransitioning ? 0 : 0.5, duration: transitionState.isTransitioning ? 0 : 0.7 }}
                     className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight shadow-text mb-4 md:mb-6"
                   >
                     {event.title}
@@ -376,7 +386,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
                 </div>
               </motion.div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Decorative curve */}

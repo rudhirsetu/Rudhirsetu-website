@@ -474,7 +474,11 @@ const Home = () => {
               return allEvents.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {allEvents.map((event) => (
-                    <motion.div key={event._id} variants={itemVariants}>
+                    <motion.div 
+                      key={event._id} 
+                      variants={itemVariants}
+                      className="h-full"
+                    >
                       <EventCard
                         event={event}
                         variant={

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Heart, ChevronLeft, ChevronRight, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Event, Pagination } from '../types/sanity';
@@ -7,6 +7,44 @@ import EventCard from '../components/EventCard';
 import { StructuredData } from '../components/StructuredData';
 import { CampPageData } from '../lib/structured-data';
 
+const PaginationControls = ({ pagination, onPageChange, label }: { 
+  pagination: Pagination | null; 
+  onPageChange: (page: number) => void;
+  label: string;
+}) => {
+  if (!pagination || pagination.pageCount <= 1) return null;
+
+  return (
+    <div className="flex items-center justify-between mt-8">
+      <span className="text-sm text-gray-600 font-medium">
+        {label} {pagination.page} of {pagination.pageCount}
+      </span>
+      <div className="flex gap-2">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => onPageChange(pagination.page - 1)}
+          disabled={pagination.page === 1}
+          className="p-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+          aria-label="Previous page"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => onPageChange(pagination.page + 1)}
+          disabled={pagination.page === pagination.pageCount}
+          className="p-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+          aria-label="Next page"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </motion.button>
+      </div>
+    </div>
+  );
+};
+
 const Impact = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [pastEvents, setPastEvents] = useState<Event[]>([]);
@@ -14,10 +52,15 @@ const Impact = () => {
   const [pastPagination, setPastPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-  const loadEvents = async (upcomingPage = 1, pastPage = 1) => {
+  const loadEvents = useCallback(async (upcomingPage = 1, pastPage = 1, showLoading = true) => {
     try {
-      setLoading(true);
+      // Only show loading for initial load or when explicitly requested
+      if (showLoading && !initialLoadComplete) {
+        setLoading(true);
+      }
+      
       const [upcomingData, pastData] = await Promise.all([
         eventService.fetchUpcoming(upcomingPage),
         eventService.fetchPast(pastPage)
@@ -31,63 +74,37 @@ const Impact = () => {
         setPastEvents(pastData.data);
         setPastPagination(pastData.meta.pagination);
       }
+      
+      setError(null); // Clear any previous errors
     } catch (err) {
       setError('Failed to load events. Please try again later.');
       console.error('Error loading events:', err);
     } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 800);
+      setLoading(false);
+      setInitialLoadComplete(true);
     }
-  };
+  }, [initialLoadComplete]);
 
   useEffect(() => {
     loadEvents();
-    // Only scroll to top if user is significantly down the page
+  }, [loadEvents]);
+
+  useEffect(() => {
+    // Only scroll to top if user is significantly down the page - separate effect
     if (window.scrollY > window.innerHeight) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, []);
 
-  const PaginationControls = ({ pagination, onPageChange, label }: { 
-    pagination: Pagination | null; 
-    onPageChange: (page: number) => void;
-    label: string;
-  }) => {
-    if (!pagination || pagination.pageCount <= 1) return null;
+  const handleUpcomingPageChange = useCallback((page: number) => {
+    loadEvents(page, pastPagination?.page || 1, false);
+  }, [loadEvents, pastPagination?.page]);
 
-    return (
-      <div className="flex items-center justify-between mt-8">
-        <span className="text-sm text-gray-600 font-medium">
-          {label} {pagination.page} of {pagination.pageCount}
-        </span>
-        <div className="flex gap-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onPageChange(pagination.page - 1)}
-            disabled={pagination.page === 1}
-            className="p-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-            aria-label="Previous page"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onPageChange(pagination.page + 1)}
-            disabled={pagination.page === pagination.pageCount}
-            className="p-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-            aria-label="Next page"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </motion.button>
-        </div>
-      </div>
-    );
-  };
+  const handlePastPageChange = useCallback((page: number) => {
+    loadEvents(upcomingPagination?.page || 1, page, false);
+  }, [loadEvents, upcomingPagination?.page]);
 
-  if (loading) {
+  if (loading && !initialLoadComplete) {
     return (
       <div className="pt-[100px] pb-12 sm:pb-16">
         <div className="container mx-auto px-4">
@@ -164,6 +181,15 @@ const Impact = () => {
       <StructuredData data={CampPageData} id="camp-page-structured-data" />
       <div className="pt-[100px] pb-12 sm:pb-16">
         <div className="container mx-auto px-4">
+          {/* Show subtle loading indicator during pagination */}
+          {loading && initialLoadComplete && (
+            <div className="fixed top-[100px] left-1/2 transform -translate-x-1/2 z-50 bg-white shadow-lg rounded-lg px-4 py-2 border">
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm text-gray-600">Loading...</span>
+              </div>
+            </div>
+          )}
           {/* Page Header */}
           <div className="text-center max-w-4xl mx-auto mb-12 sm:mb-16">
             <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 sm:mb-6 inline-flex items-center">
@@ -197,7 +223,7 @@ const Impact = () => {
             <div>
               <PaginationControls
                 pagination={upcomingPagination}
-                onPageChange={(page) => loadEvents(page, pastPagination?.page || 1)}
+                onPageChange={handleUpcomingPageChange}
                 label="Page"
               />
             </div>
@@ -224,7 +250,7 @@ const Impact = () => {
             <div>
               <PaginationControls
                 pagination={pastPagination}
-                onPageChange={(page) => loadEvents(upcomingPagination?.page || 1, page)}
+                onPageChange={handlePastPageChange}
                 label="Page"
               />
             </div>

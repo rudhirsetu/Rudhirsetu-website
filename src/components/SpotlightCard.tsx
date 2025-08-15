@@ -21,24 +21,12 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
   const [opacity, setOpacity] = useState<number>(0);
 
   // Throttle mousemove for better performance
-  const throttledMouseMove = useCallback(
-    (() => {
-      let isThrottled = false;
-      return (e: React.MouseEvent<HTMLDivElement>) => {
-        if (isThrottled || !divRef.current || isFocused) return;
-        
-        isThrottled = true;
-        requestAnimationFrame(() => {
-          const rect = divRef.current?.getBoundingClientRect();
-          if (rect) {
-            setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-          }
-          isThrottled = false;
-        });
-      };
-    })(),
-    [isFocused]
-  );
+  const throttledMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!divRef.current || isFocused) return;
+    
+    const rect = divRef.current.getBoundingClientRect();
+    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  }, [isFocused]);
 
   const handleFocus = () => {
     setIsFocused(true);

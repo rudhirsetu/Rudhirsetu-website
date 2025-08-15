@@ -210,7 +210,7 @@ export default function Iridescence({
       rendererRef.current = renderer as IridescenceRenderer;
       
       const gl = renderer.gl;
-      gl.clearColor(1, 1, 1, 1);
+      gl.clearColor(0, 0, 0, 0);
 
       const geometry = new Triangle(gl);
       const program = new Program(gl, {
