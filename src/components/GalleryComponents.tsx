@@ -1,13 +1,13 @@
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect, memo, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { urlFor } from '../lib/sanity';
 import type { GalleryImage } from '../types/sanity';
 
-// Reusable FeaturedCarousel component
+// Optimized FeaturedCarousel component
 const FeaturedCarouselComponent = ({ 
   featuredImages, 
   onImageClick,
-  autoplayInterval = 8000, // Increased from 5000 to reduce redraws
+  autoplayInterval = 8000,
   aspectRatio = 'md:aspect-[21/9] aspect-[4/3]'
 }: { 
   featuredImages: GalleryImage[], 
@@ -17,17 +17,71 @@ const FeaturedCarouselComponent = ({
 }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set([0])); // Preload first image
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-advance carousel with pause functionality
+  // Intersection Observer to pause when not visible
   useEffect(() => {
-    if (featuredImages.length <= 1 || isPaused) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        setIsVisible(entry.isIntersecting);
+        if (!entry.isIntersecting) {
+          setIsPaused(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
 
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % featuredImages.length);
+    if (carouselRef.current) {
+      observer.observe(carouselRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Optimized auto-advance with proper cleanup
+  useEffect(() => {
+    if (featuredImages.length <= 1 || isPaused || !isVisible) {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
+
+    timerRef.current = setInterval(() => {
+      setCurrentSlide((prev) => {
+        const next = (prev + 1) % featuredImages.length;
+        // Preload next image
+        setLoadedImages(prev => new Set([...prev, next]));
+        return next;
+      });
     }, autoplayInterval);
 
-    return () => clearInterval(timer);
-  }, [featuredImages, autoplayInterval, isPaused]);
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [featuredImages.length, autoplayInterval, isPaused, isVisible]);
+
+  // Preload adjacent images
+  const preloadAdjacentImages = useCallback((index: number) => {
+    const toLoad = new Set<number>();
+    toLoad.add(index);
+    if (index > 0) toLoad.add(index - 1);
+    if (index < featuredImages.length - 1) toLoad.add(index + 1);
+    
+    setLoadedImages(prev => new Set([...prev, ...toLoad]));
+  }, [featuredImages.length]);
+
+  useEffect(() => {
+    preloadAdjacentImages(currentSlide);
+  }, [currentSlide, preloadAdjacentImages]);
 
   if (featuredImages.length === 0) return null;
 
@@ -37,96 +91,115 @@ const FeaturedCarouselComponent = ({
     }
   };
 
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+    preloadAdjacentImages(index);
+  };
+
+  const nextSlide = () => {
+    const next = (currentSlide + 1) % featuredImages.length;
+    goToSlide(next);
+  };
+
+  const prevSlide = () => {
+    const prev = (currentSlide - 1 + featuredImages.length) % featuredImages.length;
+    goToSlide(prev);
+  };
+
   return (
     <div 
+      ref={carouselRef}
       className="relative group"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <div className={`relative ${aspectRatio} rounded-2xl overflow-hidden shadow-xl`}>
-        {featuredImages.map((image, index) => (
-          <div
-            key={image._id}
-            className={`absolute inset-0 transition-opacity duration-700 ${
-              index === currentSlide ? 'opacity-100' : 'opacity-0'
-            }`}
-            style={{ 
-              pointerEvents: index === currentSlide ? 'auto' : 'none',
-              willChange: index === currentSlide ? 'auto' : 'transform' // Performance hint
-            }}
-          >
-            <div 
-              className="absolute inset-0 cursor-pointer"
-              onClick={() => handleImageClick(featuredImages[currentSlide], currentSlide)}
+      <div className={`relative ${aspectRatio} rounded-2xl overflow-hidden bg-gray-100`}>
+        {/* Only render current and adjacent images */}
+        {featuredImages.map((image, index) => {
+          const isActive = index === currentSlide;
+          const shouldRender = Math.abs(index - currentSlide) <= 1 || 
+                             (currentSlide === 0 && index === featuredImages.length - 1) ||
+                             (currentSlide === featuredImages.length - 1 && index === 0);
+          
+          if (!shouldRender) return null;
+
+          return (
+            <div
+              key={image._id}
+              className={`absolute inset-0 transition-opacity duration-500 ${
+                isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              }`}
+              style={{ 
+                pointerEvents: isActive ? 'auto' : 'none'
+              }}
             >
-              <img
-                src={urlFor(image.image).url()}
-                alt={image.title || 'Featured Image'}
-                className="w-full h-full object-cover"
-                loading={index <= 1 ? "eager" : "lazy"} // Load first 2 images eagerly
-                style={{ minHeight: '300px' }}
-                onLoad={() => {
-                  // Preload next image
-                  if (index === currentSlide && index < featuredImages.length - 1) {
-                    const nextImage = new Image();
-                    nextImage.src = urlFor(featuredImages[index + 1].image).url();
-                  }
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 lg:p-10">
-                  <span className="inline-block px-3 py-1 bg-red-600 text-white text-xs sm:text-sm font-medium rounded-full mb-2 sm:mb-3 shadow-lg">
-                    Featured
-                  </span>
-                  <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-3 drop-shadow-lg line-clamp-2">{image.title}</h3>
-                  {image.description && (
-                    <p className="text-white/90 text-sm sm:text-base md:text-lg max-w-2xl drop-shadow-md line-clamp-2">{image.description}</p>
-                  )}
+              <div 
+                className="absolute inset-0 cursor-pointer"
+                onClick={() => handleImageClick(image, currentSlide)}
+              >
+                {loadedImages.has(index) && (
+                  <img
+                    src={urlFor(image.image).width(1200).quality(85).url()}
+                    alt={image.title || 'Featured Image'}
+                    className="w-full h-full object-cover"
+                    loading={index <= 1 ? "eager" : "lazy"}
+                    style={{ minHeight: '300px' }}
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent">
+                  <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
+                    <span className="inline-block px-3 py-1 bg-red-600 text-white text-xs sm:text-sm font-medium rounded-full mb-2 sm:mb-3">
+                      Featured
+                    </span>
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 line-clamp-2">{image.title}</h3>
+                    {image.description && (
+                      <p className="text-white/90 text-sm sm:text-base max-w-2xl line-clamp-2">{image.description}</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
-        {/* Carousel Controls - Only show on hover or touch devices */}
-        <div className="absolute inset-0 flex items-center justify-between p-2 sm:p-4 pointer-events-none">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setCurrentSlide((prev) => (prev - 1 + featuredImages.length) % featuredImages.length);
-            }}
-            className="pointer-events-auto w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 text-white hover:bg-white hover:text-black duration-200 flex items-center justify-center backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all"
-            aria-label="Previous slide"
-          >
-            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setCurrentSlide((prev) => (prev + 1) % featuredImages.length);
-            }}
-            className="pointer-events-auto w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 text-white hover:bg-white hover:text-black duration-200 flex items-center justify-center backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 focus:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all"
-            aria-label="Next slide"
-          >
-            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-        </div>
+        {/* Simplified Controls */}
+        {featuredImages.length > 1 && (
+          <div className="absolute inset-0 flex items-center justify-between p-4 pointer-events-none">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                prevSlide();
+              }}
+              className="pointer-events-auto w-12 h-12 rounded-full bg-black/50 text-white hover:bg-black/70 hover:scale-110 flex items-center justify-center opacity-70 hover:opacity-100 transition-all duration-200 backdrop-blur-sm border border-white/20"
+              aria-label="Previous slide"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                nextSlide();
+              }}
+              className="pointer-events-auto w-12 h-12 rounded-full bg-black/50 text-white hover:bg-black/70 hover:scale-110 flex items-center justify-center opacity-70 hover:opacity-100 transition-all duration-200 backdrop-blur-sm border border-white/20"
+              aria-label="Next slide"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Progress Indicators */}
+      {/* Simplified Progress Indicators */}
       {featuredImages.length > 1 && (
-        <div className="absolute -bottom-4 left-0 right-0 flex justify-center gap-2 px-4 pointer-events-none">
+        <div className="absolute -bottom-4 left-0 right-0 flex justify-center gap-2 px-4">
           {featuredImages.map((_, index) => (
             <button
               key={index}
-              onClick={(e) => {
-                e.stopPropagation();
-                setCurrentSlide(index);
-              }}
-              className={`pointer-events-auto h-1.5 rounded-full transition-all duration-200 ${
+              onClick={() => goToSlide(index)}
+              className={`h-1.5 rounded-full transition-all duration-200 ${
                 index === currentSlide 
-                  ? 'bg-red-600 w-8 sm:w-12' 
-                  : 'bg-white w-2.5 sm:w-3 hover:bg-red-300'
+                  ? 'bg-red-600 w-8' 
+                  : 'bg-gray-300 w-2.5 hover:bg-red-300'
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />
@@ -140,15 +213,14 @@ const FeaturedCarouselComponent = ({
 FeaturedCarouselComponent.displayName = 'FeaturedCarousel';
 export const FeaturedCarousel = memo(FeaturedCarouselComponent);
 
-// Reusable Lightbox component
+// Optimized Lightbox component
 export const ImageLightbox = ({ 
   selectedImage, 
   images, 
   selectedIndex, 
   onClose, 
   onPrev, 
-  onNext,
-  showThumbnails
+  onNext
 }: { 
   selectedImage: GalleryImage | null; 
   images: GalleryImage[]; 
@@ -156,7 +228,6 @@ export const ImageLightbox = ({
   onClose: () => void; 
   onPrev: () => void; 
   onNext: () => void; 
-  showThumbnails?: boolean;
 }) => {
   const [showInfo, setShowInfo] = useState(false);
   
@@ -164,12 +235,12 @@ export const ImageLightbox = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center backdrop-blur-sm"
+      className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center"
       tabIndex={0}
     >
       <button
         onClick={onClose}
-        className="absolute bg-black/70 border border-gray-700 rounded-full top-6 right-6 p-2 text-red-600 hover:text-white hover:bg-red-600 transition-colors duration-300 z-[60]"
+        className="absolute top-6 right-6 p-2 text-white hover:text-red-500 transition-colors z-[60]"
         aria-label="Close lightbox"
       >
         <X className="w-6 h-6 md:w-8 md:h-8" />
@@ -178,36 +249,36 @@ export const ImageLightbox = ({
       <div className="relative w-full h-full flex items-center justify-center p-4">
         <button
           onClick={onPrev}
-          className="absolute bg-black/70 border border-gray-700 rounded-full left-4 p-2 sm:p-3 z-[60] text-white hover:bg-white hover:text-black transition-colors duration-300"
+          className="absolute left-4 p-3 z-[60] text-white hover:text-red-500 transition-all duration-200 bg-black/30 hover:bg-black/50 rounded-full backdrop-blur-sm border border-white/20 hover:scale-110"
           aria-label="Previous image"
           disabled={images.length <= 1}
         >
-          <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+          <ChevronLeft className="w-6 h-6" />
         </button>
 
         <div className="relative max-w-5xl max-h-full">
           <img
-            src={urlFor(selectedImage.image).url()}
+            src={urlFor(selectedImage.image).quality(90).url()}
             alt={selectedImage.title || 'Gallery image'}
-            className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+            className="max-w-full max-h-[80vh] object-contain rounded-lg"
             loading="eager"
-            style={{ backgroundColor: 'rgba(0,0,0,0.3)' }}
           />
         </div>
 
         <button
           onClick={onNext}
-          className="absolute bg-black/70 border border-gray-700 rounded-full right-4 p-2 sm:p-3 z-[60] text-white hover:bg-white hover:text-black transition-colors duration-300"
+          className="absolute right-4 p-3 z-[60] text-white hover:text-red-500 transition-all duration-200 bg-black/30 hover:bg-black/50 rounded-full backdrop-blur-sm border border-white/20 hover:scale-110"
           aria-label="Next image"
           disabled={images.length <= 1}
         >
-          <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+          <ChevronRight className="w-6 h-6" />
         </button>
       </div>
 
+      {/* Simplified Info Panel */}
       <div className="absolute bottom-6 left-0 right-0 px-4">
         {showInfo && (
-          <div className="max-w-5xl mx-auto bg-black/60 backdrop-blur-sm rounded-xl p-4 text-white">
+          <div className="max-w-5xl mx-auto bg-black/60 rounded-xl p-4 text-white">
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-xl font-semibold">{selectedImage.title}</h3>
@@ -217,84 +288,29 @@ export const ImageLightbox = ({
                   </p>
                 )}
               </div>
-              <div className="flex items-center">
-                {selectedImage.category && (
-                  <span className="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full">
-                    {selectedImage.category.charAt(0).toUpperCase() + selectedImage.category.slice(1).replace(/-/g, ' ')}
-                  </span>
-                )}
-                {/* Info Toggle Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowInfo(prev => !prev);
-                  }}
-                  className="ml-3 bg-black/50 border border-gray-700 rounded-full p-1.5 text-white hover:bg-white/20 transition-colors duration-300"
-                  aria-label={showInfo ? "Hide information" : "Show information"}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="3" y1="3" x2="21" y2="21"></line>
-                    <line x1="21" y1="3" x2="3" y2="21"></line>
-                  </svg>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowInfo(false)}
+                className="ml-3 p-1.5 text-white hover:text-red-500 transition-colors"
+                aria-label="Hide information"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <div className="mt-2 text-sm text-white/60 flex items-center">
-              <span className="mr-4">
-                {selectedIndex + 1} of {images.length}
-              </span>
+            <div className="mt-2 text-sm text-white/60">
+              {selectedIndex + 1} of {images.length}
             </div>
           </div>
         )}
 
         {!showInfo && (
-          <div className="flex justify-end max-w-5xl mx-auto">
+          <div className="flex justify-center">
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowInfo(true);
-              }}
-              className="bg-black/60 border border-gray-700 rounded-full p-2 text-white hover:bg-white/20 transition-colors duration-300 backdrop-blur-sm flex items-center gap-2"
+              onClick={() => setShowInfo(true)}
+              className="bg-black/60 rounded-full px-4 py-2 text-white hover:bg-black/80 transition-colors flex items-center gap-2"
               aria-label="Show information"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-              </svg>
               <span className="text-sm">Show Info</span>
             </button>
-          </div>
-        )}
-
-        {/* Thumbnails */}
-        {showThumbnails && images.length > 1 && (
-          <div className="flex justify-center gap-2 mt-4 px-4 overflow-x-auto max-w-full">
-            <div className="flex gap-2 p-2 bg-black/60 rounded-full backdrop-blur-sm overflow-x-auto max-w-full">
-              {images.map((img, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    if (index !== selectedIndex) {
-                      onPrev(); // This is a hack to make TypeScript happy
-                      // In reality we would want to set the selected image to this one
-                    }
-                  }}
-                  className="relative flex-shrink-0"
-                  aria-label={`Go to image ${index + 1}`}
-                >
-                  <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 transition-colors ${
-                    index === selectedIndex ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'
-                  }`}>
-                    <img 
-                      src={urlFor(img.image).url()} 
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </button>
-              ))}
-            </div>
           </div>
         )}
       </div>

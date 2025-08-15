@@ -84,7 +84,11 @@ const Gallery = () => {
 
   useEffect(() => {
     loadImages();
-    window.scrollTo(0, 0);
+    // Remove aggressive scroll-to-top to prevent issues when refreshing at footer
+    // Only scroll to top if user is significantly down the page
+    if (window.scrollY > window.innerHeight) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -183,17 +187,24 @@ const Gallery = () => {
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
     
-    // Scroll to the gallery section smoothly with navbar offset
+    // Only scroll if user is below the gallery section to avoid unnecessary scrolling
     if (galleryRef.current) {
       const element = galleryRef.current;
-      const navbarHeight = 100; // Adjust this value to match your navbar height
       const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - navbarHeight;
+      
+      // Only scroll if the gallery is not in view (user scrolled past it)
+      if (elementPosition < -100) {
+        const navbarHeight = 100;
+        const offsetPosition = elementPosition + window.scrollY - navbarHeight;
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+        // Use requestAnimationFrame to optimize performance
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        });
+      }
     }
   };
 

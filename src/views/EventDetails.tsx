@@ -62,8 +62,10 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
   }, [selectedImage, handlePrevImage, handleNextImage]);
 
   useEffect(() => {
-    // Scroll to top when component mounts
-    window.scrollTo(0, 0);
+    // Only scroll to top if user is significantly down the page
+    if (window.scrollY > window.innerHeight) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     
     // Only fetch if we don't have eventData from the server
     if (eventData) {
@@ -464,13 +466,14 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
 
           {/* Event Details - Sidebar on desktop */}
           <div className="order-2 lg:order-2 lg:col-span-1 lg:sticky lg:top-6 lg:self-start">
+            {/* Main Event Details Box */}
             <motion.div 
               variants={fadeIn}
               initial="hidden" 
               whileInView="visible"
               viewport={{ once: true }}
               custom={0.2}
-              className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20 relative"
+              className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20 relative mb-6"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-transparent to-red-600/5 pointer-events-none"></div>
               <div className="relative flex items-center bg-gradient-to-r from-red-900/90 to-red-800/90 backdrop-blur-sm text-white p-6">
@@ -493,45 +496,6 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
                       <br />
                       {format(new Date(event.date), 'h:mm a')}
                     </p>
-                  </div>
-                </motion.div>
-
-                <motion.div 
-                  variants={fadeIn}
-                  className="p-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg"
-                >
-                  <div className="flex items-start mb-4">
-                    <div className="bg-gradient-to-br from-red-100 to-red-50 p-3 rounded-xl mr-4 shadow-sm">
-                      <MapPin className="w-6 h-6 text-red-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900">Location</h3>
-                      <p className="text-gray-600">{event.location}</p>
-                      <a 
-                        href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-red-600 hover:text-red-700 text-sm inline-flex items-center mt-1 transition-colors"
-                      >
-                        <span>View on map</span>
-                        <ExternalLink className="w-3.5 h-3.5 ml-1" />
-                      </a>
-                    </div>
-                  </div>
-                  
-                  {/* Embedded Map */}
-                  <div className="rounded-xl overflow-hidden shadow-lg">
-                    <iframe
-                      src={`https://maps.google.com/maps?q=${encodeURIComponent(event.location)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
-                      width="100%"
-                      height="200"
-                      style={{ border: 0 }}
-                      allowFullScreen={true}
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      className="w-full"
-                      title={`Map showing location: ${event.location}`}
-                    ></iframe>
                   </div>
                 </motion.div>
 
@@ -598,7 +562,62 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
               </div>
             </motion.div>
 
-
+            {/* Location Section - Outside the main box */}
+            <motion.div 
+              variants={fadeIn}
+              initial="hidden" 
+              whileInView="visible"
+              viewport={{ once: true }}
+              custom={0.3}
+              className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20 relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-transparent to-red-600/5 pointer-events-none"></div>
+              <div className="relative flex items-center bg-gradient-to-r from-red-900/90 to-red-800/90 backdrop-blur-sm text-white p-6">
+                <MapPin className="w-5 h-5 mr-2" />
+                <h2 className="text-xl font-bold">Location</h2>
+              </div>
+              
+              <div className="relative p-6 backdrop-blur-sm">
+                <motion.div 
+                  variants={fadeIn}
+                  className="p-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg"
+                >
+                  <div className="flex items-start mb-4">
+                    <div className="bg-gradient-to-br from-red-100 to-red-50 p-3 rounded-xl mr-4 shadow-sm">
+                      <MapPin className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-900">Event Location</h3>
+                      <p className="text-gray-600">{event.location}</p>
+                      <a 
+                        href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-red-600 hover:text-red-700 text-sm inline-flex items-center mt-1 transition-colors"
+                      >
+                        <span>View on map</span>
+                        <ExternalLink className="w-3.5 h-3.5 ml-1" />
+                      </a>
+                    </div>
+                  </div>
+                  
+                  {/* Embedded Map */}
+                  <div className="rounded-xl overflow-hidden shadow-lg">
+                    <iframe
+                      src={`https://maps.google.com/maps?q=${encodeURIComponent(event.location)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                      width="100%"
+                      height="200"
+                      style={{ border: 0 }}
+                      allowFullScreen={true}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      className="w-full"
+                      title={`Map showing location: ${event.location}`}
+                    ></iframe>
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>

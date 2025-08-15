@@ -337,9 +337,9 @@ export default function Iridescence({
   }, [initializeWebGL]);
 
   useEffect(() => {
+    const ctn = ctnDom.current;
     return () => {
       // Cleanup on unmount
-      const ctn = ctnDom.current;
       const cleanupFn = (ctn as HTMLDivElement & { __cleanup?: () => void })?.__cleanup;
       if (ctn && cleanupFn) {
         cleanupFn();

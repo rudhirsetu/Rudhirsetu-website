@@ -43,8 +43,10 @@ const Impact = () => {
 
   useEffect(() => {
     loadEvents();
-    // Scroll to top when component mounts
-    window.scrollTo(0, 0);
+    // Only scroll to top if user is significantly down the page
+    if (window.scrollY > window.innerHeight) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, []);
 
   const PaginationControls = ({ pagination, onPageChange, label }: { 

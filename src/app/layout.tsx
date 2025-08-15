@@ -419,13 +419,13 @@ export default function RootLayout({
       </head>
       <body className={`${poppins.className} font-sans antialiased`}>
         <DevelopmentWarning />
-        <div className="min-h-screen min-h-dvh bg-white flex flex-col">
+        <div className="min-h-screen bg-white flex flex-col">
           <Navbar />
-          <main className="flex-grow pb-4">
+          <main className="p-0">
             {children}
           </main>
-          <Footer />
         </div>
+        <Footer />
         <SpeedInsights />
         <Analytics />
       </body>
