@@ -183,6 +183,16 @@ export default function Iridescence({
   const rendererRef = useRef<IridescenceRenderer | null>(null);
   const animationRef = useRef<number>(0);
   const smoothness = 0.08;
+  
+  // Chrome performance fix
+  const lastFrameTime = useRef(0);
+  const [isChrome, setIsChrome] = useState(false);
+  const frameInterval = isChrome ? 33 : 16; // 30fps for Chrome, 60fps for others
+
+  // Detect Chrome after component mounts
+  useEffect(() => {
+    setIsChrome(/Chrome/.test(navigator.userAgent) && !/Edge/.test(navigator.userAgent));
+  }, []);
 
   // Lazy initialization function that runs after component mount
   const initializeWebGL = useCallback(async () => {
@@ -195,7 +205,7 @@ export default function Iridescence({
       const ctn = ctnDom.current;
       const renderer = new Renderer({ 
         antialias: false, // Disable antialiasing for better performance
-        powerPreference: "high-performance"
+        powerPreference: isChrome ? "default" : "high-performance" // Chrome optimization
       });
       rendererRef.current = renderer as IridescenceRenderer;
       
@@ -226,7 +236,7 @@ export default function Iridescence({
 
       function resize() {
         if (!ctnDom.current) return;
-        const scale = Math.min(window.devicePixelRatio, 2); // Limit pixel ratio for performance
+        const scale = Math.min(window.devicePixelRatio, isChrome ? 1.5 : 2); // Chrome optimization
         const width = ctnDom.current.offsetWidth;
         const height = ctnDom.current.offsetHeight;
         
@@ -244,6 +254,13 @@ export default function Iridescence({
 
       function update(t: number) {
         if (!rendererRef.current) return;
+        
+        // Frame rate limiting for Chrome
+        if (isChrome && t - lastFrameTime.current < frameInterval) {
+          animationRef.current = requestAnimationFrame(update);
+          return;
+        }
+        lastFrameTime.current = t;
         
         animationRef.current = requestAnimationFrame(update);
         

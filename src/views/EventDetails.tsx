@@ -22,10 +22,17 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
 
   // Track scroll position for parallax and reveal effects
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setScrollPosition(window.scrollY);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setScrollPosition(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
