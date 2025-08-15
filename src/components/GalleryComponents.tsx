@@ -55,7 +55,7 @@ const FeaturedCarouselComponent = ({
                 src={urlFor(image.image).url()}
                 alt={image.title || 'Featured Image'}
                 className="w-full h-full object-cover"
-                loading="eager"
+                loading={index === 0 ? "eager" : "lazy"} // Only load first image eagerly
                 style={{ minHeight: '300px' }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">

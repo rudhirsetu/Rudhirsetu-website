@@ -41,6 +41,7 @@ const Home = () => {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [isEventsVisible, setIsEventsVisible] = useState(false);
+  const [shouldLoadMap, setShouldLoadMap] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -48,8 +49,8 @@ const Home = () => {
         setLoading(true);
         setError(null);
 
-        // Load each data source independently to avoid total failure
-        const loadEvents = async () => {
+        // Load critical data first (events for main content)
+        const loadCriticalData = async () => {
           try {
             const [eventsData, pastData] = await Promise.all([
               eventService.fetchUpcoming(1, 2),
@@ -77,45 +78,88 @@ const Home = () => {
           }
         };
 
-        const loadImages = async () => {
-          try {
-            const imagesData = await client.fetch(QUERIES.featuredImages);
-            if (imagesData) {
-              setFeaturedImages(imagesData || []);
-            }
-          } catch (err) {
-            console.error("Error loading images:", err);
-            // Images are less critical, don't show error for this
-          }
-        };
-
-        const loadContact = async () => {
-          try {
-            const contactData = await settingsService.fetchContact();
-            if (contactData) {
-              setContactSettings(contactData);
-            }
-          } catch (err) {
-            console.error("Error loading contact settings:", err);
-            // Contact info is less critical, don't show error for this
-          }
-        };
-
-        // Load events, images, and contact settings independently
-        await Promise.allSettled([loadEvents(), loadImages(), loadContact()]);
-      } catch (err) {
-        console.error("Error loading data:", err);
-        setError("Something went wrong. Please refresh the page.");
-      } finally {
+        // Load critical data first
+        await loadCriticalData();
+        
         setLoading(false);
-        // Trigger events section animation after loading completes
+        
+        // Trigger events section animation after critical loading completes
         setTimeout(() => {
           setIsEventsVisible(true);
         }, 200);
+
+        // Load non-critical data after main content is ready (deferred)
+        const loadDeferredData = async () => {
+          const loadImages = async () => {
+            try {
+              const imagesData = await client.fetch(QUERIES.featuredImages);
+              if (imagesData) {
+                setFeaturedImages(imagesData || []);
+              }
+            } catch (err) {
+              console.error("Error loading images:", err);
+              // Images are less critical, don't show error for this
+            }
+          };
+
+          const loadContact = async () => {
+            try {
+              const contactData = await settingsService.fetchContact();
+              if (contactData) {
+                setContactSettings(contactData);
+              }
+            } catch (err) {
+              console.error("Error loading contact settings:", err);
+              // Contact info is less critical, don't show error for this
+            }
+          };
+
+          // Load non-critical data in parallel but separately from critical data
+          await Promise.allSettled([loadImages(), loadContact()]);
+        };
+
+        // Defer non-critical data loading
+        setTimeout(() => {
+          loadDeferredData();
+        }, 300);
+
+      } catch (err) {
+        console.error("Error loading data:", err);
+        setError("Something went wrong. Please refresh the page.");
+        setLoading(false);
       }
     };
     loadData();
   }, []);
+
+  // Intersection Observer for lazy loading the map
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && !shouldLoadMap) {
+          // Add a small delay to ensure other critical resources load first
+          setTimeout(() => {
+            setShouldLoadMap(true);
+          }, 150);
+          observer.disconnect();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '200px', // Increased margin to start loading earlier but still lazy
+        threshold: 0
+      }
+    );
+
+    // Find the map container element
+    const mapContainer = document.getElementById('map-container');
+    if (mapContainer) {
+      observer.observe(mapContainer);
+    }
+
+    return () => observer.disconnect();
+  }, [shouldLoadMap]);
 
   // Animation variants
   const containerVariants = {
@@ -232,7 +276,7 @@ const Home = () => {
 
   return (
     <div className="space-y-0 overflow-x-hidden bg-white">
-      <Hero />
+      <Hero/>
 
       {/* Key Focus Areas */}
       <motion.section
@@ -277,9 +321,6 @@ const Home = () => {
 
                   {area.title === "Blood Donation" ? (
                     <>
-                      <div className="absolute hidden md:block right-4 top-50 pointer-events-none">
-                        <img src="/images/blood-donation.svg" className="w-64 h-64"/>
-                      </div>
 
                       <div className="flex-grow">
                         <h3 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900">
@@ -398,12 +439,12 @@ const Home = () => {
                   variants={itemVariants}
                   className="animate-pulse bg-white rounded-xl shadow-md overflow-hidden border border-gray-200"
                 >
-                  <div className="h-64 bg-gray-200" />
+                  <div className="h-64 bg-white" />
                   <div className="p-8 space-y-4">
-                    <div className="h-6 bg-gray-200 rounded w-3/4" />
-                    <div className="h-4 bg-gray-200 rounded w-1/2" />
-                    <div className="h-4 bg-gray-200 rounded w-full" />
-                    <div className="h-10 bg-gray-200 rounded" />
+                    <div className="h-6 bg-white rounded w-3/4" />
+                    <div className="h-4 bg-white rounded w-1/2" />
+                    <div className="h-4 bg-white rounded w-full" />
+                    <div className="h-10 bg-white rounded" />
                   </div>
                 </motion.div>
               ))}
@@ -452,7 +493,7 @@ const Home = () => {
                   className="text-center py-16"
                 >
                   <div className="max-w-md mx-auto">
-                    <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+                    <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-white flex items-center justify-center">
                       <Calendar className="w-12 h-12 text-gray-400" />
                     </div>
                     <h3 className="text-2xl font-semibold mb-4 text-gray-900">
@@ -554,7 +595,7 @@ const Home = () => {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={containerVariants}
-          className="py-24 bg-gray-50"
+          className="py-24 bg-white"
         >
           <div className="container mx-auto px-4">
             <motion.div
@@ -628,7 +669,7 @@ const Home = () => {
                 <div className="px-8 md:px-10 py-5 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {contactSettings?.phone && (
-                      <div className="flex items-center text-gray-700 p-6 rounded-lg border border-gray-100 bg-gray-50/50">
+                      <div className="flex items-center text-gray-700 p-6 rounded-lg border border-gray-100 bg-white/50">
                         <Phone className="min-w-8 min-h-8 mr-4 text-[#9B2C2C]" />
                         <span className="text-lg font-medium">
                           {contactSettings.phone}
@@ -636,7 +677,7 @@ const Home = () => {
                       </div>
                     )}
                     {contactSettings?.email && (
-                      <div className="flex items-center text-gray-700 p-6 rounded-lg border border-gray-100 bg-gray-50/50">
+                      <div className="flex items-center text-gray-700 p-6 rounded-lg border border-gray-100 bg-white/50">
                         <Mail className="min-w-8 min-h-8 mr-4 text-[#9B2C2C]" />
                         <span className="text-lg font-medium">
                           {contactSettings.email}
@@ -647,7 +688,7 @@ const Home = () => {
 
                   {/* Address Row */}
                   {contactSettings?.address && (
-                    <div className="flex items-center text-gray-700 p-6 rounded-lg border border-gray-100 bg-gray-50/50">
+                    <div className="flex items-center text-gray-700 p-6 rounded-lg border border-gray-100 bg-white/50">
                       <MapPin className="min-w-8 min-h-8 mr-4 text-[#9B2C2C]" />
                       <span className="text-lg font-medium">
                         {contactSettings.address}
@@ -663,7 +704,7 @@ const Home = () => {
 
                 {/* Description Section */}
                 <div className="px-8 md:px-10 py-5">
-                  <div className="text-gray-600 p-4 rounded-lg border border-gray-100 bg-gray-50/30">
+                  <div className="text-gray-600 p-4 rounded-lg border border-gray-100 bg-white/30">
                     <p className="text-base leading-relaxed">
                       Whether you want to donate, volunteer, or partner with us,
                       your support can help transform lives and empower
@@ -691,7 +732,7 @@ const Home = () => {
                     <PreloadLink
                       href="/donations"
                       priority="high"
-                      className="flex-1 inline-flex items-center justify-center px-6 py-4 bg-white text-gray-700 hover:bg-gray-50 font-medium rounded-md transition-colors duration-300 text-base border border-gray-200"
+                      className="flex-1 inline-flex items-center justify-center px-6 py-4 bg-white text-gray-700 hover:bg-white font-medium rounded-md transition-colors duration-300 text-base border border-gray-200"
                     >
                       <span>Donate Now</span>
                       <Heart className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
@@ -701,20 +742,29 @@ const Home = () => {
               </div>
 
               {/* Google Map Section */}
-              <div className="lg:w-2/5 bg-gray-100">
-                <div className="h-full min-h-[300px] lg:min-h-full">
+              <div className="lg:w-2/5 bg-white">
+                <div className="h-full min-h-[300px] lg:min-h-full" id="map-container">
                   {contactSettings?.googleMapsUrl ? (
                     <div className="relative w-full h-full lg:h-full">
                       {/* Mobile: aspect ratio container, Desktop: full height */}
                       <div className="lg:absolute lg:inset-0 relative w-full h-0 pb-[100%] lg:h-full lg:pb-0">
-                        <iframe
-                          src={contactSettings.googleMapsUrl}
-                          className="absolute top-0 left-0 w-full h-full border-0"
-                          allowFullScreen
-                          loading="lazy"
-                          referrerPolicy="no-referrer-when-downgrade"
-                          title="Rudhirsetu Location"
-                        />
+                        {shouldLoadMap ? (
+                          <iframe
+                            src={contactSettings.googleMapsUrl}
+                            className="absolute top-0 left-0 w-full h-full border-0"
+                            allowFullScreen
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title="Rudhirsetu Location"
+                          />
+                        ) : (
+                          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-white">
+                            <div className="text-center p-8">
+                              <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4 animate-pulse" />
+                              <p className="text-gray-500">Loading map...</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ) : (
@@ -727,6 +777,7 @@ const Home = () => {
                   )}
                 </div>
               </div>
+              
             </div>
           </div>
         </motion.div>
