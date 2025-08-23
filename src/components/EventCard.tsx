@@ -4,7 +4,6 @@ import { MapPin, Users, ArrowRight, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { urlFor } from '../lib/sanity';
 import { Event } from '../types/sanity';
-import { motion } from 'framer-motion';
 import { usePageTransition } from '../context/PageTransitionContext';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
@@ -15,7 +14,7 @@ interface EventCardProps {
   layoutStyle?: 'grid' | 'list';
 }
 
-const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'grid' }: EventCardProps) => {
+const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'list' }: EventCardProps) => {
     const isUpcoming = variant === 'upcoming';
     const isList = layoutStyle === 'list';
     const { startTransition } = usePageTransition();
@@ -37,55 +36,51 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'grid' }: EventC
     };
     
     return (
-        <motion.div 
+        <div 
             ref={cardRef}
-            layoutId={`event-card-${event._id}`}
             className={`bg-white rounded-2xl border border-gray-200/60 ${isUpcoming ? 'shadow-xl hover:shadow-2xl' : 'shadow-lg hover:shadow-xl'} 
-                transition-all duration-300 overflow-hidden group ${isList ? 'flex flex-col md:flex-row' : 'flex flex-col'} cursor-pointer`}
+                transition-all duration-300 overflow-hidden group ${isList ? 'flex flex-col md:flex-col' : 'flex flex-col'} cursor-pointer hover:-translate-y-1`}
             onClick={handleCardClick}
-            whileHover={{ y: -4, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
         >
             {event.image && (
-                <motion.div 
-                    layoutId={`event-image-${event._id}`}
-                    className={`relative ${isList ? 'h-40 md:h-auto md:w-2/5' : 'h-40 sm:h-44 md:h-48'} overflow-hidden`}
+                <div 
+                    className={`relative ${isList ? 'h-60 md:h-auto' : 'h-60 sm:h-60 md:h-60'} overflow-hidden p-3 bg-white`}
                 >
-                    <motion.img
-                        layoutId={`event-img-${event._id}`}
-                        src={urlFor(event.image).width(800).height(400).url()}
-                        alt={event.title}
-                        className={`w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ${!isUpcoming && 'filter grayscale-[30%] group-hover:grayscale-0'}`}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                    <div className="absolute top-4 right-4">
-                        <span className={`px-3 py-1.5 ${isUpcoming ? 'bg-red-600' : 'bg-gray-500'} text-white text-sm font-medium rounded-full border border-white/20`}>
-                            {isUpcoming ? 'Upcoming' : 'Completed'}
-                        </span>
+                    <div className="relative w-full h-full rounded-xl overflow-hidden">
+                        <img
+                            src={urlFor(event.image).width(800).height(400).url()}
+                            alt={event.title}
+                            className={`w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ${!isUpcoming && 'filter grayscale-[30%] group-hover:grayscale-0'}`}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                        <div className="absolute top-4 right-4">
+                            <span className={`px-3 py-1.5 ${isUpcoming ? 'bg-red-600' : 'bg-gray-500'} text-white text-sm font-medium rounded-full border border-white/20`}>
+                                {isUpcoming ? 'Upcoming' : 'Completed'}
+                            </span>
+                        </div>
+                        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                            <span className={`px-3 py-1.5 ${isUpcoming ? 'bg-red-600/90 backdrop-blur-sm' : 'bg-gray-700/90 backdrop-blur-sm'} text-white text-sm font-medium rounded-full inline-flex items-center border border-white/20`}>
+                                <Calendar className="w-3.5 h-3.5 mr-1.5" />
+                                {format(new Date(event.date), 'MMM d, yyyy')}
+                            </span>
+                        </div>
                     </div>
-                    <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                        <span className={`px-3 py-1.5 ${isUpcoming ? 'bg-red-600/90 backdrop-blur-sm' : 'bg-gray-700/90 backdrop-blur-sm'} text-white text-sm font-medium rounded-full inline-flex items-center border border-white/20`}>
-                            <Calendar className="w-3.5 h-3.5 mr-1.5" />
-                            {format(new Date(event.date), 'MMM d, yyyy')}
-                        </span>
-                    </div>
-                </motion.div>
+                </div>
             )}
             
-            <div className={`flex flex-col flex-grow ${isList && 'md:w-3/5'}`}>
+            <div className={`flex flex-col flex-grow`}>
                 {/* Title Section */}
-                <div className="p-2 sm:p-5 md:p-6 pb-2">
-                    <motion.h3 
-                        layoutId={`event-title-${event._id}`}
+                <div className="p-4 sm:p-5 md:p-6 pb-2">
+                    <h3 
                         className={`text-lg sm:text-xl md:text-xl font-bold ${isUpcoming ? 'text-gray-900 group-hover:text-[#9B2C2C]' : 'text-gray-700 group-hover:text-gray-900'} transition-colors duration-300`}
                     >
                         {event.title.slice(0, 60)}
-                    </motion.h3>
+                    </h3>
                 </div>
 
                     {/* Description Section */}
                     {event.desc && (
-                    <div className="px-2 sm:px-5 md:px-6 pb-3">
+                    <div className="px-4 sm:px-5 md:px-6 pb-3">
                         <div className="text-gray-600">
                             <p className={`${isList ? 'line-clamp-2' : 'line-clamp-2'} text-sm leading-relaxed`}>{event.desc}</p>
                         </div>
@@ -110,13 +105,13 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'grid' }: EventC
                             <div className={`flex flex-col items-center ${isUpcoming ? 'text-gray-700' : 'text-gray-600'} p-3 rounded-lg border border-gray-100 bg-gray-50/50 text-center`}>
                                 <Users className={`w-5 h-5 mb-2 ${isUpcoming ? 'text-[#9B2C2C]' : 'text-gray-500'}`} />
                                 <span className="text-xs font-medium">
-                                    {isUpcoming ? `${event.expectedParticipants} exp.` : `${event.expectedParticipants}`}
+                                    {isUpcoming ? `${event.expectedParticipants} exp.` : `${event.expectedParticipants.slice(0, 25)} ...`}
                                 </span>
                             </div>
                         )}
                         <div className={`flex flex-col items-center ${isUpcoming ? 'text-gray-700' : 'text-gray-600'} p-3 rounded-lg border border-gray-100 bg-gray-50/50 text-center`}>
                             <MapPin className={`w-5 h-5 mb-2 ${isUpcoming ? 'text-[#9B2C2C]' : 'text-gray-500'}`} />
-                            <span className="text-xs font-medium text-center leading-tight">{event.location}</span>
+                            <span className="text-xs font-medium text-center leading-tight">{event.location.slice(0, 25)}...</span>
                         </div>
                     </div>
                 </div>
@@ -135,7 +130,7 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'grid' }: EventC
                     </div>
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 };
 

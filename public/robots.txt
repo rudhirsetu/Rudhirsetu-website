@@ -1,32 +1,5 @@
 User-agent: *
 Allow: /*
 
-# Allow all major pages for better indexing
-Allow: /donations
-Allow: /camp  
-Allow: /contact
-Allow: /gallery
-Allow: /social
-Allow: /event/*
-
-
 # Sitemap location
 Sitemap: https://www.rudhirsetu.org/sitemap.xml
-
-
-# Additional directives for better SEO
-# Allow favicon and important assets
-Allow: /icons/*
-Allow: /og-thumbnail.png
-Allow: /images/
-Allow: /*.css$
-Allow: /*.js$
-Allow: /*.webp$
-Allow: /*.png$
-Allow: /*.jpg$
-Allow: /*.svg$
-Allow: /*.ico$
-
-
-Disallow: /rudhirsetu-bg.png
-Disallow: /rudhirsetu-bg.webp
