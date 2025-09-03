@@ -31,7 +31,7 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'list' }: EventC
             // Small delay to ensure transition state is set
             setTimeout(() => {
                 router.push(`/event/${event._id}`);
-            }, 50);
+            }, 0);
         }
     };
     
@@ -79,13 +79,13 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'list' }: EventC
                 </div>
 
                     {/* Description Section */}
-                    {event.desc && (
+                    {/* {event.desc && (
                     <div className="px-4 sm:px-5 md:px-6 pb-3">
                         <div className="text-gray-600">
                             <p className={`${isList ? 'line-clamp-2' : 'line-clamp-2'} text-sm leading-relaxed`}>{event.desc}</p>
                         </div>
                     </div>
-                )}
+                )} */}
 
                 {/* Divider */}
                 <div className="mx-4 sm:mx-5 md:mx-6">
