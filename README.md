@@ -2,6 +2,9 @@
 
 A modern web application for Rudhirsetu Seva Sanstha built with React, TypeScript, and Tailwind CSS.
 
+<img width="1920" height="947" alt="image" src="https://github.com/user-attachments/assets/82cd5208-d9fb-4c2d-b0a1-3175fd97b9ac" />
+
+
 ![image](https://github.com/user-attachments/assets/7c8bee97-c574-4391-9f87-780c9b53508e)
 
 
