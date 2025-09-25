@@ -168,17 +168,13 @@ export default function RootLayout({
         <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
         
         {/* Explicit favicon links for better browser compatibility */}
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="/icon.ico" />
         <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="96x96" href="/icons/favicon-96x96.png" />
         <link rel="shortcut icon" href="/icons/favicon-32x32.png" />
         
-        {/* Preload critical images */}
-        <link rel="preload" href="/images/logo-dark.svg" as="image" type="image/svg+xml" fetchPriority="high" />
-        <link rel="preload" href="/images/logo-light.svg" as="image" type="image/svg+xml" />
-        <link rel="preload" href="/rudhirsetu-bg.webp" as="image" type="image/webp" />
-        
+
         {/* Comprehensive Structured Data for Google Search Results & Sitelinks */}
         <script 
           type="application/ld+json"
