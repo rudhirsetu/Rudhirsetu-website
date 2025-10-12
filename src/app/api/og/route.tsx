@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
                   borderRadius: '16px',
                   padding: '24px 0px',
                   alignItems: 'center',
-                  marginTop: '20px',
+                  marginTop: '0px',
                 }}
               >
                 <div
@@ -153,19 +153,6 @@ export async function GET(request: NextRequest) {
                   Saving lives since 2010
                 </div>
               </div>
-            </div>
-
-            {/* Right Side - Website URL only */}
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-end',
-                justifyContent: 'flex-end',
-                height: '100%',
-                paddingBottom: '20px',
-              }}
-            >
             </div>
           </div>
         </div>

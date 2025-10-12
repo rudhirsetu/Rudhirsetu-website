@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     images: [
       {
-        url: `${baseUrl}/api/og?title=${encodeURIComponent('Rudhirsetu Seva Sanstha')}&description=${encodeURIComponent('Transforming Lives Through Blood Donation & Healthcare')}&route=home`,
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('Rudhirsetu Seva Sanstha')}&route=home`,
         width: 1200,
         height: 630,
         alt: 'Rudhirsetu Seva Sanstha - Transforming Lives',
