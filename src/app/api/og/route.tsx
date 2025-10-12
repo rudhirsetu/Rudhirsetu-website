@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
+import { GridBackground } from '../../../components/GridBackground';
 
 export const runtime = 'edge';
 
@@ -22,21 +23,12 @@ export async function GET(request: NextRequest) {
 
     // Load logo and convert to base64
     const logoResponse = await fetch(
-      new URL('/public/images/logo-light.svg', import.meta.url)
+      new URL('/public/images/logo-dark.svg', import.meta.url)
     );
     const logoBuffer = await logoResponse.arrayBuffer();
     const logoBase64 = Buffer.from(logoBuffer).toString('base64');
     const logoDataUrl = `data:image/svg+xml;base64,${logoBase64}`;
 
-    // EXACT same gradient as event OG tag
-    const commonStyle = {
-      gradientStart: '#EA580C',
-      gradientEnd: '#C2410C',
-      accentColor: '#FFF7ED',
-      overlayOpacity: 0.9
-    };
-
-    const style = commonStyle;
 
     return new ImageResponse(
       (
@@ -47,9 +39,16 @@ export async function GET(request: NextRequest) {
             display: 'flex',
             position: 'relative',
             fontFamily: 'Poppins',
-            background: 'linear-gradient(113.9deg, rgba(241,106,56,1) 13%, rgba(213,32,39,1) 48.8%, rgba(170,65,39,1) 85.9%)',
+            background: 'linear-gradient(113.9deg, rgba(255,240,240,1) 13%, rgba(255,245,245,1) 48.8%, rgba(255,250,250,1) 85.9%)',
           }}
         >
+          <GridBackground 
+            gridSize={100}
+            gridColor="#dc2626"
+            opacity={0.29}
+            strokeWidth={1}
+            pattern="diagonal"
+          />
 
           {/* Content Container */}
           <div
@@ -87,20 +86,7 @@ export async function GET(request: NextRequest) {
                   alt="Rudhirsetu Logo"
                   width="160"
                   height="160"
-                  style={{
-                    marginRight: '40px',
-                  }}
                 />
-                <div
-                  style={{
-                    color: 'white',
-                    fontSize: '42px',
-                    fontWeight: '600',
-                    fontFamily: 'Poppins',
-                  }}
-                >
-                  Rudhirsetu Seva Sanstha
-                </div>
               </div>
 
               {/* Main Title */}
@@ -108,25 +94,36 @@ export async function GET(request: NextRequest) {
                 style={{
                   fontSize: '72px',
                   fontWeight: 'bold',
-                  color: 'white',
-                  margin: '0 0 20px 0',
+                  color: '#1f2937',
+                  margin: '0 0 16px 0',
                   lineHeight: 1.1,
-                  textShadow: '0 4px 20px rgba(0, 0, 0, 0.7)',
+                  textShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                   fontFamily: 'Poppins',
                 }}
               >
                 {title}
               </h1>
 
+              {/* Divider */}
+              <div
+                style={{
+                  width: '200px',
+                  height: '12px',
+                  backgroundColor: '#dc2626',
+                  borderRadius: '999px',
+                  marginBottom: '20px',
+                }}
+              />
+
               {/* Description */}
               <p
                 style={{
                   fontSize: '32px',
-                  color: style.accentColor,
+                  color: '#4b5563',
                   margin: '0 0 30px 0',
                   lineHeight: 1.4,
                   fontWeight: '400',
-                  textShadow: '0 2px 10px rgba(0, 0, 0, 0.6)',
+                  textShadow: '0 1px 4px rgba(0, 0, 0, 0.1)',
                   fontFamily: 'Poppins',
                   opacity: 0.95,
                 }}
@@ -138,19 +135,19 @@ export async function GET(request: NextRequest) {
               <div
                 style={{
                   display: 'flex',
-                  // background: 'rgba(255, 255, 255, 0.2)',
                   borderRadius: '16px',
-                  padding: '16px 0px',
+                  padding: '24px 0px',
                   alignItems: 'center',
-                  // border: '1px solid rgba(255, 255, 255, 0.3)',
+                  marginTop: '20px',
                 }}
               >
                 <div
                   style={{
-                    color: 'white',
-                    fontSize: '24px',
-                    fontWeight: '500',
+                    color: '#dc2626',
+                    fontSize: '32px',
+                    fontWeight: '600',
                     fontFamily: 'Poppins',
+                    textShadow: '0 1px 4px rgba(0, 0, 0, 0.1)',
                   }}
                 >
                   Saving lives since 2010
@@ -169,21 +166,6 @@ export async function GET(request: NextRequest) {
                 paddingBottom: '20px',
               }}
             >
-              {/* Website URL */}
-              <div
-                style={{
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  fontSize: '26px',
-                  fontWeight: '500',
-                  fontFamily: 'Poppins',
-                  textShadow: '0 2px 8px rgba(0, 0, 0, 0.6)',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  padding: '16px 24px',
-                  borderRadius: '12px',
-                }}
-              >
-                hello@rudhirsetu.org
-              </div>
             </div>
           </div>
         </div>
@@ -224,7 +206,7 @@ export async function GET(request: NextRequest) {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, #DC2626 0%, #991B1B 100%)',
+            background: 'linear-gradient(113.9deg, rgba(255,250,250,1) 13%, rgba(255,245,245,1) 48.8%, rgba(255,240,240,1) 85.9%)',
             fontFamily: 'system-ui',
             padding: '60px',
           }}
@@ -233,10 +215,10 @@ export async function GET(request: NextRequest) {
             style={{
               fontSize: '48px',
               fontWeight: 'bold',
-              color: 'white',
+              color: '#dc2626',
               textAlign: 'center',
               marginBottom: '20px',
-              textShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+              textShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
             }}
           >
             {fallbackParams.get('title') || 'Rudhirsetu Seva Sanstha'}
@@ -244,7 +226,7 @@ export async function GET(request: NextRequest) {
           <div
             style={{
               fontSize: '24px',
-              color: '#FEF2F2',
+              color: '#4b5563',
               textAlign: 'center',
               lineHeight: 1.4,
               opacity: 0.9,
@@ -255,14 +237,14 @@ export async function GET(request: NextRequest) {
           <div
             style={{
               marginTop: '40px',
-              background: 'rgba(255, 255, 255, 0.2)',
+              background: 'rgba(255, 255, 255, 0.8)',
               padding: '16px 32px',
               borderRadius: '12px',
-              color: 'white',
+              color: '#6b7280',
               fontSize: '18px',
             }}
           >
-            rudhirsetu.org
+            www.rudhirsetu.org
           </div>
         </div>
       ),
