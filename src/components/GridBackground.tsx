@@ -24,8 +24,8 @@ export const GridBackground: React.FC<GridBackgroundProps> = ({
   opacity = 0.2,
   strokeWidth = 1,
   pattern = 'diagonal',
-  borderWidth = 12,
-  borderRadius = 20,
+  borderWidth = 0,
+  borderRadius = 0,
   showBorder = true,
 }) => {
   // Encode the grid color for URL

@@ -61,6 +61,8 @@ export async function GET(request: NextRequest) {
               alignItems: 'center',
               justifyContent: 'space-between',
               zIndex: 10,
+              borderRadius: '22px',
+              border: '12px solid #dc2626',
             }}
           >
             {/* Left Side - Content */}

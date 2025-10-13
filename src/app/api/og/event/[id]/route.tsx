@@ -103,6 +103,8 @@ export async function GET(
               alignItems: 'center',
               height: '100%',
               padding: '60px',
+              borderRadius: '22px',
+              border: '12px solid #dc2626',
             }}
           >
             {/* Left Side - Main Content */}
