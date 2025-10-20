@@ -248,42 +248,126 @@ const Navbar = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="lg:hidden fixed top-24 left-1/2 transform -translate-x-1/2 z-40 w-[90%] max-w-sm"
+              className="lg:hidden fixed top-16 left-1/2 transform -translate-x-1/2 z-40 w-[92%] max-w-sm"
             >
             <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-gray-200/50 shadow-xl overflow-hidden">
-              {/* Navigation Items */}
-              <div className="p-4 space-y-2">
-                {navItems.map((item, index) => {
-                  const Icon = item.icon;
-                  return (
-                    <motion.div
-                      key={item.path}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05, duration: 0.2 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <PreloadLink
-                        href={item.path}
-                        priority={item.path === '/' || item.path === '/donations' || item.path === '/camp' ? 'high' : 'medium'}
-                        className={`relative flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
-                          isActive(item.path)
-                            ? 'bg-[#9B2C2C] text-white shadow-lg shadow-red-900/25'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50/80'
-                        }`}
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <Icon className={`w-4 h-4 transition-transform duration-200 ${
-                          isActive(item.path) ? '' : 'group-hover:scale-110'
-                        }`} />
-                        <span className="font-semibold">{item.label}</span>
-                      </PreloadLink>
-                    </motion.div>
-                  );
-                })}
+              {/* Header with Logo and Close Button */}
+              <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-200/50">
+                <div className="flex items-center space-x-2">
+                  <img
+                    className="h-8 w-auto"
+                    src="/images/logo-dark.svg"
+                    alt="Rudhirsetu Logo"
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-base font-light tracking-tight text-[#9B2C2C]" style={{ fontFamily: 'var(--font-pacifico)', fontWeight: '400' }}>
+                      Rudhirsetu
+                    </span>
+                    <span className="text-xs font-semibold tracking-tight text-[#9B2C2C]">
+                      Seva Sanstha
+                    </span>
+                  </div>
+                </div>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 rounded-lg hover:bg-gray-100/80 transition-colors"
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5 text-gray-600" />
+                </motion.button>
               </div>
 
+              {/* Navigation Items */}
+              <div className="p-5 space-y-3">
+                {navItems
+                  .filter(item => item.path !== '/donations' && item.path !== '/social')
+                  .map((item, index) => {
+                    const Icon = item.icon;
+                    return (
+                      <motion.div
+                        key={item.path}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05, duration: 0.2 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <PreloadLink
+                          href={item.path}
+                          priority={item.path === '/' || item.path === '/camp' ? 'high' : 'medium'}
+                          className={`relative flex items-center space-x-3 px-5 py-4 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                            isActive(item.path)
+                              ? 'bg-[#9B2C2C] text-white shadow-lg shadow-red-900/25'
+                              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50/80'
+                          }`}
+                          onClick={() => setIsOpen(false)}
+                        >
+                          <Icon className={`w-5 h-5 transition-transform duration-200 ${
+                            isActive(item.path) ? '' : 'group-hover:scale-110'
+                          }`} />
+                          <span className="font-semibold">{item.label}</span>
+                        </PreloadLink>
+                      </motion.div>
+                    );
+                  })}
+              </div>
 
+              {/* Featured Actions - Donate & Social */}
+              <div className="p-5 pt-3 border-t border-gray-200/50 bg-gradient-to-b from-transparent to-red-50/30">
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Donate Button */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.2 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <PreloadLink
+                      href="/donations"
+                      priority="high"
+                      className={`relative flex flex-col items-center justify-center px-4 py-4 rounded-xl font-medium transition-all duration-200 group overflow-hidden ${
+                        isActive('/donations')
+                          ? 'bg-[#9B2C2C] text-white shadow-lg shadow-red-900/30'
+                          : 'bg-gradient-to-br from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg'
+                      }`}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {/* Decorative elements */}
+                      <div className="absolute top-0 right-0 w-12 h-12 bg-white/10 rounded-full -mr-4 -mt-4"></div>
+                      <div className="absolute bottom-0 left-0 w-8 h-8 bg-white/10 rounded-full -ml-2 -mb-2"></div>
+                      
+                      <Gift className="w-6 h-6 mb-1 transition-transform duration-200 group-hover:scale-110" />
+                      <span className="text-sm font-bold">Donate</span>
+                    </PreloadLink>
+                  </motion.div>
+
+                  {/* Social Button */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25, duration: 0.2 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <PreloadLink
+                      href="/social"
+                      priority="medium"
+                      className={`relative flex flex-col items-center justify-center px-4 py-4 rounded-xl font-medium transition-all duration-200 group overflow-hidden border-2 ${
+                        isActive('/social')
+                          ? 'bg-[#9B2C2C] text-white border-[#9B2C2C] shadow-lg shadow-red-900/30'
+                          : 'bg-white text-red-600 border-red-200 hover:border-red-300 hover:bg-red-50 shadow-sm hover:shadow-md'
+                      }`}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {/* Decorative elements */}
+                      <div className="absolute top-0 right-0 w-10 h-10 bg-red-100/50 rounded-full -mr-3 -mt-3"></div>
+                      <div className="absolute bottom-0 left-0 w-6 h-6 bg-red-100/50 rounded-full -ml-1 -mb-1"></div>
+                      
+                      <Share2 className="w-6 h-6 mb-1 transition-transform duration-200 group-hover:scale-110" />
+                      <span className="text-sm font-bold">Socials</span>
+                    </PreloadLink>
+                  </motion.div>
+                </div>
+              </div>
             </div>
           </motion.div>
           </>
