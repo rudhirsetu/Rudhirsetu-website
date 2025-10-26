@@ -27,4 +27,4 @@ my-ngo-cms
 .env*
 .next
 
-coverage
+coverage*.tsbuildinfo
