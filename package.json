@@ -29,6 +29,7 @@
     "critters": "^0.0.25",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.18.1",
+    "lenis": "^1.1.19",
     "lucide-react": "^0.539.0",
     "next": "^15.1.0",
     "ogl": "^1.0.11",

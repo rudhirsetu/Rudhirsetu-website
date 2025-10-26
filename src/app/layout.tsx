@@ -7,6 +7,7 @@ import { Analytics } from '@vercel/analytics/react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import DevelopmentWarning from '../components/DevelopmentWarning';
+import SmoothScrollProvider from '../components/SmoothScrollProvider';
 import { PageTransitionProvider } from '../context/PageTransitionContext';
 import '../styles/globals.css';
 
@@ -416,18 +417,20 @@ export default function RootLayout({
         />
       </head>
       <body className={`${poppins.className} font-sans antialiased`}>
-        <PageTransitionProvider>
-          <DevelopmentWarning />
-          <div className="min-h-screen flex flex-col">
-            <Navbar />
-            <main className="p-0">
-              {children}
-            </main>
-          </div>
-          <Footer />
-          <SpeedInsights />
-          <Analytics />
-        </PageTransitionProvider>
+        <SmoothScrollProvider>
+          <PageTransitionProvider>
+            <DevelopmentWarning />
+            <div className="min-h-screen flex flex-col">
+              <Navbar />
+              <main className="p-0">
+                {children}
+              </main>
+            </div>
+            <Footer />
+            <SpeedInsights />
+            <Analytics />
+          </PageTransitionProvider>
+        </SmoothScrollProvider>
       </body>
     </html>
   );
