@@ -73,7 +73,7 @@ const Hero = () => {
           mouseReact={false}
           amplitude={1}
           speed={0.9}
-          className="absolute inset-0"
+          className="absolute inset-0 bg-red-900"
         />
       </div>
 
