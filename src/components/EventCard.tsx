@@ -31,14 +31,14 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'list' }: EventC
             // Small delay to ensure transition state is set
             setTimeout(() => {
                 router.push(`/event/${event._id}`);
-            }, 0);
+            }, 100);
         }
     };
     
     return (
         <div 
             ref={cardRef}
-            className={`bg-white rounded-2xl border border-gray-200/60 ${isUpcoming ? 'shadow-xl hover:shadow-2xl' : 'shadow-lg hover:shadow-xl'} 
+            className={`h-full bg-white rounded-2xl border border-gray-200/60 ${isUpcoming ? 'shadow-xl hover:shadow-2xl' : 'shadow-lg hover:shadow-xl'} 
                 transition-all duration-300 overflow-hidden group ${isList ? 'flex flex-col md:flex-col' : 'flex flex-col'} cursor-pointer hover:-translate-y-1`}
             onClick={handleCardClick}
         >

@@ -53,8 +53,8 @@ const Home = () => {
         const loadCriticalData = async () => {
           try {
             const [eventsData, pastData] = await Promise.all([
-              eventService.fetchUpcoming(1, 2),
-              eventService.fetchPast(1, 2),
+              eventService.fetchUpcoming(1, 3),
+              eventService.fetchPast(1, 3),
             ]);
 
             if (eventsData && eventsData.data) {
@@ -163,7 +163,7 @@ const Home = () => {
 
   // Animation variants
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 0.75 },
     visible: {
       opacity: 1,
       transition: {
@@ -174,7 +174,7 @@ const Home = () => {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0.75, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
@@ -183,11 +183,11 @@ const Home = () => {
   };
 
   const fadeInUpVariants = {
-    hidden: { opacity: 0, y: 40 },
+    hidden: { opacity: 0.75, y: 40 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.8 },
+      transition: { duration: 0.75 },
     },
   };
 
@@ -246,7 +246,7 @@ const Home = () => {
       suffix: "+",
       subtext: "Annually",
       color: "from-red-500 to-red-600",
-      duration: 1.5,
+      duration: 0.4,
     },
     {
       label: "Emergencies Supported",
@@ -469,27 +469,51 @@ const Home = () => {
           ) : (
             (() => {
               // Combine and prioritize upcoming events first, then past events
-              const allEvents = [...upcomingEvents, ...pastEvents].slice(0, 3);
+              const allEvents = [...upcomingEvents, ...pastEvents];
+              const mobileEvents = allEvents.slice(0, 1); // Latest 1 event for mobile
+              const desktopEvents = allEvents.slice(0, 3); // Latest 3 events for desktop
 
               return allEvents.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {allEvents.map((event) => (
-                    <motion.div 
-                      key={event._id} 
-                      variants={itemVariants}
-                      className="h-full"
-                    >
-                      <EventCard
-                        event={event}
-                        variant={
-                          upcomingEvents.some((e) => e._id === event._id)
-                            ? "upcoming"
-                            : "past"
-                        }
-                      />
-                    </motion.div>
-                  ))}
-                </div>
+                <>
+                  {/* Mobile: Show 1 event */}
+                  <div className="grid grid-cols-1 gap-8 md:hidden">
+                    {mobileEvents.map((event) => (
+                      <motion.div 
+                        key={event._id} 
+                        variants={itemVariants}
+                      >
+                        <EventCard
+                          event={event}
+                          variant={
+                            upcomingEvents.some((e) => e._id === event._id)
+                              ? "upcoming"
+                              : "past"
+                          }
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Desktop: Show 3 events */}
+                  <div className="hidden md:grid md:grid-cols-3 gap-8 items-stretch">
+                    {desktopEvents.map((event) => (
+                      <motion.div 
+                        key={event._id} 
+                        variants={itemVariants}
+                        className="flex"
+                      >
+                        <EventCard
+                          event={event}
+                          variant={
+                            upcomingEvents.some((e) => e._id === event._id)
+                              ? "upcoming"
+                              : "past"
+                          }
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                </>
               ) : (
                 <motion.div
                   variants={itemVariants}
@@ -680,7 +704,7 @@ const Home = () => {
                       </div>
                     )}
                     {contactSettings?.email && (
-                      <div className="flex items-center text-gray-700 p-6 rounded-lg border border-gray-100 bg-white/50">
+                      <div className="flex items-center overflow-wrap text-gray-700 p-6 rounded-lg border border-gray-100 bg-white/50">
                         <Mail className="min-w-8 min-h-8 mr-4 text-[#9B2C2C]" />
                         <span className="text-lg font-medium">
                           {contactSettings.email}

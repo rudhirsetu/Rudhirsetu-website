@@ -14,7 +14,7 @@ void main() {
 `;
 
 const fragmentShader = `
-precision highp float;
+precision mediump float;
 
 uniform float uTime;
 uniform vec3 uColor;
@@ -25,12 +25,12 @@ uniform float uSpeed;
 
 varying vec2 vUv;
 
-// Noise function for organic liquid movement
+// Optimized noise function
 float noise(vec2 p) {
     return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-// Smooth noise for liquid distortion
+// Optimized smooth noise
 float smoothNoise(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
@@ -44,11 +44,11 @@ float smoothNoise(vec2 p) {
     return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
-// Fractal noise for complex liquid patterns
+// Reduced iterations for better performance (3 instead of 4)
 float fractalNoise(vec2 p) {
     float value = 0.0;
     float amplitude = 0.5;
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < 3; i++) {
         value += amplitude * smoothNoise(p);
         p *= 2.0;
         amplitude *= 0.5;
@@ -94,10 +94,13 @@ void main() {
   // Apply flow distortion for liquid movement
   vec2 distortedUv = uv + flowDistortion(uv, time);
   
-  // Enhanced liquid wave patterns with mouse interaction
-  float wave1 = sin(distortedUv.x * 4.0 + time * 0.8 + fractalNoise(distortedUv * 2.0 + time * 0.1) * 3.0 + influence * 2.0) * 0.6;
-  float wave2 = cos(distortedUv.y * 3.5 + time * 0.6 + fractalNoise(distortedUv * 1.5 + time * 0.15) * 2.5 - influence * 1.5) * 0.4;
-  float wave3 = sin((distortedUv.x + distortedUv.y) * 2.8 + time * 1.2 + fractalNoise(distortedUv * 3.0 + time * 0.05) * 4.0) * 0.5;
+  // Optimized liquid wave patterns - reduced fractalNoise calls
+  float noise1 = fractalNoise(distortedUv * 2.0 + time * 0.1);
+  float noise2 = fractalNoise(distortedUv * 1.5 + time * 0.15);
+  
+  float wave1 = sin(distortedUv.x * 4.0 + time * 0.8 + noise1 * 3.0 + influence * 2.0) * 0.6;
+  float wave2 = cos(distortedUv.y * 3.5 + time * 0.6 + noise2 * 2.5 - influence * 1.5) * 0.4;
+  float wave3 = sin((distortedUv.x + distortedUv.y) * 2.8 + time * 1.2 + noise1 * 4.0) * 0.5;
   
   // Add spiraling motion
   float spiral = sin(atan(distortedUv.y, distortedUv.x) * 3.0 + length(distortedUv) * 5.0 - time * 2.0) * 0.3;
@@ -108,8 +111,8 @@ void main() {
   // Combine all wave patterns
   float liquidSurface = wave1 + wave2 + wave3 + spiral + pulse;
   
-  // Enhanced turbulence with mouse influence
-  float turbulence = fractalNoise(distortedUv * 5.0 + time * 0.2 + mouseInfluence * 2.0) * 0.4;
+  // Optimized turbulence - reuse noise calculations
+  float turbulence = noise2 * 0.4;
   float microTurbulence = fractalNoise(distortedUv * 15.0 + time * 0.5) * 0.1;
   liquidSurface += turbulence + microTurbulence;
   
@@ -184,15 +187,9 @@ export default function Iridescence({
   const animationRef = useRef<number>(0);
   const smoothness = 0.08;
   
-  // Chrome performance fix
+  // Performance optimization: limit frame rate for all browsers
   const lastFrameTime = useRef(0);
-  const [isChrome, setIsChrome] = useState(false);
-  const frameInterval = isChrome ? 33 : 16; // 30fps for Chrome, 60fps for others
-
-  // Detect Chrome after component mounts
-  useEffect(() => {
-    setIsChrome(/Chrome/.test(navigator.userAgent) && !/Edge/.test(navigator.userAgent));
-  }, []);
+  const frameInterval = 33; // 30fps for better performance across all browsers
 
   // Lazy initialization function that runs after component mount
   const initializeWebGL = useCallback(async () => {
@@ -205,7 +202,8 @@ export default function Iridescence({
       const ctn = ctnDom.current;
       const renderer = new Renderer({ 
         antialias: false, // Disable antialiasing for better performance
-        powerPreference: isChrome ? "default" : "high-performance" // Chrome optimization
+        powerPreference: "default", // Use default for better battery and performance
+        alpha: true // Enable transparency
       });
       rendererRef.current = renderer as IridescenceRenderer;
       
@@ -236,7 +234,8 @@ export default function Iridescence({
 
       function resize() {
         if (!ctnDom.current) return;
-        const scale = Math.min(window.devicePixelRatio, isChrome ? 1.5 : 2); // Chrome optimization
+        // Aggressive optimization: use 1.0 scale for significant performance boost
+        const scale = 1.0; // Lower resolution = better performance
         const width = ctnDom.current.offsetWidth;
         const height = ctnDom.current.offsetHeight;
         
@@ -255,8 +254,8 @@ export default function Iridescence({
       function update(t: number) {
         if (!rendererRef.current) return;
         
-        // Frame rate limiting for Chrome
-        if (isChrome && t - lastFrameTime.current < frameInterval) {
+        // Frame rate limiting for better performance
+        if (t - lastFrameTime.current < frameInterval) {
           animationRef.current = requestAnimationFrame(update);
           return;
         }
@@ -320,7 +319,7 @@ export default function Iridescence({
       console.warn('WebGL Iridescence failed to initialize:', error);
       setHasError(true);
     }
-  }, [color, speed, amplitude, mouseReact, isInitialized, hasError, frameInterval, isChrome]);
+  }, [color, speed, amplitude, mouseReact, isInitialized, hasError, frameInterval]);
 
   useEffect(() => {
     // Use requestIdleCallback if available, otherwise use setTimeout
