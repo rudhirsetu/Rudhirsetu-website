@@ -14,7 +14,8 @@ export default function HomeClient() {
     
     if (!hasVisited) {
       setShowLoading(true);
-      // Trigger Hero animations right when split animation begins (after 2.1 seconds)
+      // Trigger Hero animations right when split animation begins
+      // Progress: 2000ms + 100ms delay = 2100ms
       setTimeout(() => {
         setHeroAnimationsReady(true);
       }, 2100);

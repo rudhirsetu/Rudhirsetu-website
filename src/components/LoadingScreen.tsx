@@ -15,7 +15,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
   const isLockedRef = useRef(false);
 
   useEffect(() => {
-    const duration = 1800; // 1.8 seconds
+    const duration = 2000; // 2 seconds
     const startTime = Date.now();
 
     const updateProgress = () => {
@@ -51,10 +51,10 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
 
   return (
     <AnimatePresence mode="wait">
-      <div className="fixed inset-0 z-[9999] flex flex-col opacity-90">
+      <div className="fixed inset-0 z-[9999] flex flex-col pointer-events-none">
         {/* Top Section */}
         <motion.div
-          className="relative flex-1 bg-white flex flex-col items-center justify-end pb-8"
+          className="relative flex-1 bg-white opacity-90 flex flex-col items-center justify-end pb-8"
           initial={{ y: 0 }}
           animate={isComplete ? { y: '-100%' } : { y: 0 }}
           exit={{ y: '-100%' }}
@@ -82,7 +82,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
 
         {/* Bottom Section */}
         <motion.div
-          className="relative flex-1 bg-white flex flex-col items-center justify-start pt-8"
+          className="relative flex-1 bg-white opacity-90 flex flex-col items-center justify-start pt-8"
           initial={{ y: 0 }}
           animate={isComplete ? { y: '100%' } : { y: 0 }}
           exit={{ y: '100%' }}
