@@ -6,7 +6,11 @@ import { Heart, ChevronRight } from 'lucide-react';
 import CountUp from './CountUp';
 import Iridescence from './Iridescence';
 
-const Hero = () => {
+interface HeroProps {
+  startAnimations?: boolean;
+}
+
+const Hero = ({ startAnimations = true }: HeroProps) => {
   // Impact stats with the same settings as Home component
   const impactStats = [
     { 
@@ -81,7 +85,7 @@ const Hero = () => {
       {/* Content */}
       <motion.div
         initial="hidden"
-        animate="visible"
+        animate={startAnimations ? "visible" : "hidden"}
         variants={containerVariants}
         className="relative z-10 container mx-auto px-4 py-10 min-h-[85vh] flex flex-col justify-center"
       >

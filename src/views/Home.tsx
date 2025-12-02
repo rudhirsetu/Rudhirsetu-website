@@ -15,6 +15,10 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Hero from "../components/Hero";
+
+interface HomeProps {
+  heroAnimationsReady?: boolean;
+}
 import CountUp from "../components/CountUp";
 
 import { Event, GalleryImage, ContactSettings } from "../types/sanity";
@@ -28,7 +32,7 @@ import { QUERIES } from "../lib/sanity";
 import EventCard from "../components/EventCard";
 import SpotlightCard from "../components/SpotlightCard";
 
-const Home = () => {
+const Home = ({ heroAnimationsReady = true }: HomeProps) => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [pastEvents, setPastEvents] = useState<Event[]>([]);
   const [featuredImages, setFeaturedImages] = useState<GalleryImage[]>([]);
@@ -276,7 +280,7 @@ const Home = () => {
 
   return (
     <div className="space-y-0 overflow-x-hidden bg-white">
-      <Hero/>
+      <Hero startAnimations={heroAnimationsReady} />
 
       {/* Key Focus Areas */}
       <motion.section

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import PreloadLink from './PreloadLink';
 import { Heart, Phone, Menu, X, Home, Share2, Image, Gift } from 'lucide-react';
@@ -10,8 +10,26 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [shouldAnimate, setShouldAnimate] = useState(false);
   // const [socialLinks, setSocialLinks] = useState<SocialMediaSettings | null>(null);
   const pathname = usePathname();
+
+  useEffect(() => {
+    // Check if we're on homepage and if loading screen should be shown
+    const isHomepage = pathname === '/';
+    const hasVisited = sessionStorage.getItem('hasVisitedHome');
+    
+    if (isHomepage && !hasVisited) {
+      // Delay navbar animation to sync with loading screen split (2.1 seconds)
+      const timer = setTimeout(() => {
+        setShouldAnimate(true);
+      }, 2100);
+      return () => clearTimeout(timer);
+    } else {
+      // On other pages or if already visited, animate immediately
+      setShouldAnimate(true);
+    }
+  }, [pathname]);
 
   // useEffect(() => {
   //   const loadSocialLinks = async () => {
@@ -98,8 +116,9 @@ const Navbar = () => {
 
   return (
     <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
+      initial={{ y: -100, opacity: 0 }}
+      animate={shouldAnimate ? { y: 0, opacity: 1 } : { y: -100, opacity: 0 }}
+      transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
       className="fixed top-2 left-0 right-0 z-[50] transition-all duration-300"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
