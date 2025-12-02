@@ -6,7 +6,6 @@ import LoadingScreen from '../components/LoadingScreen';
 
 export default function HomeClient() {
   const [showLoading, setShowLoading] = useState(false);
-  const [heroAnimationsReady, setHeroAnimationsReady] = useState(false);
 
   useEffect(() => {
     // Check if this is the first visit in this session
@@ -14,13 +13,6 @@ export default function HomeClient() {
     
     if (!hasVisited) {
       setShowLoading(true);
-      // Trigger Hero animations right when split animation begins (after 2.1 seconds)
-      setTimeout(() => {
-        setHeroAnimationsReady(true);
-      }, 2100);
-    } else {
-      // If no loading screen, start Hero animations immediately
-      setHeroAnimationsReady(true);
     }
   }, []);
 
@@ -33,7 +25,7 @@ export default function HomeClient() {
   return (
     <>
       {/* Home is always rendered, sitting underneath */}
-      <Home heroAnimationsReady={heroAnimationsReady} />
+      <Home />
       {/* Loading screen sits on top and splits to reveal */}
       {showLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
     </>

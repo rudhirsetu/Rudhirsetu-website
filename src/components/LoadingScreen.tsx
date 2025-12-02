@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
@@ -11,38 +11,33 @@ interface LoadingScreenProps {
 const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
   const [progress, setProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
-  const progressRef = useRef(0);
-  const isLockedRef = useRef(false);
 
   useEffect(() => {
-    const duration = 1800; // 1.8 seconds
+    const duration = 1800; // 2 seconds
     const startTime = Date.now();
 
     const updateProgress = () => {
-      if (isLockedRef.current) return; // Stop updating if locked
-      
       const currentTime = Date.now();
       const elapsed = currentTime - startTime;
       const rawProgress = Math.min((elapsed / duration) * 100, 100);
       
-      const newProgress = Math.floor(rawProgress);
-      progressRef.current = newProgress;
-      setProgress(newProgress);
+      // Easing function for smooth, natural progress
+      // Using ease-out quad for faster start, slower end
+      const easedProgress = rawProgress < 100 
+        ? 100 - Math.pow(100 - rawProgress, 0.8) 
+        : 100;
+      
+      setProgress(Math.floor(easedProgress));
 
-      if (rawProgress >= 100) {
-        // Lock progress at 100%
-        progressRef.current = 100;
-        setProgress(100);
-        isLockedRef.current = true;
-        
+      if (rawProgress < 100) {
+        requestAnimationFrame(updateProgress);
+      } else {
         // Wait a moment at 100% before starting the split animation
         setTimeout(() => {
           setIsComplete(true);
           // Wait for split animation to complete before calling onComplete
           setTimeout(onComplete, 1000);
         }, 100);
-      } else {
-        requestAnimationFrame(updateProgress);
       }
     };
 
@@ -51,7 +46,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
 
   return (
     <AnimatePresence mode="wait">
-      <div className="fixed inset-0 z-[9999] flex flex-col opacity-90">
+      <div className="fixed inset-0 z-[9999] flex flex-col">
         {/* Top Section */}
         <motion.div
           className="relative flex-1 bg-white flex flex-col items-center justify-end pb-8"
@@ -73,9 +68,11 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           
           {/* Top half of progress bar */}
           <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gray-200 overflow-hidden">
-            <div
-              className="absolute top-0 left-0 h-full bg-red-600 transition-all duration-100 ease-linear"
-              style={{ width: `${progress}%` }}
+            <motion.div
+              className="absolute top-0 left-0 h-full bg-red-600"
+              initial={{ width: '0%' }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.1, ease: 'linear' }}
             />
           </div>
         </motion.div>
@@ -90,16 +87,23 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
         >
           {/* Bottom half of progress bar */}
           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gray-200 overflow-hidden">
-            <div
-              className="absolute top-0 left-0 h-full bg-red-600 transition-all duration-100 ease-linear"
-              style={{ width: `${progress}%` }}
+            <motion.div
+              className="absolute top-0 left-0 h-full bg-red-600"
+              initial={{ width: '0%' }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.1, ease: 'linear' }}
             />
           </div>
           
           <div className="flex flex-col items-center">
-            <div className="text-5xl md:text-6xl font-bold text-gray-800 tabular-nums">
+            <motion.div
+              className="text-5xl md:text-6xl font-bold text-gray-800 tabular-nums"
+              key={progress}
+              initial={{ opacity: 0.7 }}
+              animate={{ opacity: 1 }}
+            >
               {progress}%
-            </div>
+            </motion.div>
             <p className="text-gray-500 mt-2 text-sm md:text-base">
               Loading...
             </p>
