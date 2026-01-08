@@ -27,4 +27,10 @@ my-ngo-cms
 .env*
 .next
 
+
+
 coverage*.tsbuildinfo
+playwright-report/*
+test-results/*
+
+bun.lockb
