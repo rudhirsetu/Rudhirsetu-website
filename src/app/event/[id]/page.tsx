@@ -6,6 +6,11 @@ import { notFound } from 'next/navigation';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
 
+// Use on-demand revalidation via webhooks instead of time-based
+// Pages will be revalidated when content changes in Sanity
+// Set to false so pages are static until webhook triggers revalidation
+export const revalidate = false;
+
 interface EventPageProps {
   params: Promise<{ id: string }>;
 }
@@ -52,7 +57,7 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
   const { id } = await params;
   
   try {
-    // Fetch event data
+    // Fetch event data with proper revalidation
     const event: Event = await client.fetch(
       `*[_type == "event" && _id == $id][0]{
         _id,
@@ -66,7 +71,10 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
         shortDesc,
         gallery
       }`,
-      { id }
+      { id },
+      {
+        next: { tags: [`event-${id}`] } // Tag for on-demand revalidation
+      }
     );
 
     if (!event) {
@@ -136,7 +144,7 @@ export default async function EventDetailsPage({ params }: EventPageProps) {
   }
   
   try {
-    // Fetch event data on the server
+    // Fetch event data on the server with proper revalidation
     const event: Event = await client.fetch(
       `*[_type == "event" && _id == $id][0]{
         _id,
@@ -153,7 +161,10 @@ export default async function EventDetailsPage({ params }: EventPageProps) {
         _createdAt,
         _updatedAt
       }`,
-      { id }
+      { id },
+      {
+        next: { tags: [`event-${id}`] } // Tag for on-demand revalidation
+      }
     );
 
     if (!event) {
