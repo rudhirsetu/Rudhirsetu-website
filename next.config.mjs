@@ -2,22 +2,20 @@
 const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
-    // Enable faster page loading
-    optimizeServerReact: true,
   },
   images: {
-    domains: ['cdn.sanity.io'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.sanity.io',
+      },
+    ],
     formats: ['image/webp', 'image/avif'],
-    // Optimize image loading
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   compress: true,
   poweredByHeader: false,
-  // Optimize build performance  
-  eslint: {
-    ignoreDuringBuilds: process.env.NODE_ENV === 'development',
-  },
   typescript: {
     ignoreBuildErrors: false,
   },

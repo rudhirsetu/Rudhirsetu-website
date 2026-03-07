@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     // Only revalidate event pages
     if (_type === 'event' && _id) {
       // Revalidate using the tag we set in the page
-      revalidateTag(`event-${_id}`);
+      revalidateTag(`event-${_id}`, 'max');
       
       // Also revalidate the paths
       revalidatePath(`/event/${_id}`);
@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (eventId) {
-    revalidateTag(`event-${eventId}`);
+    revalidateTag(`event-${eventId}`, 'max');
     revalidatePath(`/event/${eventId}`);
     revalidatePath('/camp');
     revalidatePath('/');

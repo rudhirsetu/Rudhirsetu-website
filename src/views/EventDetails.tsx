@@ -363,7 +363,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
                     initial={transitionState.isTransitioning ? false : { opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: transitionState.isTransitioning ? 0 : 0.5, duration: transitionState.isTransitioning ? 0 : 0.7 }}
-                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight shadow-text mb-4 md:mb-6"
+                    className="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight shadow-text mb-4 md:mb-6"
                   >
                     {event.title}
                   </motion.h1>

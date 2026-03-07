@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(bun add next@latest react@latest react-dom@latest)",
+      "Bash(bun --version)",
+      "Bash(bun add -d @next/bundle-analyzer@latest @next/eslint-plugin-next@latest eslint-config-next@latest @types/react@latest @types/react-dom@latest)",
+      "Bash(bun run build)"
+    ]
+  }
+}

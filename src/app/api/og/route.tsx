@@ -11,23 +11,16 @@ export async function GET(request: NextRequest) {
     const description = searchParams.get('description') || 'Empowering Communities Through Service';
     // const route = searchParams.get('route') || 'home'; // Not needed since all routes use same gradient
 
-    // Load fonts
-    const poppinsBold = await fetch(
-      new URL('/public/font/Poppins-Bold.ttf', import.meta.url)
-    ).then((res) => res.arrayBuffer());
+    // Get the base URL for this request
+    const baseUrl = new URL(request.url).origin;
 
-    const poppinsRegular = await fetch(
-      new URL('/public/font/Poppins-Regular.ttf', import.meta.url)
-    ).then((res) => res.arrayBuffer());
+    // Fetch local fonts via HTTP
+    const poppinsBold = await fetch(`${baseUrl}/font/Poppins-Bold.ttf`).then((res) => res.arrayBuffer());
+    const poppinsRegular = await fetch(`${baseUrl}/font/Poppins-Regular.ttf`).then((res) => res.arrayBuffer());
 
-
-    // Load logo and convert to base64
-    const logoResponse = await fetch(
-      new URL('/public/images/logo-dark.svg', import.meta.url)
-    );
-    const logoBuffer = await logoResponse.arrayBuffer();
-    const logoBase64 = Buffer.from(logoBuffer).toString('base64');
-    const logoDataUrl = `data:image/svg+xml;base64,${logoBase64}`;
+    // Fetch local logo and convert to base64
+    const logoSvg = await fetch(`${baseUrl}/images/logo-dark.svg`).then((res) => res.text());
+    const logoDataUrl = `data:image/svg+xml;base64,${Buffer.from(logoSvg).toString('base64')}`;
 
 
     return new ImageResponse(
