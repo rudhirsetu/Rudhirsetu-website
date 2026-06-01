@@ -22,16 +22,4 @@ export function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
 
-
-
-// GROQ Queries
-export const QUERIES = {
-  allEvents: `*[_type == "event"] | order(date desc)`,
-  upcomingEvents: `*[_type == "event" && isUpcoming == true] | order(date asc)`,
-  pastEvents: `*[_type == "event" && isUpcoming == false] | order(date desc)`,
-  featuredImages: `*[_type == "galleryImage" && isFeatured == true]`,
-  galleryImages: `*[_type == "galleryImage" && !isFeatured]`,
-  galleryImagesByCategory: (category: string) => `*[_type == "galleryImage" && !isFeatured && category == "${category}"]`,
-  donationSettings: `*[_type == "donationSettings"][0]`,
-  contactSettings: `*[_type == "contactSettings"][0]`,
-}; 
+// GROQ queries live in ./queries.ts (single source of truth). 

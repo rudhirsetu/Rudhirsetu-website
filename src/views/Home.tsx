@@ -22,13 +22,12 @@ interface HomeProps {
 import CountUp from "../components/CountUp";
 
 import { Event, GalleryImage, ContactSettings } from "../types/sanity";
-import { eventService, settingsService } from "../services/sanity-client";
+import { eventService, settingsService, galleryService } from "../services/sanity-client";
 import {
   FeaturedCarousel,
   ImageLightbox,
 } from "../components/GalleryComponents";
-import { client } from "../lib/sanity";
-import { QUERIES } from "../lib/sanity";
+import NextImage from "next/image";
 import EventCard from "../components/EventCard";
 import SpotlightCard from "../components/SpotlightCard";
 
@@ -96,7 +95,7 @@ const Home = ({ heroAnimationsReady = true }: HomeProps) => {
         const loadDeferredData = async () => {
           const loadImages = async () => {
             try {
-              const imagesData = await client.fetch(QUERIES.featuredImages);
+              const imagesData = await galleryService.fetchFeatured();
               if (imagesData) {
                 setFeaturedImages(imagesData || []);
               }
@@ -622,10 +621,12 @@ const Home = ({ heroAnimationsReady = true }: HomeProps) => {
       >
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          <img
+          <NextImage
             src="/rudhirsetu-bg.webp"
             alt="Impact Background"
-            className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-black/30"></div>
         </div>

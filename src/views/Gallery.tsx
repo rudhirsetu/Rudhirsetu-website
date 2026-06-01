@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X, Heart, Camera, Tag } from 'lucide-react';
-import { client } from '../lib/sanity';
-import { QUERIES } from '../lib/sanity';
 import { urlFor } from '../lib/sanity';
+import { galleryService } from '../services/sanity-client';
 import type { GalleryImage } from '../types/sanity';
 import { FeaturedCarousel, ImageLightbox } from '../components/GalleryComponents';
 import { StructuredData } from '../components/StructuredData';
@@ -37,7 +36,7 @@ const Gallery = () => {
   useEffect(() => {
     const loadFeaturedImages = async () => {
       try {
-        const data = await client.fetch(QUERIES.featuredImages);
+        const data = await galleryService.fetchFeatured();
         setFeaturedImages(data || []);
       } catch (err) {
         console.error('Error loading featured images:', err);
@@ -49,7 +48,7 @@ const Gallery = () => {
   const loadImages = async () => {
     try {
       setLoading(true);
-      const data = await client.fetch(QUERIES.galleryImages);
+      const data = await galleryService.fetchAll();
       setImages(data || []);
       filterImages(data || [], selectedCategory);
     } catch (err) {
@@ -121,7 +120,7 @@ const Gallery = () => {
         }}
       >
         <img
-          src={urlFor(image.image).url()}
+          src={urlFor(image.image).width(800).quality(80).auto('format').url()}
           alt={image.title || 'Gallery Image'}
           className="w-full h-auto object-cover"
           loading="lazy"
