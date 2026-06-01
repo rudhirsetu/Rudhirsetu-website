@@ -4,34 +4,28 @@ import {
   ArrowRight,
   Heart,
   Calendar,
-  ExternalLink,
   Activity,
   Zap,
   Award,
   Image,
-  Phone,
-  Mail,
-  MapPin,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Hero from "../components/Hero";
+
+import { Event, GalleryImage } from "../types/sanity";
+import { eventService, galleryService } from "../services/sanity-client";
+import {
+  FeaturedCarousel,
+  ImageLightbox,
+} from "../components/GalleryComponents";
+import EventCard from "../components/EventCard";
+import SpotlightCard from "../components/SpotlightCard";
 
 interface HomeProps {
   heroAnimationsReady?: boolean;
   initialUpcomingEvents?: Event[];
   initialPastEvents?: Event[];
 }
-import CountUp from "../components/CountUp";
-
-import { Event, GalleryImage, ContactSettings } from "../types/sanity";
-import { eventService, settingsService, galleryService } from "../services/sanity-client";
-import {
-  FeaturedCarousel,
-  ImageLightbox,
-} from "../components/GalleryComponents";
-import NextImage from "next/image";
-import EventCard from "../components/EventCard";
-import SpotlightCard from "../components/SpotlightCard";
 
 const Home = ({
   heroAnimationsReady = true,
@@ -43,45 +37,24 @@ const Home = ({
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>(initialUpcomingEvents);
   const [pastEvents, setPastEvents] = useState<Event[]>(initialPastEvents);
   const [featuredImages, setFeaturedImages] = useState<GalleryImage[]>([]);
-  const [
-    contactSettings,
-    setContactSettings,
-  ] = useState<ContactSettings | null>(null);
   const [loading, setLoading] = useState(!hasSeededEvents);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [isEventsVisible, setIsEventsVisible] = useState(false);
-  const [shouldLoadMap, setShouldLoadMap] = useState(false);
 
   useEffect(() => {
     // Non-critical, below-the-fold data is always fetched on the client.
     const loadDeferredData = async () => {
-      const loadImages = async () => {
-        try {
-          const imagesData = await galleryService.fetchFeatured();
-          if (imagesData) {
-            setFeaturedImages(imagesData || []);
-          }
-        } catch (err) {
-          console.error("Error loading images:", err);
-          // Images are less critical, don't show error for this
+      try {
+        const imagesData = await galleryService.fetchFeatured();
+        if (imagesData) {
+          setFeaturedImages(imagesData || []);
         }
-      };
-
-      const loadContact = async () => {
-        try {
-          const contactData = await settingsService.fetchContact();
-          if (contactData) {
-            setContactSettings(contactData);
-          }
-        } catch (err) {
-          console.error("Error loading contact settings:", err);
-          // Contact info is less critical, don't show error for this
-        }
-      };
-
-      await Promise.allSettled([loadImages(), loadContact()]);
+      } catch (err) {
+        console.error("Error loading images:", err);
+        // Images are less critical, don't show error for this
+      }
     };
 
     const loadData = async () => {
@@ -117,35 +90,6 @@ const Home = ({
 
     loadData();
   }, [hasSeededEvents]);
-
-  // Intersection Observer for lazy loading the map
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && !shouldLoadMap) {
-          // Add a small delay to ensure other critical resources load first
-          setTimeout(() => {
-            setShouldLoadMap(true);
-          }, 150);
-          observer.disconnect();
-        }
-      },
-      {
-        root: null,
-        rootMargin: '50px', // Reduced margin to prevent early loading that causes lag
-        threshold: 0.1
-      }
-    );
-
-    // Find the map container element
-    const mapContainer = document.getElementById('map-container');
-    if (mapContainer) {
-      observer.observe(mapContainer);
-    }
-
-    return () => observer.disconnect();
-  }, [shouldLoadMap]);
 
   // Animation variants
   const containerVariants = {
@@ -225,41 +169,6 @@ const Home = ({
     },
   ];
 
-  const impactStats = [
-    {
-      label: "Blood Donation Camps",
-      value: 50,
-      suffix: "+",
-      subtext: "Annually",
-      color: "from-red-500 to-red-600",
-      duration: 0.4,
-    },
-    {
-      label: "Emergencies Supported",
-      value: 9800,
-      suffix: "+",
-      subtext: "And counting",
-      color: "from-orange-500 to-red-500",
-      duration: 0.1,
-    },
-    {
-      label: "Eye Checkups",
-      value: 15000,
-      suffix: "+",
-      subtext: "Completed",
-      color: "from-emerald-500 to-emerald-600",
-      duration: 0.1,
-    },
-    {
-      label: "Cancer Awareness",
-      value: 20000,
-      suffix: "+",
-      subtext: "Women reached",
-      color: "from-indigo-500 to-indigo-600",
-      duration: 0.1,
-    },
-  ];
-
   return (
     <div className="space-y-0 overflow-x-hidden bg-white">
       <Hero startAnimations={heroAnimationsReady} />
@@ -277,6 +186,10 @@ const Home = ({
             variants={itemVariants}
             className="flex flex-col items-center text-center max-w-4xl mx-auto mb-12 sm:mb-16 md:mb-20"
           >
+            <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 sm:mb-6 inline-flex items-center">
+              <Heart className="w-4 h-4 mr-2" />
+              What We Do
+            </span>
             <h2 className="text-black font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6 sm:mb-7 md:mb-8">
               Our Key Focus
             </h2>
@@ -466,6 +379,10 @@ const Home = ({
             variants={itemVariants}
             className="text-center mb-16 max-w-3xl mx-auto"
           >
+            <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 sm:mb-6 inline-flex items-center">
+              <Calendar className="w-4 h-4 mr-2" />
+              Our Activities
+            </span>
             <h2 className="text-black font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight mb-6 sm:mb-7 md:mb-8">
               Events & Camps
             </h2>
@@ -594,74 +511,6 @@ const Home = ({
         </div>
       </motion.section>
 
-      {/* Impact Statistics */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={containerVariants}
-        className="py-24 text-white relative overflow-hidden"
-      >
-        {/* Background Image */}
-        <div className="absolute inset-0 z-0">
-          <NextImage
-            src="/rudhirsetu-bg.webp"
-            alt="Impact Background"
-            fill
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-black/30"></div>
-        </div>
-
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            variants={itemVariants}
-            className="text-center mb-16 max-w-3xl mx-auto"
-          >
-            <span className="px-4 py-1.5 bg-white/10 text-white text-sm font-medium rounded-full mb-6 inline-flex items-center">
-              <Activity className="w-4 h-4 mr-2" />
-              Our Impact
-            </span>
-            <h2 className="text-4xl font-bold mb-6">
-              The Change We&apos;re Making
-            </h2>
-            <p className="text-xl text-white/90">
-              With your support, we&apos;ve achieved significant milestones in
-              our mission to transform lives
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {impactStats.map((stat) => (
-              <motion.div
-                key={stat.label}
-                variants={itemVariants}
-                whileHover={{ y: -8, transition: { duration: 0.3 } }}
-              >
-                <div className="bg-white/10 rounded-xl p-6 border border-white/10 hover:border-white/30 transition-all h-full backdrop-blur-sm">
-                  <h3 className="text-4xl sm:text-5xl font-bold mb-3 text-white">
-                    <CountUp
-                      from={0}
-                      to={stat.value}
-                      duration={stat.duration}
-                      delay={0}
-                      separator=","
-                      className="text-white"
-                    />
-                    {stat.suffix}
-                  </h3>
-                  <div className="text-xl font-semibold mb-1 text-white">
-                    {stat.label}
-                  </div>
-                  <div className="text-white/70">{stat.subtext}</div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
       {/* Featured Gallery Showcase */}
       {featuredImages.length > 0 && (
         <motion.section
@@ -676,7 +525,7 @@ const Home = ({
               variants={itemVariants}
               className="text-center mb-16 max-w-3xl mx-auto"
             >
-              <span className="px-4 py-1.5 bg-red-100 text-red-900 text-sm font-medium rounded-full mb-6 inline-flex items-center">
+              <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-6 inline-flex items-center">
                 <Image className="w-4 h-4 mr-2" />
                 Featured Gallery
               </span>
@@ -714,7 +563,7 @@ const Home = ({
         </motion.section>
       )}
 
-      {/* Call to Action - EventCard Style */}
+      {/* Call to Action band */}
       <motion.section
         initial="hidden"
         whileInView="visible"
@@ -722,136 +571,40 @@ const Home = ({
         variants={containerVariants}
         className="container mx-auto px-4 py-20 md:py-24"
       >
-        <motion.div variants={fadeInUpVariants} className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-2xl border border-gray-200/40 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-            <div className="flex flex-col lg:flex-row">
-              {/* Content Section */}
-              <div className="flex-1 flex flex-col">
-                {/* Title Section */}
-                <div className="p-8 md:p-10">
-                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 hover:text-[#9B2C2C] transition-colors duration-300">
-                    Join Us in Making a Difference!
-                  </h2>
-                </div>
-
-                {/* Divider */}
-                <div className="mx-8 md:mx-10">
-                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
-                </div>
-
-                {/* Contact Details Section */}
-                <div className="px-8 md:px-10 py-5 space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {contactSettings?.phone && (
-                      <div className="flex items-center text-gray-700 p-6 rounded-lg border border-gray-100 bg-white/50">
-                        <Phone className="min-w-8 min-h-8 mr-4 text-[#9B2C2C]" />
-                        <span className="text-lg font-medium">
-                          {contactSettings.phone}
-                        </span>
-                      </div>
-                    )}
-                    {contactSettings?.email && (
-                      <div className="flex items-center overflow-wrap text-gray-700 p-6 rounded-lg border border-gray-100 bg-white/50">
-                        <Mail className="min-w-8 min-h-8 mr-4 text-[#9B2C2C]" />
-                        <span className="text-lg font-medium">
-                          {contactSettings.email}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Address Row */}
-                  {contactSettings?.address && (
-                    <div className="flex items-center text-gray-700 p-6 rounded-lg border border-gray-100 bg-white/50">
-                      <MapPin className="min-w-8 min-h-8 mr-4 text-[#9B2C2C]" />
-                      <span className="text-lg font-medium">
-                        {contactSettings.address}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Divider */}
-                <div className="mx-8 md:mx-10">
-                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
-                </div>
-
-                {/* Description Section */}
-                <div className="px-8 md:px-10 py-5">
-                  <div className="text-gray-600 p-4 rounded-lg border border-gray-100 bg-white/30">
-                    <p className="text-base leading-relaxed">
-                      Whether you want to donate, volunteer, or partner with us,
-                      your support can help transform lives and empower
-                      communities. Join our mission to serve those in need.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div className="mx-8 md:mx-10 mt-auto">
-                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
-                </div>
-
-                {/* Action Buttons Section */}
-                <div className="p-8 md:p-10">
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <PreloadLink
-                      href="/contact"
-                      priority="high"
-                      className="flex-1 inline-flex items-center justify-center px-6 py-4 bg-red-600 text-white font-medium rounded-md transition-colors duration-300 text-base border border-red-600 hover:bg-red-700"
-                    >
-                      <span>Contact Us</span>
-                      <ExternalLink className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
-                    </PreloadLink>
-                    <PreloadLink
-                      href="/donations"
-                      priority="high"
-                      className="flex-1 inline-flex items-center justify-center px-6 py-4 bg-white text-gray-700 hover:bg-white font-medium rounded-md transition-colors duration-300 text-base border border-gray-200"
-                    >
-                      <span>Donate Now</span>
-                      <Heart className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
-                    </PreloadLink>
-                  </div>
-                </div>
+        <motion.div variants={fadeInUpVariants} className="max-w-5xl mx-auto">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#9B2C2C] via-red-700 to-red-900 px-8 py-14 md:px-16 md:py-16 text-center shadow-xl">
+            {/* subtle decorative glow */}
+            <div className="pointer-events-none absolute -top-16 -right-10 w-64 h-64 rounded-full bg-white/10 blur-3xl" />
+            <div className="relative z-10">
+              <span className="inline-flex items-center gap-2 bg-white/15 text-white text-sm font-medium rounded-full px-4 py-1.5 mb-6 backdrop-blur-sm">
+                <Heart className="w-4 h-4" />
+                Get Involved
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Join us in making a difference
+              </h2>
+              <p className="text-white/85 text-lg max-w-2xl mx-auto mb-9">
+                Whether you donate, volunteer, or partner with us, your support
+                helps transform lives and empower communities.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <PreloadLink
+                  href="/donations"
+                  priority="high"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-[#9B2C2C] font-semibold rounded-lg shadow-lg hover:bg-[#FECACA] transition-colors duration-300 group"
+                >
+                  <span>Donate Now</span>
+                  <Heart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                </PreloadLink>
+                <PreloadLink
+                  href="/contact"
+                  priority="high"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-white/70 text-white font-semibold rounded-lg hover:bg-white/10 transition-colors duration-300 group"
+                >
+                  <span>Contact Us</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </PreloadLink>
               </div>
-
-              {/* Google Map Section */}
-              <div className="lg:w-2/5 bg-white">
-                <div className="h-full min-h-[300px] lg:min-h-full" id="map-container">
-                  {contactSettings?.googleMapsUrl ? (
-                    <div className="relative w-full h-full lg:h-full">
-                      {/* Mobile: aspect ratio container, Desktop: full height */}
-                      <div className="lg:absolute lg:inset-0 relative w-full h-0 pb-[100%] lg:h-full lg:pb-0">
-                        {shouldLoadMap ? (
-                          <iframe
-                            src={contactSettings.googleMapsUrl}
-                            className="absolute top-0 left-0 w-full h-full border-0"
-                            allowFullScreen
-                            loading="lazy"
-                            referrerPolicy="no-referrer-when-downgrade"
-                            title="Rudhirsetu Location"
-                          />
-                        ) : (
-                          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-white">
-                            <div className="text-center p-8">
-                              <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4 animate-pulse" />
-                              <p className="text-gray-500">Loading map...</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="text-center p-8">
-                        <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-500">Map loading...</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
             </div>
           </div>
         </motion.div>
