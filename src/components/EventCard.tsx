@@ -48,7 +48,7 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'list' }: EventC
                 >
                     <div className="relative w-full h-full rounded-xl overflow-hidden">
                         <img
-                            src={urlFor(event.image).width(800).height(400).url()}
+                            src={urlFor(event.image).width(800).height(400).quality(80).auto('format').url()}
                             alt={event.title}
                             className={`w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ${!isUpcoming && 'filter grayscale-[30%] group-hover:grayscale-0'}`}
                         />

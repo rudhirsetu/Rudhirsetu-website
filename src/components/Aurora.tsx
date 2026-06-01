@@ -190,10 +190,33 @@ export default function Aurora(props: AuroraProps) {
       });
       renderer.render({ scene: mesh });
     };
-    animateId = requestAnimationFrame(update);
+    const prefersReducedMotion =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+
+    const stop = () => {
+      if (animateId) {
+        cancelAnimationFrame(animateId);
+        animateId = 0;
+      }
+    };
+    const start = () => {
+      if (!animateId) animateId = requestAnimationFrame(update);
+    };
+    // Pause the render loop while the tab is hidden to save CPU/GPU.
+    const handleVisibility = () => (document.hidden ? stop() : start());
+
+    if (prefersReducedMotion) {
+      // Honor reduced-motion: paint a single static frame, no loop.
+      program.uniforms.uTime.value = 0;
+      renderer.render({ scene: mesh });
+    } else {
+      start();
+      document.addEventListener("visibilitychange", handleVisibility);
+    }
 
     return () => {
-      cancelAnimationFrame(animateId);
+      stop();
+      document.removeEventListener("visibilitychange", handleVisibility);
       window.removeEventListener("resize", resize);
       if (ctn && gl.canvas.parentNode === ctn) {
         ctn.removeChild(gl.canvas);

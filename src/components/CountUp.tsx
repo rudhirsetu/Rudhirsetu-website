@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { useInView, useMotionValue, useSpring } from "framer-motion";
 
 interface CountUpProps {
@@ -14,7 +14,7 @@ interface CountUpProps {
   onEnd?: () => void;
 }
 
-export default function CountUp({
+function CountUp({
   to,
   from = 0,
   direction = "up",
@@ -105,4 +105,6 @@ export default function CountUp({
   }, [springValue, separator]);
 
   return <span className={`${className}`} ref={ref} />;
-} 
+}
+
+export default memo(CountUp); 
