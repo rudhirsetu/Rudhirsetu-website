@@ -29,8 +29,7 @@ my-ngo-cms
 
 
 
-coverage*.tsbuildinfo
+coverage
+*.tsbuildinfo
 playwright-report/*
 test-results/*
-
-bun.lockb

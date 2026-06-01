@@ -1,12 +1,10 @@
 import type { Metadata } from 'next';
 import { Poppins, Pacifico} from 'next/font/google';
-// import localFont from 'next/font/local';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
 
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import DevelopmentWarning from '../components/DevelopmentWarning';
 import SmoothScrollProvider from '../components/SmoothScrollProvider';
 import { PageTransitionProvider } from '../context/PageTransitionContext';
 import '../styles/globals.css';
@@ -24,13 +22,6 @@ const pacifico = Pacifico({
   display: 'swap',
   variable: '--font-pacifico',
 });
-
-
-// const league_script = localFont({
-//   src: '../../public/font/PPPlayground-Medium.otf',
-//   display: 'swap',
-//   variable: '--font-league-script',
-// });
 
 export const metadata: Metadata = {
   title: {
@@ -154,11 +145,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`
       ${poppins.variable} 
-      ${pacifico.variable} 
+      ${pacifico.variable}
     `}
     >
-      {/* ${league_script.variable} ADD THIS BS LATER*/}
-
       <head>
         {/* Preconnect to important domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -419,7 +408,6 @@ export default function RootLayout({
       <body className={`${poppins.className} font-sans antialiased`}>
         <SmoothScrollProvider>
           <PageTransitionProvider>
-            <DevelopmentWarning />
             <div className="min-h-screen flex flex-col">
               <Navbar />
               <main className="p-0">
