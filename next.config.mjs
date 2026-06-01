@@ -26,7 +26,7 @@ const nextConfig = {
     reactRemoveProperties: process.env.NODE_ENV === 'production',
   },
   async headers() {
-    return [
+    const rules = [
       {
         source: '/(.*)',
         headers: [
@@ -58,16 +58,6 @@ const nextConfig = {
           },
         ],
       },
-      // Cache static assets aggressively
-      {
-        source: '/(.*)\\.(ico|png|jpg|jpeg|gif|webp|avif|svg|css|js|woff|woff2|ttf|eot)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
       // Cache API routes briefly
       {
         source: '/api/(.*)',
@@ -79,6 +69,26 @@ const nextConfig = {
         ],
       },
     ];
+
+    // Cache static assets aggressively — PRODUCTION ONLY. In dev, Turbopack
+    // reuses the same chunk URLs across edits, so an `immutable` 1-year cache
+    // makes browsers (notably Safari, which honors it strictly and never
+    // revalidates) keep serving stale CSS/JS that no longer matches the page —
+    // which looks like "styling is missing". Next.js already sets proper
+    // immutable caching on hashed /_next/static assets in production anyway.
+    if (process.env.NODE_ENV === 'production') {
+      rules.push({
+        source: '/(.*)\\.(ico|png|jpg|jpeg|gif|webp|avif|svg|css|js|woff|woff2|ttf|eot)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      });
+    }
+
+    return rules;
   },
 };
 
