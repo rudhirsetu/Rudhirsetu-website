@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rudhirsetu — Bold hero, refined</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+  :root { --crimson: #9B2C2C; }
+  body { font-family: 'Poppins', sans-serif; }
+  .pacifico { font-family: 'Pacifico', cursive; font-weight: 400; }
+  .liquid {
+    background:
+      radial-gradient(60% 80% at 18% 22%, #c81e1e 0%, transparent 60%),
+      radial-gradient(50% 70% at 82% 28%, #e8590c 0%, transparent 55%),
+      radial-gradient(75% 95% at 60% 95%, #6b0f0f 0%, transparent 62%),
+      linear-gradient(135deg, #7f1d1d, #8f1818 50%, #4f0d0d);
+    background-size: 200% 200%, 200% 200%, 200% 200%, 100% 100%;
+    animation: drift 16s ease-in-out infinite alternate;
+  }
+  /* subtle vignette for text legibility */
+  .vignette::after { content:""; position:absolute; inset:0; background: radial-gradient(120% 80% at 50% 40%, transparent 40%, rgba(0,0,0,.28)); pointer-events:none; }
+  @keyframes drift {
+    0%   { background-position: 0% 0%, 100% 0%, 50% 100%, 0 0; }
+    100% { background-position: 40% 60%, 60% 40%, 30% 70%, 0 0; }
+  }
+  .glass { background: rgba(255,255,255,.10); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.26); }
+  .device { box-shadow: 0 24px 70px -24px rgba(0,0,0,.45); }
+  .lab { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .scrollbar-none { scrollbar-width: none; }
+  .card { background:#fff; border:1px solid #e7e7e7; border-radius:14px; }
+</style>
+</head>
+<body class="bg-neutral-100 text-neutral-900">
+
+<header class="max-w-7xl mx-auto px-6 pt-10 pb-4">
+  <h1 class="text-2xl font-bold">Bold hero — refined</h1>
+  <p class="text-neutral-500 mt-1 max-w-3xl">Same bold signature, cleaned up. Changes: one elegant <span class="pacifico text-[color:var(--crimson)]">Pacifico</span> accent instead of two scattered ones, bigger &amp; tighter headline, clearer vertical rhythm (badge → headline → line → CTAs → stats pinned low), lighter stat treatment, and a true mobile layout. Pick options in §3–§4.</p>
+</header>
+
+<!-- 1 · DESKTOP -->
+<section class="max-w-[1400px] mx-auto px-6 py-5">
+  <h2 class="lab text-neutral-400 font-semibold mb-2">1 · Desktop (refined)</h2>
+  <div class="device rounded-xl overflow-hidden border border-neutral-300">
+    <div class="liquid vignette relative h-[520px] flex flex-col items-center justify-center text-center px-12">
+      <span class="glass lab text-white/90 rounded-full px-4 py-1.5 inline-flex items-center gap-2">♥ Transforming Lives Since 2010</span>
+      <h3 class="text-white font-extrabold leading-[1.04] tracking-tight mt-7" style="font-size:4.5rem">
+        Transforming <span class="pacifico font-normal" style="font-size:4.9rem">Lives</span><br/>
+        Empowering Communities
+      </h3>
+      <div class="w-16 h-px bg-white/40 my-7"></div>
+      <p class="text-white/85 text-lg max-w-xl -mt-2">Free healthcare for the community — blood, sight &amp; cancer care since 2010.</p>
+      <div class="flex gap-4 mt-8">
+        <span class="bg-white text-[color:var(--crimson)] font-semibold rounded-lg px-8 py-3.5 shadow-xl">Get Involved →</span>
+        <span class="border-2 border-white text-white font-semibold rounded-lg px-8 py-3.5">Donate Now ♥</span>
+      </div>
+      <!-- stats: hairline row (lighter than boxed glass) -->
+      <div class="grid grid-cols-4 gap-px bg-white/15 rounded-2xl overflow-hidden mt-10 w-full max-w-3xl">
+        <div class="bg-white/[.06] px-5 py-4"><div class="text-white text-3xl font-bold">50+</div><div class="text-white/70 text-xs mt-0.5">Blood Camps</div></div>
+        <div class="bg-white/[.06] px-5 py-4"><div class="text-white text-3xl font-bold">9,800+</div><div class="text-white/70 text-xs mt-0.5">Lives Impacted</div></div>
+        <div class="bg-white/[.06] px-5 py-4"><div class="text-white text-3xl font-bold">15,000+</div><div class="text-white/70 text-xs mt-0.5">Eye Checkups</div></div>
+        <div class="bg-white/[.06] px-5 py-4"><div class="text-white text-3xl font-bold">20,000+</div><div class="text-white/70 text-xs mt-0.5">Women Reached</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · MOBILE -->
+<section class="max-w-[1400px] mx-auto px-6 py-5">
+  <h2 class="lab text-neutral-400 font-semibold mb-2">2 · Mobile (distinct layout)</h2>
+  <div class="flex justify-center">
+    <div class="device rounded-[2.2rem] overflow-hidden border-[7px] border-neutral-800 w-[370px]">
+      <div class="liquid vignette relative h-[740px] flex flex-col px-6 pt-16 pb-7 text-center">
+        <span class="glass lab text-white/90 rounded-full px-3 py-1.5 mb-7 inline-flex items-center gap-2 self-center">♥ Since 2010</span>
+        <h3 class="text-white font-extrabold leading-[1.06] tracking-tight" style="font-size:2.9rem">
+          Transforming <span class="pacifico font-normal" style="font-size:3.1rem">Lives</span><br/>
+          Empowering<br/>Communities
+        </h3>
+        <p class="text-white/85 mt-5 text-[15px] leading-relaxed px-2">Free healthcare for the community — blood, sight &amp; cancer care.</p>
+        <div class="flex flex-col gap-3 mt-7">
+          <span class="bg-white text-[color:var(--crimson)] font-semibold rounded-xl py-4 shadow-lg">Get Involved →</span>
+          <span class="border-2 border-white text-white font-semibold rounded-xl py-4">Donate Now ♥</span>
+        </div>
+        <div class="mt-auto -mx-6 px-6">
+          <div class="flex gap-3 overflow-x-auto scrollbar-none pb-1 snap-x">
+            <div class="glass rounded-2xl px-5 py-3 shrink-0 snap-start text-left"><div class="text-white text-2xl font-bold">50+</div><div class="text-white/75 text-[11px]">Blood Camps</div></div>
+            <div class="glass rounded-2xl px-5 py-3 shrink-0 snap-start text-left"><div class="text-white text-2xl font-bold">9,800+</div><div class="text-white/75 text-[11px]">Lives Impacted</div></div>
+            <div class="glass rounded-2xl px-5 py-3 shrink-0 snap-start text-left"><div class="text-white text-2xl font-bold">15,000+</div><div class="text-white/75 text-[11px]">Eye Checkups</div></div>
+            <div class="glass rounded-2xl px-5 py-3 shrink-0 snap-start text-left"><div class="text-white text-2xl font-bold">20,000+</div><div class="text-white/75 text-[11px]">Women</div></div>
+          </div>
+          <div class="text-white/45 text-[11px] mt-2 text-left">swipe ›</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · HEADLINE OPTIONS -->
+<section class="max-w-[1400px] mx-auto px-6 py-6">
+  <h2 class="lab text-neutral-400 font-semibold mb-3">3 · Headline / font — pick one</h2>
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="liquid rounded-xl p-8 flex flex-col items-center text-center justify-center min-h-[200px]">
+      <div class="lab text-white/60 mb-3">H1 · single accent (used above)</div>
+      <div class="text-white font-extrabold leading-[1.05] tracking-tight text-3xl">Transforming <span class="pacifico font-normal text-[2.1rem]">Lives</span><br/>Empowering Communities</div>
+    </div>
+    <div class="liquid rounded-xl p-8 flex flex-col items-center text-center justify-center min-h-[200px]">
+      <div class="lab text-white/60 mb-3">H2 · accent on the verb</div>
+      <div class="text-white font-extrabold leading-[1.05] tracking-tight text-3xl">Transforming Lives,<br/><span class="pacifico font-normal text-[2.1rem]">Empowering</span> Communities</div>
+    </div>
+    <div class="liquid rounded-xl p-8 flex flex-col items-center text-center justify-center min-h-[200px]">
+      <div class="lab text-white/60 mb-3">H3 · all-caps, no script</div>
+      <div class="text-white font-extrabold leading-[1.02] tracking-tight text-3xl uppercase">Transforming Lives<br/>Empowering Communities</div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · STATS OPTIONS -->
+<section class="max-w-[1400px] mx-auto px-6 py-6">
+  <h2 class="lab text-neutral-400 font-semibold mb-3">4 · Stats style — pick one</h2>
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="liquid rounded-xl p-6 flex items-center justify-center min-h-[150px]">
+      <div class="grid grid-cols-4 gap-px bg-white/15 rounded-xl overflow-hidden w-full">
+        <div class="bg-white/[.06] px-3 py-3 text-center"><div class="text-white text-xl font-bold">50+</div><div class="text-white/70 text-[10px]">Camps</div></div>
+        <div class="bg-white/[.06] px-3 py-3 text-center"><div class="text-white text-xl font-bold">9.8k+</div><div class="text-white/70 text-[10px]">Lives</div></div>
+        <div class="bg-white/[.06] px-3 py-3 text-center"><div class="text-white text-xl font-bold">15k+</div><div class="text-white/70 text-[10px]">Eyes</div></div>
+        <div class="bg-white/[.06] px-3 py-3 text-center"><div class="text-white text-xl font-bold">20k+</div><div class="text-white/70 text-[10px]">Women</div></div>
+      </div>
+      <div class="lab text-white/60 absolute mt-24">S1 · hairline row (used above)</div>
+    </div>
+    <div class="liquid rounded-xl p-6 flex items-center justify-center min-h-[150px]">
+      <div class="grid grid-cols-4 gap-3 w-full">
+        <div class="glass rounded-xl px-3 py-3 text-center"><div class="text-white text-xl font-bold">50+</div><div class="text-white/75 text-[10px]">Camps</div></div>
+        <div class="glass rounded-xl px-3 py-3 text-center"><div class="text-white text-xl font-bold">9.8k+</div><div class="text-white/75 text-[10px]">Lives</div></div>
+        <div class="glass rounded-xl px-3 py-3 text-center"><div class="text-white text-xl font-bold">15k+</div><div class="text-white/75 text-[10px]">Eyes</div></div>
+        <div class="glass rounded-xl px-3 py-3 text-center"><div class="text-white text-xl font-bold">20k+</div><div class="text-white/75 text-[10px]">Women</div></div>
+      </div>
+    </div>
+    <div class="liquid rounded-xl p-6 flex items-center justify-center min-h-[150px]">
+      <div class="flex items-center justify-around w-full text-center divide-x divide-white/20">
+        <div class="px-2"><div class="text-white text-2xl font-bold">50+</div><div class="text-white/70 text-[10px]">Camps</div></div>
+        <div class="px-2"><div class="text-white text-2xl font-bold">9.8k+</div><div class="text-white/70 text-[10px]">Lives</div></div>
+        <div class="px-2"><div class="text-white text-2xl font-bold">15k+</div><div class="text-white/70 text-[10px]">Eyes</div></div>
+        <div class="px-2"><div class="text-white text-2xl font-bold">20k+</div><div class="text-white/70 text-[10px]">Women</div></div>
+      </div>
+      <div class="lab text-white/60 absolute mt-24">S3 · inline dividers (no cards)</div>
+    </div>
+  </div>
+</section>
+
+<footer class="max-w-7xl mx-auto px-6 py-10 text-sm text-neutral-400">Mockup only. Tell me your picks (headline H1/H2/H3, stats S1/S2/S3) and any tweaks to placement/spacing.</footer>
+</body>
+</html>
