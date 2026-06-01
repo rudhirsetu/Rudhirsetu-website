@@ -322,6 +322,11 @@ export default function Iridescence({
   }, [color, speed, amplitude, mouseReact, isInitialized, hasError, frameInterval]);
 
   useEffect(() => {
+    // Honor reduced-motion: skip WebGL entirely and keep the static gradient fallback.
+    const prefersReducedMotion =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    if (prefersReducedMotion) return;
+
     // Use requestIdleCallback if available, otherwise use setTimeout
     if ('requestIdleCallback' in window) {
       const id = requestIdleCallback(() => {

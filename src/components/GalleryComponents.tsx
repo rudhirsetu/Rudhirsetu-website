@@ -139,7 +139,7 @@ const FeaturedCarouselComponent = ({
               >
                 {loadedImages.has(index) && (
                   <img
-                    src={urlFor(image.image).width(1200).quality(85).url()}
+                    src={urlFor(image.image).width(1200).quality(85).auto('format').url()}
                     alt={image.title || 'Featured Image'}
                     className="w-full h-full object-cover"
                     loading={index <= 1 ? "eager" : "lazy"}
@@ -258,7 +258,7 @@ export const ImageLightbox = ({
 
         <div className="relative max-w-5xl max-h-full">
           <img
-            src={urlFor(selectedImage.image).quality(90).url()}
+            src={urlFor(selectedImage.image).width(1920).quality(85).auto('format').url()}
             alt={selectedImage.title || 'Gallery image'}
             className="max-w-full max-h-[80vh] object-contain rounded-lg"
             loading="eager"

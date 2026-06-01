@@ -132,7 +132,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
 
           <div className="relative max-w-5xl max-h-full">
             <img
-              src={urlFor(image).width(1500).url()}
+              src={urlFor(image).width(1500).quality(80).auto('format').url()}
               alt={image.alt || 'Gallery image'}
               className="max-w-full max-h-[80vh] mb-10 object-fit rounded-lg shadow-2xl"
             />
@@ -168,7 +168,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
                   index === selectedImage ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'
                 }`}>
                   <img 
-                    src={urlFor(img).width(100).height(100).url()} 
+                    src={urlFor(img).width(100).height(100).quality(75).auto('format').url()}
                     alt={`Thumbnail ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
@@ -308,7 +308,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
             >
               <motion.img
                 layoutId={`event-img-${event._id}`}
-                src={urlFor(event.image).width(1920).height(1080).url()}
+                src={urlFor(event.image).width(1920).height(1080).quality(80).auto('format').url()}
                 alt={event.title}
                 className="w-full h-full object-cover object-center"
               />
@@ -452,7 +452,7 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
                       whileTap={{ scale: 0.96 }}
                     >
                       <img
-                        src={urlFor(image).width(400).height(400).url()}
+                        src={urlFor(image).width(400).height(400).quality(80).auto('format').url()}
                         alt={image.alt || `Gallery image ${index + 1}`}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       />

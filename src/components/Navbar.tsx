@@ -23,10 +23,10 @@ const Navbar = () => {
     const hasVisited = sessionStorage.getItem('hasVisitedHome');
 
     if (isHomepage && !hasVisited) {
-      // Delay navbar animation to sync with loading screen split (2.1 seconds)
+      // Delay navbar animation to sync with loading screen split (0.8s)
       const timer = setTimeout(() => {
         setShouldAnimate(true);
-      }, 2100);
+      }, 800);
       return () => clearTimeout(timer);
     } else {
       // On other pages or if already visited, animate immediately

@@ -15,7 +15,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
   const isLockedRef = useRef(false);
 
   useEffect(() => {
-    const duration = 2000; // 2 seconds
+    const duration = 700; // progress fill
     const startTime = Date.now();
 
     const updateProgress = () => {
@@ -39,7 +39,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
         setTimeout(() => {
           setIsComplete(true);
           // Wait for split animation to complete before calling onComplete
-          setTimeout(onComplete, 1000);
+          setTimeout(onComplete, 700);
         }, 100);
       } else {
         requestAnimationFrame(updateProgress);
@@ -58,7 +58,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           initial={{ y: 0 }}
           animate={isComplete ? { y: '-100%' } : { y: 0 }}
           exit={{ y: '-100%' }}
-          transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
+          transition={{ duration: 0.7, ease: [0.76, 0, 0.24, 1] }}
         >
           <div className="flex flex-col items-center">
             <Image
@@ -86,7 +86,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           initial={{ y: 0 }}
           animate={isComplete ? { y: '100%' } : { y: 0 }}
           exit={{ y: '100%' }}
-          transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
+          transition={{ duration: 0.7, ease: [0.76, 0, 0.24, 1] }}
         >
           {/* Bottom half of progress bar */}
           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gray-200 overflow-hidden">

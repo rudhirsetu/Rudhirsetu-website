@@ -10,6 +10,11 @@ import Lenis from 'lenis';
  */
 export function useSmoothScroll(maxSpeed: number = 0.75, damping: number = 0.2) {
   useEffect(() => {
+    // Honor reduced-motion: fall back to native scrolling, no RAF loop.
+    const prefersReducedMotion =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    if (prefersReducedMotion) return;
+
     // Initialize Lenis with custom configuration
     const lenis = new Lenis({
       duration: 1.2,
@@ -20,15 +25,17 @@ export function useSmoothScroll(maxSpeed: number = 0.75, damping: number = 0.2) 
     });
 
     // Request animation frame loop
+    let rafId = 0;
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
-    // Cleanup on unmount
+    // Cleanup on unmount: cancel the loop, then destroy the instance.
     return () => {
+      cancelAnimationFrame(rafId);
       lenis.destroy();
     };
   }, [maxSpeed, damping]);

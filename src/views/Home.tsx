@@ -18,29 +18,36 @@ import Hero from "../components/Hero";
 
 interface HomeProps {
   heroAnimationsReady?: boolean;
+  initialUpcomingEvents?: Event[];
+  initialPastEvents?: Event[];
 }
 import CountUp from "../components/CountUp";
 
 import { Event, GalleryImage, ContactSettings } from "../types/sanity";
-import { eventService, settingsService } from "../services/sanity-client";
+import { eventService, settingsService, galleryService } from "../services/sanity-client";
 import {
   FeaturedCarousel,
   ImageLightbox,
 } from "../components/GalleryComponents";
-import { client } from "../lib/sanity";
-import { QUERIES } from "../lib/sanity";
+import NextImage from "next/image";
 import EventCard from "../components/EventCard";
 import SpotlightCard from "../components/SpotlightCard";
 
-const Home = ({ heroAnimationsReady = true }: HomeProps) => {
-  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
-  const [pastEvents, setPastEvents] = useState<Event[]>([]);
+const Home = ({
+  heroAnimationsReady = true,
+  initialUpcomingEvents = [],
+  initialPastEvents = [],
+}: HomeProps) => {
+  const hasSeededEvents =
+    initialUpcomingEvents.length > 0 || initialPastEvents.length > 0;
+  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>(initialUpcomingEvents);
+  const [pastEvents, setPastEvents] = useState<Event[]>(initialPastEvents);
   const [featuredImages, setFeaturedImages] = useState<GalleryImage[]>([]);
   const [
     contactSettings,
     setContactSettings,
   ] = useState<ContactSettings | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!hasSeededEvents);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
@@ -48,93 +55,68 @@ const Home = ({ heroAnimationsReady = true }: HomeProps) => {
   const [shouldLoadMap, setShouldLoadMap] = useState(false);
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Load critical data first (events for main content)
-        const loadCriticalData = async () => {
-          try {
-            const [eventsData, pastData] = await Promise.all([
-              eventService.fetchUpcoming(1, 3),
-              eventService.fetchPast(1, 3),
-            ]);
-
-            if (eventsData && eventsData.data) {
-              setUpcomingEvents(eventsData.data);
-            } else {
-              console.warn("Failed to load upcoming events");
-            }
-
-            if (pastData && pastData.data) {
-              setPastEvents(pastData.data);
-            } else {
-              console.warn("Failed to load past events");
-            }
-          } catch (err) {
-            console.error("Error loading events:", err);
-            setError("Failed to load events. Please refresh the page.");
-            // Still show events section even if there's an error
-            setTimeout(() => {
-              setIsEventsVisible(true);
-            }, 200);
+    // Non-critical, below-the-fold data is always fetched on the client.
+    const loadDeferredData = async () => {
+      const loadImages = async () => {
+        try {
+          const imagesData = await galleryService.fetchFeatured();
+          if (imagesData) {
+            setFeaturedImages(imagesData || []);
           }
-        };
+        } catch (err) {
+          console.error("Error loading images:", err);
+          // Images are less critical, don't show error for this
+        }
+      };
 
-        // Load critical data first
-        await loadCriticalData();
-        
-        setLoading(false);
-        
-        // Trigger events section animation after critical loading completes
-        setTimeout(() => {
-          setIsEventsVisible(true);
-        }, 200);
+      const loadContact = async () => {
+        try {
+          const contactData = await settingsService.fetchContact();
+          if (contactData) {
+            setContactSettings(contactData);
+          }
+        } catch (err) {
+          console.error("Error loading contact settings:", err);
+          // Contact info is less critical, don't show error for this
+        }
+      };
 
-        // Load non-critical data after main content is ready (deferred)
-        const loadDeferredData = async () => {
-          const loadImages = async () => {
-            try {
-              const imagesData = await client.fetch(QUERIES.featuredImages);
-              if (imagesData) {
-                setFeaturedImages(imagesData || []);
-              }
-            } catch (err) {
-              console.error("Error loading images:", err);
-              // Images are less critical, don't show error for this
-            }
-          };
-
-          const loadContact = async () => {
-            try {
-              const contactData = await settingsService.fetchContact();
-              if (contactData) {
-                setContactSettings(contactData);
-              }
-            } catch (err) {
-              console.error("Error loading contact settings:", err);
-              // Contact info is less critical, don't show error for this
-            }
-          };
-
-          // Load non-critical data in parallel but separately from critical data
-          await Promise.allSettled([loadImages(), loadContact()]);
-        };
-
-        // Defer non-critical data loading
-        setTimeout(() => {
-          loadDeferredData();
-        }, 300);
-
-      } catch (err) {
-        console.error("Error loading data:", err);
-        setError("Something went wrong. Please refresh the page.");
-        setLoading(false);
-      }
+      await Promise.allSettled([loadImages(), loadContact()]);
     };
+
+    const loadData = async () => {
+      // Events are seeded from the server when available; only fetch them on
+      // the client as a fallback (e.g. if the server returned nothing).
+      if (!hasSeededEvents) {
+        try {
+          setLoading(true);
+          setError(null);
+          const [eventsData, pastData] = await Promise.all([
+            eventService.fetchUpcoming(1, 3),
+            eventService.fetchPast(1, 3),
+          ]);
+
+          if (eventsData && eventsData.data) {
+            setUpcomingEvents(eventsData.data);
+          }
+          if (pastData && pastData.data) {
+            setPastEvents(pastData.data);
+          }
+        } catch (err) {
+          console.error("Error loading events:", err);
+          setError("Failed to load events. Please refresh the page.");
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      // Reveal the events section, then load the deferred data.
+      setTimeout(() => setIsEventsVisible(true), 200);
+      setTimeout(() => loadDeferredData(), 300);
+    };
+
     loadData();
-  }, []);
+  }, [hasSeededEvents]);
 
   // Intersection Observer for lazy loading the map
   useEffect(() => {
@@ -622,10 +604,12 @@ const Home = ({ heroAnimationsReady = true }: HomeProps) => {
       >
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          <img
+          <NextImage
             src="/rudhirsetu-bg.webp"
             alt="Impact Background"
-            className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-black/30"></div>
         </div>

@@ -12,7 +12,3 @@ install-peer-deps = true
 [run]
 # Use Bun's runtime by default
 runtime = "bun"
-
-[test]
-# Configure test runner
-preload = ["./src/test-setup.ts"] 

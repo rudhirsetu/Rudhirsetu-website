@@ -1,20 +1,18 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
+/** @type {import("eslint").Linter.Config[]} */
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...nextCoreWebVitals,
+  ...nextTypescript,
   {
     rules: {
       "@next/next/no-img-element": "off",
       "jsx-a11y/alt-text": "off",
+      // react-hooks@7 adds these strict rules; keep them advisory rather than
+      // build-breaking for existing, working effect/server-component patterns.
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/error-boundaries": "warn",
     },
   },
 ];
