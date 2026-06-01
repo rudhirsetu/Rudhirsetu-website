@@ -1,7 +1,11 @@
 import { Metadata } from "next";
 import HomeClient from './HomeClient';
+import { eventService } from '../services/sanity-client';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+
+// Re-fetch the homepage's above-the-fold event data periodically (ISR).
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Rudhirsetu Seva Sanstha | Transforming Lives Through Blood Donation & Healthcare',
@@ -64,6 +68,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
-  return <HomeClient />;
+export default async function HomePage() {
+  // Fetch the above-the-fold events on the server so they render in the
+  // initial HTML instead of after a client-side waterfall.
+  const [upcoming, past] = await Promise.all([
+    eventService.fetchUpcoming(1, 3),
+    eventService.fetchPast(1, 3),
+  ]);
+
+  return (
+    <HomeClient
+      initialUpcomingEvents={upcoming?.data ?? []}
+      initialPastEvents={past?.data ?? []}
+    />
+  );
 } 

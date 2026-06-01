@@ -3,8 +3,17 @@
 import { useState, useEffect } from 'react';
 import Home from '../views/Home';
 import LoadingScreen from '../components/LoadingScreen';
+import type { Event } from '../types/sanity';
 
-export default function HomeClient() {
+interface HomeClientProps {
+  initialUpcomingEvents?: Event[];
+  initialPastEvents?: Event[];
+}
+
+export default function HomeClient({
+  initialUpcomingEvents = [],
+  initialPastEvents = [],
+}: HomeClientProps) {
   const [showLoading, setShowLoading] = useState(false);
   const [heroAnimationsReady, setHeroAnimationsReady] = useState(false);
 
@@ -15,10 +24,10 @@ export default function HomeClient() {
     if (!hasVisited) {
       setShowLoading(true);
       // Trigger Hero animations right when split animation begins
-      // Progress: 2000ms + 100ms delay = 2100ms
+      // Progress: 700ms + 100ms pause = 800ms
       setTimeout(() => {
         setHeroAnimationsReady(true);
-      }, 2100);
+      }, 800);
     } else {
       // If no loading screen, start Hero animations immediately
       setHeroAnimationsReady(true);
@@ -34,7 +43,11 @@ export default function HomeClient() {
   return (
     <>
       {/* Home is always rendered, sitting underneath */}
-      <Home heroAnimationsReady={heroAnimationsReady} />
+      <Home
+        heroAnimationsReady={heroAnimationsReady}
+        initialUpcomingEvents={initialUpcomingEvents}
+        initialPastEvents={initialPastEvents}
+      />
       {/* Loading screen sits on top and splits to reveal */}
       {showLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
     </>
