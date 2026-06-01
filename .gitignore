@@ -33,3 +33,7 @@ coverage
 *.tsbuildinfo
 playwright-report/*
 test-results/*
+
+# Local Claude config and Next.js auto-generated types
+.claude/
+next-env.d.ts
