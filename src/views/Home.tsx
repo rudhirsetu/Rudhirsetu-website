@@ -116,7 +116,7 @@ const Home = ({
     };
 
     loadData();
-  }, []);
+  }, [hasSeededEvents]);
 
   // Intersection Observer for lazy loading the map
   useEffect(() => {
