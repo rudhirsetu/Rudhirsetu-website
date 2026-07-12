@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X, Heart, Camera, Tag } from 'lucide-react';
 import { urlFor } from '../lib/sanity';
@@ -7,12 +9,18 @@ import { FeaturedCarousel, ImageLightbox } from '../components/GalleryComponents
 import { StructuredData } from '../components/StructuredData';
 import { GalleryPageData } from '../lib/structured-data';
 
+interface GalleryProps {
+  initialImages?: GalleryImage[];
+  initialFeaturedImages?: GalleryImage[];
+}
 
-const Gallery = () => {
-  const [images, setImages] = useState<GalleryImage[]>([]);
-  const [filteredImages, setFilteredImages] = useState<GalleryImage[]>([]);
-  const [featuredImages, setFeaturedImages] = useState<GalleryImage[]>([]);
-  const [loading, setLoading] = useState(true);
+const Gallery = ({ initialImages, initialFeaturedImages }: GalleryProps = {}) => {
+  const hasInitialData = initialImages !== undefined;
+
+  const [images, setImages] = useState<GalleryImage[]>(initialImages ?? []);
+  const [filteredImages, setFilteredImages] = useState<GalleryImage[]>(initialImages ?? []);
+  const [featuredImages, setFeaturedImages] = useState<GalleryImage[]>(initialFeaturedImages ?? []);
+  const [loading, setLoading] = useState(!hasInitialData);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
@@ -32,8 +40,9 @@ const Gallery = () => {
     { id: 'other', label: 'Other', icon: <Tag className="min-w-4 min-h-4" /> }
   ];
 
-  // Load featured images separately
+  // Load featured images separately (skipped when hydrated from the server).
   useEffect(() => {
+    if (initialFeaturedImages !== undefined) return;
     const loadFeaturedImages = async () => {
       try {
         const data = await galleryService.fetchFeatured();
@@ -43,6 +52,7 @@ const Gallery = () => {
       }
     };
     loadFeaturedImages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadImages = async () => {
@@ -82,7 +92,10 @@ const Gallery = () => {
   }, [selectedCategory, images]);
 
   useEffect(() => {
-    loadImages();
+    // Skip the initial fetch when the server already hydrated us with data.
+    if (!hasInitialData) {
+      loadImages();
+    }
     // Remove aggressive scroll-to-top to prevent issues when refreshing at footer
     // Only scroll to top if user is significantly down the page
     if (window.scrollY > window.innerHeight) {

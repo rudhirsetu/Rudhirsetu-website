@@ -1,7 +1,11 @@
 import { Metadata } from "next";
-import CampClient from './CampClient';
+import Impact from '../../views/Impact';
+import { eventService } from '../../services/sanity-client';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+
+// Re-fetch the camp/events listing periodically (ISR).
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Our Camps | Rudhirsetu Seva Sanstha",
@@ -43,6 +47,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function CampPage() {
-  return <CampClient />;
+export default async function CampPage() {
+  // Fetch the first page of events on the server so they're in the initial HTML.
+  const [upcoming, past] = await Promise.all([
+    eventService.fetchUpcoming(1),
+    eventService.fetchPast(1),
+  ]);
+
+  return (
+    <Impact
+      initialUpcomingEvents={upcoming?.data ?? []}
+      initialUpcomingPagination={upcoming?.meta.pagination ?? null}
+      initialPastEvents={past?.data ?? []}
+      initialPastPagination={past?.meta.pagination ?? null}
+    />
+  );
 } 

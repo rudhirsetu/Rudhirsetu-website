@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { Phone, Mail, MapPin, MessageSquare } from 'lucide-react';
 import { ContactSettings } from '../types/sanity';
@@ -5,12 +7,19 @@ import { settingsService } from '../services/sanity-client';
 import { StructuredData } from '../components/StructuredData';
 import { ContactPageData } from '../lib/structured-data';
 
-const Contact = () => {
-  const [settings, setSettings] = useState<ContactSettings | null>(null);
-  const [loading, setLoading] = useState(true);
+interface ContactProps {
+  initialSettings?: ContactSettings | null;
+}
+
+const Contact = ({ initialSettings }: ContactProps = {}) => {
+  const hasInitialData = initialSettings !== undefined;
+
+  const [settings, setSettings] = useState<ContactSettings | null>(initialSettings ?? null);
+  const [loading, setLoading] = useState(!hasInitialData);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (hasInitialData) return;
     const fetchSettings = async () => {
       try {
         const data = await settingsService.fetchContact();
@@ -23,6 +32,7 @@ const Contact = () => {
       }
     };
     fetchSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {

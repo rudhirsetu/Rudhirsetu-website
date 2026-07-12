@@ -1,7 +1,11 @@
 import { Metadata } from "next";
-import SocialClient from './SocialClient';
+import Social from '../../views/Social';
+import { settingsService } from '../../services/sanity-client';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+
+// Re-fetch social media settings periodically (ISR).
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Connect With Us | Rudhirsetu Seva Sanstha",
@@ -47,6 +51,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SocialPage() {
-  return <SocialClient />;
+export default async function SocialPage() {
+  const settings = await settingsService.fetchSocialMedia();
+  return <Social initialSettings={settings} />;
 } 

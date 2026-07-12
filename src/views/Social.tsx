@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { Linkedin, Facebook, Instagram, Youtube, ExternalLink, MessageSquare } from 'lucide-react';
 import { SocialMediaSettings } from '../types/sanity';
@@ -5,12 +7,19 @@ import { settingsService } from '../services/sanity-client';
 import { StructuredData } from '../components/StructuredData';
 import { SocialPageData } from '../lib/structured-data';
 
-const SocialMedia = () => {
-  const [settings, setSettings] = useState<SocialMediaSettings | null>(null);
-  const [loading, setLoading] = useState(true);
+interface SocialMediaProps {
+  initialSettings?: SocialMediaSettings | null;
+}
+
+const SocialMedia = ({ initialSettings }: SocialMediaProps = {}) => {
+  const hasInitialData = initialSettings !== undefined;
+
+  const [settings, setSettings] = useState<SocialMediaSettings | null>(initialSettings ?? null);
+  const [loading, setLoading] = useState(!hasInitialData);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (hasInitialData) return;
     const loadSettings = async () => {
       try {
         const data = await settingsService.fetchSocialMedia();
@@ -26,6 +35,7 @@ const SocialMedia = () => {
     };
 
     loadSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const socialLinks = [

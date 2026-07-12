@@ -1,7 +1,11 @@
 import { Metadata } from "next";
-import ContactClient from './ContactClient';
+import Contact from '../../views/Contact';
+import { settingsService } from '../../services/sanity-client';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+
+// Re-fetch contact settings periodically (ISR).
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Get in Touch | Rudhirsetu Seva Sanstha",
@@ -44,6 +48,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ContactPage() {
-  return <ContactClient />;
+export default async function ContactPage() {
+  const settings = await settingsService.fetchContact();
+  return <Contact initialSettings={settings} />;
 } 

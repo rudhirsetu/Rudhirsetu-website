@@ -1,7 +1,11 @@
 import { Metadata } from "next";
-import DonationsClient from './DonationsClient';
+import Donations from '../../views/Donations';
+import { settingsService } from '../../services/sanity-client';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+
+// Re-fetch donation settings periodically (ISR).
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Support Our Mission | Rudhirsetu Seva Sanstha",
@@ -43,6 +47,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DonationsPage() {
-  return <DonationsClient />;
+export default async function DonationsPage() {
+  const settings = await settingsService.fetchDonation();
+  return <Donations initialSettings={settings} />;
 } 

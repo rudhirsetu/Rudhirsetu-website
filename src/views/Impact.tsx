@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState, useCallback } from 'react';
 import { Heart, ChevronLeft, ChevronRight, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -6,6 +8,13 @@ import { eventService } from '../services/sanity-client';
 import EventCard from '../components/EventCard';
 import { StructuredData } from '../components/StructuredData';
 import { CampPageData } from '../lib/structured-data';
+
+interface ImpactProps {
+  initialUpcomingEvents?: Event[];
+  initialUpcomingPagination?: Pagination | null;
+  initialPastEvents?: Event[];
+  initialPastPagination?: Pagination | null;
+}
 
 const PaginationControls = ({ pagination, onPageChange, label }: { 
   pagination: Pagination | null; 
@@ -45,14 +54,23 @@ const PaginationControls = ({ pagination, onPageChange, label }: {
   );
 };
 
-const Impact = () => {
-  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
-  const [pastEvents, setPastEvents] = useState<Event[]>([]);
-  const [upcomingPagination, setUpcomingPagination] = useState<Pagination | null>(null);
-  const [pastPagination, setPastPagination] = useState<Pagination | null>(null);
-  const [loading, setLoading] = useState(true);
+const Impact = ({
+  initialUpcomingEvents,
+  initialUpcomingPagination = null,
+  initialPastEvents,
+  initialPastPagination = null,
+}: ImpactProps = {}) => {
+  // When the server already provided the first page of data, hydrate straight
+  // from props so there's no client-side fetch waterfall / skeleton flash.
+  const hasInitialData = initialUpcomingEvents !== undefined || initialPastEvents !== undefined;
+
+  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>(initialUpcomingEvents ?? []);
+  const [pastEvents, setPastEvents] = useState<Event[]>(initialPastEvents ?? []);
+  const [upcomingPagination, setUpcomingPagination] = useState<Pagination | null>(initialUpcomingPagination);
+  const [pastPagination, setPastPagination] = useState<Pagination | null>(initialPastPagination);
+  const [loading, setLoading] = useState(!hasInitialData);
   const [error, setError] = useState<string | null>(null);
-  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(hasInitialData);
 
   const loadEvents = useCallback(async (upcomingPage = 1, pastPage = 1, showLoading = true) => {
     try {
@@ -86,8 +104,12 @@ const Impact = () => {
   }, [initialLoadComplete]);
 
   useEffect(() => {
-    loadEvents();
-  }, [loadEvents]);
+    // Skip the initial fetch when the server already hydrated us with data.
+    if (!hasInitialData) {
+      loadEvents();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     // Only scroll to top if user is significantly down the page - separate effect

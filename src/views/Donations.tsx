@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { QrCode, CreditCard, Heart, ArrowRight, Gift, Users } from 'lucide-react';
 import { DonationSettings } from '../types/sanity';
@@ -6,12 +8,19 @@ import { urlFor } from '../lib/sanity';
 import { StructuredData } from '../components/StructuredData';
 import { DonationsPageData } from '../lib/structured-data';
 
-const Donations = () => {
-  const [settings, setSettings] = useState<DonationSettings | null>(null);
-  const [loading, setLoading] = useState(true);
+interface DonationsProps {
+  initialSettings?: DonationSettings | null;
+}
+
+const Donations = ({ initialSettings }: DonationsProps = {}) => {
+  const hasInitialData = initialSettings !== undefined;
+
+  const [settings, setSettings] = useState<DonationSettings | null>(initialSettings ?? null);
+  const [loading, setLoading] = useState(!hasInitialData);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (hasInitialData) return;
     const loadSettings = async () => {
       try {
         const data = await settingsService.fetchDonation();
@@ -27,6 +36,7 @@ const Donations = () => {
     };
 
     loadSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const donationImpact = [

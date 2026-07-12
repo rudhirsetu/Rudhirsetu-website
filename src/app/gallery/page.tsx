@@ -1,7 +1,11 @@
 import { Metadata } from "next";
-import GalleryClient from './GalleryClient';
+import Gallery from '../../views/Gallery';
+import { galleryService } from '../../services/sanity-client';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+
+// Re-fetch the gallery periodically (ISR).
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Gallery | Rudhirsetu Seva Sanstha",
@@ -42,6 +46,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function GalleryPage() {
-  return <GalleryClient />;
+export default async function GalleryPage() {
+  // Fetch gallery + featured images on the server for the initial HTML.
+  const [images, featured] = await Promise.all([
+    galleryService.fetchAll(),
+    galleryService.fetchFeatured(),
+  ]);
+
+  return (
+    <Gallery
+      initialImages={images ?? []}
+      initialFeaturedImages={featured ?? []}
+    />
+  );
 } 
