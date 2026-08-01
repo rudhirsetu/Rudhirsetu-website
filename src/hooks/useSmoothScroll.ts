@@ -22,6 +22,10 @@ export function useSmoothScroll(maxSpeed: number = 0.75, damping: number = 0.2) 
       lerp: damping,
       smoothWheel: true,
       wheelMultiplier: maxSpeed,
+      // Cancel in-flight scroll inertia when an internal link is clicked.
+      // Without this, Lenis keeps animating toward the old page's scroll
+      // offset after Next.js resets to top, yanking the new page back down.
+      stopInertiaOnNavigate: true,
     });
 
     // Request animation frame loop
