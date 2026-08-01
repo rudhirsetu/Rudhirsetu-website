@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import PreloadLink from './PreloadLink';
 import { Heart, Phone, Menu, X, Home, Share2, Image, Gift } from 'lucide-react';
@@ -8,7 +8,6 @@ import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [shouldAnimate, setShouldAnimate] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const { scrollY } = useScroll();
@@ -16,23 +15,6 @@ const Navbar = () => {
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 50);
   });
-
-  useEffect(() => {
-    // Check if we're on homepage and if loading screen should be shown
-    const isHomepage = pathname === '/';
-    const hasVisited = sessionStorage.getItem('hasVisitedHome');
-
-    if (isHomepage && !hasVisited) {
-      // Delay navbar animation to sync with loading screen split (0.8s)
-      const timer = setTimeout(() => {
-        setShouldAnimate(true);
-      }, 800);
-      return () => clearTimeout(timer);
-    } else {
-      // On other pages or if already visited, animate immediately
-      setShouldAnimate(true);
-    }
-  }, [pathname]);
 
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
@@ -50,7 +32,7 @@ const Navbar = () => {
   return (
     <motion.nav
       initial={{ y: -100, opacity: 0 }}
-      animate={shouldAnimate ? { y: 0, opacity: 1 } : { y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
       className="fixed top-0 left-0 right-0 z-[50] w-full flex justify-center py-4 pointer-events-none"
     >

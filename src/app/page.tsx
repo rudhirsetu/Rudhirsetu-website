@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import HomeClient from './HomeClient';
+import Home from '../views/Home';
 import { eventService } from '../services/sanity-client';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
@@ -77,7 +77,7 @@ export default async function HomePage() {
   ]);
 
   return (
-    <HomeClient
+    <Home
       initialUpcomingEvents={upcoming?.data ?? []}
       initialPastEvents={past?.data ?? []}
     />

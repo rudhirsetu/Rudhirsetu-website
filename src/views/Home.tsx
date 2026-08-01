@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from "react";
 import PreloadLink from "../components/PreloadLink";
 import {
@@ -22,13 +24,11 @@ import EventCard from "../components/EventCard";
 import SpotlightCard from "../components/SpotlightCard";
 
 interface HomeProps {
-  heroAnimationsReady?: boolean;
   initialUpcomingEvents?: Event[];
   initialPastEvents?: Event[];
 }
 
 const Home = ({
-  heroAnimationsReady = true,
   initialUpcomingEvents = [],
   initialPastEvents = [],
 }: HomeProps) => {
@@ -171,7 +171,7 @@ const Home = ({
 
   return (
     <div className="space-y-0 overflow-x-hidden bg-white">
-      <Hero startAnimations={heroAnimationsReady} />
+      <Hero />
 
       {/* Key Focus Areas */}
       <motion.section
