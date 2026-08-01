@@ -220,7 +220,7 @@ const Home = ({
 
                   {area.title === "Blood Donation" ? (
                     <>
-                      <div className="absolute hidden md:block bottom-50 left-30 scale-[3] opacity-10 pointer-events-none z-0">
+                      <div className="absolute -bottom-6 -right-2 scale-[2] md:bottom-50 md:left-30 md:right-auto md:scale-[3] opacity-10 pointer-events-none z-0">
                         <svg
                           width="100"
                           height="100"
@@ -272,7 +272,7 @@ const Home = ({
                   ) : area.title === "Cancer Awareness" ? (
                     <>
                       {/* Cancer Ribbon SVG positioned to the right */}
-                      <div className="absolute hidden md:block bottom-20 right-24 scale-400 opacity-30 pointer-events-none z-[-1]">
+                      <div className="absolute bottom-12 right-12 scale-[2.5] md:bottom-20 md:right-24 md:scale-400 opacity-30 pointer-events-none z-[-1]">
                         <svg
                           width="80"
                           height="44"
@@ -306,7 +306,7 @@ const Home = ({
                   ) : area.title === "Thalassemia Support" ? (
                     <>
                       {/* Thalassemia Blood Cell SVG */}
-                      <div className="absolute hidden md:block -top-8 -right-0 scale-[2.5] opacity-10 pointer-events-none z-0">
+                      <div className="absolute -top-8 -right-0 scale-[2] md:scale-[2.5] opacity-10 pointer-events-none z-0">
                         <svg
                           width="100"
                           height="100"
@@ -336,7 +336,7 @@ const Home = ({
                   ) : (
                     <>
                       {area.title === "Eye Care" && (
-                        <div className="absolute hidden md:block -bottom-4 -right-2 scale-[2] opacity-10 pointer-events-none z-0">
+                        <div className="absolute -bottom-4 -right-2 scale-[2] opacity-10 pointer-events-none z-0">
                           <svg
                             width="100"
                             height="100"
