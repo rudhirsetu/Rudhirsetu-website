@@ -71,10 +71,10 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'list' }: EventC
             <div className={`flex flex-col flex-grow`}>
                 {/* Title Section */}
                 <div className="p-4 sm:p-5 md:p-6 pb-2">
-                    <h3 
-                        className={`text-lg sm:text-xl md:text-xl font-bold ${isUpcoming ? 'text-gray-900 group-hover:text-[#9B2C2C]' : 'text-gray-700 group-hover:text-gray-900'} transition-colors duration-300`}
+                    <h3
+                        className={`text-lg sm:text-xl md:text-xl font-bold line-clamp-2 min-h-14 ${isUpcoming ? 'text-gray-900 group-hover:text-[#9B2C2C]' : 'text-gray-700 group-hover:text-gray-900'} transition-colors duration-300`}
                     >
-                        {event.title.slice(0, 60)}
+                        {event.title}
                     </h3>
                 </div>
 
@@ -104,14 +104,14 @@ const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'list' }: EventC
                         {event.expectedParticipants && (
                             <div className={`flex flex-col items-center ${isUpcoming ? 'text-gray-700' : 'text-gray-600'} p-3 rounded-lg border border-gray-100 bg-gray-50/50 text-center`}>
                                 <Users className={`w-5 h-5 mb-2 ${isUpcoming ? 'text-[#9B2C2C]' : 'text-gray-500'}`} />
-                                <span className="text-xs font-medium">
-                                    {isUpcoming ? `${event.expectedParticipants} exp.` : `${event.expectedParticipants.slice(0, 25)} ...`}
+                                <span className="text-xs font-medium line-clamp-2">
+                                    {isUpcoming ? `${event.expectedParticipants} exp.` : event.expectedParticipants}
                                 </span>
                             </div>
                         )}
                         <div className={`flex flex-col items-center ${isUpcoming ? 'text-gray-700' : 'text-gray-600'} p-3 rounded-lg border border-gray-100 bg-gray-50/50 text-center`}>
                             <MapPin className={`w-5 h-5 mb-2 ${isUpcoming ? 'text-[#9B2C2C]' : 'text-gray-500'}`} />
-                            <span className="text-xs font-medium text-center leading-tight">{event.location.slice(0, 25)}...</span>
+                            <span className="text-xs font-medium text-center leading-tight line-clamp-2">{event.location}</span>
                         </div>
                     </div>
                 </div>
