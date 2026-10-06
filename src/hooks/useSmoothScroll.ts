@@ -46,6 +46,9 @@ export function useSmoothScroll(maxSpeed: number = 0.75, damping: number = 0.2) 
         wheelMultiplier: maxSpeed,
         syncTouch: false, // never hijack touch scrolling
         autoRaf: true, // Lenis owns (and cancels on destroy) its requestAnimationFrame loop
+        // Cancel in-flight inertia when an internal link is clicked; otherwise Lenis keeps
+        // easing toward the old page's offset after Next.js resets to top and drags the new page down.
+        stopInertiaOnNavigate: true,
       });
     };
 

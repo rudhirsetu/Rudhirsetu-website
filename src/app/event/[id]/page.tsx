@@ -18,8 +18,6 @@ interface EventPageProps {
 // Generate static params for known events (helps with Vercel deployment)
 export async function generateStaticParams() {
   try {
-    console.log('Generating static params for events...');
-    
     // Use a more reliable client configuration for build time
     const events = await client.fetch(
       `*[_type == "event"]{
@@ -32,19 +30,13 @@ export async function generateStaticParams() {
       }
     );
 
-    console.log(`Found ${events?.length || 0} events for static generation`);
-    
     if (!events || events.length === 0) {
-      console.warn('No events found during static generation');
       return [];
     }
 
-    const params = events.map((event: { _id: string }) => ({
+    return events.map((event: { _id: string }) => ({
       id: event._id,
     }));
-    
-    console.log('Generated params:', params);
-    return params;
   } catch (error) {
     console.error('Error generating static params:', error);
     // Return empty array to prevent build failure, but routes will be handled dynamically

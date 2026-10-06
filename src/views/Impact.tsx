@@ -67,7 +67,10 @@ function useEventList(fetchPage: (page: number) => Fetcher, initial: EventsPage 
   );
 
   useEffect(() => {
-    if (!hadInitial.current) void goTo(1);
+    if (hadInitial.current) return;
+    // Deferred so the fallback fetch starts after mount rather than setting state inside the effect.
+    const timer = setTimeout(() => void goTo(1), 0);
+    return () => clearTimeout(timer);
   }, [goTo]);
 
   return { list, loading, error, goTo };

@@ -34,7 +34,9 @@ coverage
 playwright-report/*
 test-results/*
 
-bun.lockb
+# Local Claude config and Next.js auto-generated types
+.claude/
+next-env.d.ts
 
 # Raw renders from scripts/generate-illustration.py
 scripts/.renders/

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rudhirsetu — Hero direction mockups</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+  :root { --crimson: #9B2C2C; }
+  body { font-family: 'Poppins', sans-serif; }
+  .pacifico { font-family: 'Pacifico', cursive; font-weight: 400; }
+  /* Approximation of the WebGL Iridescence liquid background */
+  .liquid {
+    background:
+      radial-gradient(60% 80% at 20% 20%, #c81e1e 0%, transparent 60%),
+      radial-gradient(50% 70% at 80% 30%, #e8590c 0%, transparent 55%),
+      radial-gradient(70% 90% at 60% 90%, #7a1010 0%, transparent 60%),
+      linear-gradient(135deg, #7f1d1d, #991b1b 50%, #5b0f0f);
+    background-size: 200% 200%, 200% 200%, 200% 200%, 100% 100%;
+    animation: drift 14s ease-in-out infinite alternate;
+  }
+  @keyframes drift {
+    0%   { background-position: 0% 0%, 100% 0%, 50% 100%, 0 0; }
+    100% { background-position: 40% 60%, 60% 40%, 30% 70%, 0 0; }
+  }
+  .glass { background: rgba(255,255,255,.10); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.28); }
+  /* Calm direction: soft warm canvas with a faint crimson glow, like the rest of the site */
+  .calm-canvas {
+    background:
+      radial-gradient(50% 45% at 50% 0%, rgba(155,44,44,.10) 0%, transparent 70%),
+      linear-gradient(180deg, #fff 0%, #fff7f7 100%);
+  }
+  .device { box-shadow: 0 20px 60px -20px rgba(0,0,0,.35); }
+  .label-chip { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .scrollbar-none { scrollbar-width: none; }
+</style>
+</head>
+<body class="bg-neutral-100 text-neutral-900">
+
+<header class="max-w-7xl mx-auto px-6 pt-10 pb-6">
+  <h1 class="text-2xl font-bold">Rudhirsetu — Hero direction mockups</h1>
+  <p class="text-neutral-500 mt-1">Two directions, each at desktop and mobile. Mobile is a <em>distinct layout</em>, not the desktop squished. Backgrounds are CSS approximations of the real ones.</p>
+  <div class="flex gap-6 mt-4 text-sm">
+    <span class="inline-flex items-center gap-2"><span class="w-3 h-3 rounded-full" style="background:var(--crimson)"></span> Direction A — Bold (keep the signature)</span>
+    <span class="inline-flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-neutral-300"></span> Direction B — Calm (match the site vibe)</span>
+  </div>
+</header>
+
+<!-- ===================== DESKTOP ROW ===================== -->
+<section class="max-w-[1500px] mx-auto px-6 py-6">
+  <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-3">Desktop</h2>
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+    <!-- A · Desktop · Bold -->
+    <figure>
+      <figcaption class="label-chip text-neutral-500 mb-2 font-semibold">A · Bold</figcaption>
+      <div class="device rounded-xl overflow-hidden border border-neutral-300">
+        <div class="liquid relative h-[460px] flex flex-col items-center justify-center text-center px-10">
+          <span class="glass label-chip text-white/90 rounded-full px-4 py-2 mb-5 inline-flex items-center gap-2">♥ Transforming Lives Since 2010</span>
+          <h3 class="text-white text-5xl font-bold leading-tight max-w-3xl">
+            Transforming <span class="pacifico font-normal">Lives,</span> <span class="pacifico font-normal">Empowering</span> Communities
+          </h3>
+          <p class="text-white/85 mt-5 max-w-xl">Free healthcare services for the community — blood, sight, and cancer care since 2010.</p>
+          <div class="flex gap-4 mt-7">
+            <span class="bg-white text-[color:var(--crimson)] font-semibold rounded-lg px-7 py-3 shadow-lg">Get Involved →</span>
+            <span class="border-2 border-white text-white font-semibold rounded-lg px-7 py-3">Donate Now ♥</span>
+          </div>
+          <div class="grid grid-cols-4 gap-4 mt-9 w-full max-w-3xl">
+            <div class="glass rounded-2xl p-4"><div class="text-white text-3xl font-bold">50+</div><div class="text-white/80 text-xs mt-1">Blood Camps</div></div>
+            <div class="glass rounded-2xl p-4"><div class="text-white text-3xl font-bold">9,800+</div><div class="text-white/80 text-xs mt-1">Lives Impacted</div></div>
+            <div class="glass rounded-2xl p-4"><div class="text-white text-3xl font-bold">15,000+</div><div class="text-white/80 text-xs mt-1">Eye Checkups</div></div>
+            <div class="glass rounded-2xl p-4"><div class="text-white text-3xl font-bold">20,000+</div><div class="text-white/80 text-xs mt-1">Women Reached</div></div>
+          </div>
+        </div>
+      </div>
+    </figure>
+
+    <!-- B · Desktop · Calm -->
+    <figure>
+      <figcaption class="label-chip text-neutral-500 mb-2 font-semibold">B · Calm</figcaption>
+      <div class="device rounded-xl overflow-hidden border border-neutral-300">
+        <div class="calm-canvas relative h-[460px] flex flex-col items-center justify-center text-center px-10">
+          <span class="label-chip rounded-full px-4 py-2 mb-5 inline-flex items-center gap-2 bg-red-50 text-[color:var(--crimson)] font-semibold">♥ Transforming Lives Since 2010</span>
+          <h3 class="text-neutral-900 text-5xl font-bold leading-tight max-w-3xl">
+            Transforming <span class="pacifico font-normal text-[color:var(--crimson)]">Lives,</span> <span class="pacifico font-normal text-[color:var(--crimson)]">Empowering</span> Communities
+          </h3>
+          <p class="text-neutral-500 mt-5 max-w-xl">Free healthcare services for the community — blood, sight, and cancer care since 2010.</p>
+          <div class="flex gap-4 mt-7">
+            <span class="bg-[color:var(--crimson)] text-white font-semibold rounded-lg px-7 py-3 shadow-lg">Get Involved →</span>
+            <span class="border-2 border-[color:var(--crimson)] text-[color:var(--crimson)] font-semibold rounded-lg px-7 py-3">Donate Now ♥</span>
+          </div>
+          <div class="grid grid-cols-4 gap-4 mt-9 w-full max-w-3xl">
+            <div class="bg-white rounded-2xl p-4 border-t-2 border-[color:var(--crimson)] shadow-sm"><div class="text-[color:var(--crimson)] text-3xl font-bold">50+</div><div class="text-neutral-500 text-xs mt-1">Blood Camps</div></div>
+            <div class="bg-white rounded-2xl p-4 border-t-2 border-[color:var(--crimson)] shadow-sm"><div class="text-[color:var(--crimson)] text-3xl font-bold">9,800+</div><div class="text-neutral-500 text-xs mt-1">Lives Impacted</div></div>
+            <div class="bg-white rounded-2xl p-4 border-t-2 border-[color:var(--crimson)] shadow-sm"><div class="text-[color:var(--crimson)] text-3xl font-bold">15,000+</div><div class="text-neutral-500 text-xs mt-1">Eye Checkups</div></div>
+            <div class="bg-white rounded-2xl p-4 border-t-2 border-[color:var(--crimson)] shadow-sm"><div class="text-[color:var(--crimson)] text-3xl font-bold">20,000+</div><div class="text-neutral-500 text-xs mt-1">Women Reached</div></div>
+          </div>
+        </div>
+      </div>
+    </figure>
+
+  </div>
+</section>
+
+<!-- ===================== MOBILE ROW ===================== -->
+<section class="max-w-[1500px] mx-auto px-6 py-6">
+  <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-3">Mobile — distinct layout (stats become a compact swipe row, bigger touch targets, breathing room)</h2>
+  <div class="flex flex-wrap gap-10 justify-center">
+
+    <!-- A · Mobile · Bold -->
+    <figure>
+      <figcaption class="label-chip text-neutral-500 mb-2 font-semibold text-center">A · Bold</figcaption>
+      <div class="device rounded-[2rem] overflow-hidden border-[6px] border-neutral-800 w-[360px]">
+        <div class="liquid relative h-[720px] flex flex-col px-6 pt-16 pb-8 text-center">
+          <span class="glass label-chip text-white/90 rounded-full px-3 py-1.5 mb-6 inline-flex items-center gap-2 self-center">♥ Since 2010</span>
+          <h3 class="text-white text-[2.6rem] font-bold leading-[1.1]">
+            Transforming <span class="pacifico font-normal">Lives,</span><br/>
+            <span class="pacifico font-normal">Empowering</span> Communities
+          </h3>
+          <p class="text-white/85 mt-4 text-[15px] leading-relaxed">Free healthcare for the community — blood, sight &amp; cancer care.</p>
+          <div class="flex flex-col gap-3 mt-7">
+            <span class="bg-white text-[color:var(--crimson)] font-semibold rounded-xl py-3.5 shadow-lg">Get Involved →</span>
+            <span class="border-2 border-white text-white font-semibold rounded-xl py-3.5">Donate Now ♥</span>
+          </div>
+          <div class="mt-auto -mx-6 px-6">
+            <div class="flex gap-3 overflow-x-auto scrollbar-none pb-1 snap-x">
+              <div class="glass rounded-2xl px-5 py-3 shrink-0 snap-start text-left"><div class="text-white text-2xl font-bold">50+</div><div class="text-white/80 text-[11px]">Blood Camps</div></div>
+              <div class="glass rounded-2xl px-5 py-3 shrink-0 snap-start text-left"><div class="text-white text-2xl font-bold">9,800+</div><div class="text-white/80 text-[11px]">Lives Impacted</div></div>
+              <div class="glass rounded-2xl px-5 py-3 shrink-0 snap-start text-left"><div class="text-white text-2xl font-bold">15,000+</div><div class="text-white/80 text-[11px]">Eye Checkups</div></div>
+              <div class="glass rounded-2xl px-5 py-3 shrink-0 snap-start text-left"><div class="text-white text-2xl font-bold">20,000+</div><div class="text-white/80 text-[11px]">Women</div></div>
+            </div>
+            <div class="text-white/50 text-[11px] mt-2">swipe ›</div>
+          </div>
+        </div>
+      </div>
+    </figure>
+
+    <!-- B · Mobile · Calm -->
+    <figure>
+      <figcaption class="label-chip text-neutral-500 mb-2 font-semibold text-center">B · Calm</figcaption>
+      <div class="device rounded-[2rem] overflow-hidden border-[6px] border-neutral-800 w-[360px]">
+        <div class="calm-canvas relative h-[720px] flex flex-col px-6 pt-16 pb-8 text-center">
+          <span class="label-chip rounded-full px-3 py-1.5 mb-6 inline-flex items-center gap-2 self-center bg-red-50 text-[color:var(--crimson)] font-semibold">♥ Since 2010</span>
+          <h3 class="text-neutral-900 text-[2.6rem] font-bold leading-[1.1]">
+            Transforming <span class="pacifico font-normal text-[color:var(--crimson)]">Lives,</span><br/>
+            <span class="pacifico font-normal text-[color:var(--crimson)]">Empowering</span> Communities
+          </h3>
+          <p class="text-neutral-500 mt-4 text-[15px] leading-relaxed">Free healthcare for the community — blood, sight &amp; cancer care.</p>
+          <div class="flex flex-col gap-3 mt-7">
+            <span class="bg-[color:var(--crimson)] text-white font-semibold rounded-xl py-3.5 shadow-lg">Get Involved →</span>
+            <span class="border-2 border-[color:var(--crimson)] text-[color:var(--crimson)] font-semibold rounded-xl py-3.5">Donate Now ♥</span>
+          </div>
+          <div class="mt-auto -mx-6 px-6">
+            <div class="flex gap-3 overflow-x-auto scrollbar-none pb-1 snap-x">
+              <div class="bg-white rounded-2xl px-5 py-3 shrink-0 snap-start text-left border-t-2 border-[color:var(--crimson)] shadow-sm"><div class="text-[color:var(--crimson)] text-2xl font-bold">50+</div><div class="text-neutral-500 text-[11px]">Blood Camps</div></div>
+              <div class="bg-white rounded-2xl px-5 py-3 shrink-0 snap-start text-left border-t-2 border-[color:var(--crimson)] shadow-sm"><div class="text-[color:var(--crimson)] text-2xl font-bold">9,800+</div><div class="text-neutral-500 text-[11px]">Lives Impacted</div></div>
+              <div class="bg-white rounded-2xl px-5 py-3 shrink-0 snap-start text-left border-t-2 border-[color:var(--crimson)] shadow-sm"><div class="text-[color:var(--crimson)] text-2xl font-bold">15,000+</div><div class="text-neutral-500 text-[11px]">Eye Checkups</div></div>
+              <div class="bg-white rounded-2xl px-5 py-3 shrink-0 snap-start text-left border-t-2 border-[color:var(--crimson)] shadow-sm"><div class="text-[color:var(--crimson)] text-2xl font-bold">20,000+</div><div class="text-neutral-500 text-[11px]">Women</div></div>
+            </div>
+            <div class="text-neutral-400 text-[11px] mt-2">swipe ›</div>
+          </div>
+        </div>
+      </div>
+    </figure>
+
+  </div>
+</section>
+
+<footer class="max-w-7xl mx-auto px-6 py-10 text-sm text-neutral-400">
+  Mockup only — real fonts &amp; palette, approximated backgrounds. Tell me which direction (or mix) feels right and I'll refine before any code.
+</footer>
+
+</body>
+</html>
