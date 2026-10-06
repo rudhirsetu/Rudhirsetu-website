@@ -324,12 +324,12 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="pointer-events-auto fixed inset-x-0 top-0 z-10 h-screen overflow-y-auto overscroll-contain bg-red-950 text-white supports-[height:100dvh]:h-[100dvh] lg:hidden"
+              className="pointer-events-auto fixed inset-x-0 top-0 z-10 h-screen overflow-x-hidden overflow-y-auto overscroll-contain bg-red-950 text-white supports-[height:100dvh]:h-[100dvh] lg:hidden"
             >
               {/* Soft glow (gradient, not a blur filter) */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute -top-24 left-1/2 h-[28rem] w-[44rem] max-w-[200%] -translate-x-1/2 bg-[radial-gradient(closest-side,rgba(220,38,38,0.3),transparent)]"
+                className="pointer-events-none absolute inset-x-0 -top-24 h-[28rem] bg-[radial-gradient(22rem_14rem_at_50%_50%,rgba(220,38,38,0.3),transparent)]"
               />
 
               <div className="relative flex min-h-full flex-col pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:pt-[max(1rem,env(safe-area-inset-top))]">
