@@ -30,7 +30,6 @@ const DESKTOP_LINKS = NAV_ITEMS.filter((item) => item.href !== DONATE_HREF);
 
 const MENU_ID = 'mobile-menu';
 const SCROLLED_AT = 16;
-const HIDE_AFTER = 480;
 /** Routes whose top section is the dark hero, where the bar starts out white-on-dark. */
 const DARK_TOP_ROUTES = ['/'];
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
@@ -107,7 +106,6 @@ const Brand = ({ tone }: { tone: 'dark' | 'light' }) => (
 const Navbar = () => {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   // The menu is "open" only for the route it was opened on, so navigating closes it without an effect.
   const [openFor, setOpenFor] = useState<string | null>(null);
   const open = openFor === pathname;
@@ -116,20 +114,13 @@ const Navbar = () => {
   const closeRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  // Scroll state: passive listener, rAF-throttled; React only re-renders when a flag flips.
-  // The bar condenses into a pill once scrolled, hides while scrolling down and returns on scroll up.
+  // Scroll state: passive listener, rAF-throttled; React only re-renders when the flag flips.
+  // The bar stays visible and condenses into a pill once the page is scrolled.
   useEffect(() => {
     let frame = 0;
-    let lastY = window.scrollY;
     const update = () => {
       frame = 0;
-      const y = Math.max(0, window.scrollY);
-      const delta = y - lastY;
-      setScrolled(y > SCROLLED_AT);
-      if (y < HIDE_AFTER) setHidden(false);
-      else if (delta > 6) setHidden(true);
-      else if (delta < -6) setHidden(false);
-      lastY = y;
+      setScrolled(window.scrollY > SCROLLED_AT);
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -218,9 +209,7 @@ const Navbar = () => {
         </a>
 
         <div
-          className={`mx-auto max-w-7xl pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-6 lg:px-8 ${
-            hidden && !open ? '-translate-y-[140%]' : 'translate-y-0'
-          }`}
+          className="mx-auto max-w-7xl pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] sm:px-6 lg:px-8"
         >
           <div
             className={`pointer-events-auto relative mx-auto flex h-14 items-center justify-between transition-[max-width,padding] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:grid lg:h-16 lg:grid-cols-[1fr_auto_1fr] ${

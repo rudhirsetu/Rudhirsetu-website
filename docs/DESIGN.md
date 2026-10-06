@@ -77,7 +77,7 @@ Defined in `src/styles/globals.css` (`@theme`) and loaded in `src/app/layout.tsx
 **Navbar** (`Navbar.tsx`):
 - At the top of a page it is transparent: white text over the dark home hero (routes in `DARK_TOP_ROUTES`), dark text elsewhere.
 - Once scrolled it condenses into a centred, near-opaque white pill (no blur).
-- It hides while scrolling down past 480px and returns on any scroll up.
+- It always stays visible (no hide-on-scroll; the owner preferred a constant bar).
 - The active link is marked with a small dot; Donate is the only filled button.
 - Mobile uses a full-screen maroon sheet with numbered links.
 
