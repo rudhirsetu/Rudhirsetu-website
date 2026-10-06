@@ -27,12 +27,11 @@ import {
 } from "../components/ui/Section";
 
 import { Event, GalleryImage, ContactSettings } from "../types/sanity";
-import {
-  FeaturedCarousel,
-  ImageLightbox,
-} from "../components/GalleryComponents";
+import { ImageLightbox } from "../components/GalleryComponents";
+import FeaturedMosaic from "../components/gallery/FeaturedMosaic";
 import EventCard from "../components/EventCard";
 import { safeMapsEmbedUrl } from "../lib/maps";
+import { IMPACT, IMPACT_LABELS } from "../lib/impact";
 
 interface HomeProps {
   heroAnimationsReady?: boolean;
@@ -49,6 +48,10 @@ interface FocusArea {
   title: string;
   description: string;
   image: string;
+  /** Intrinsic [width, height] of the illustration, so the browser reserves its space. */
+  size: [number, number];
+  /** Height override for unusually wide or tall illustrations. */
+  imageClass?: string;
   stats?: { label: string; value: string }[];
 }
 
@@ -93,7 +96,9 @@ const FocusTile = ({
             alt=""
             aria-hidden="true"
             loading="lazy"
-            className="-mt-2 -mr-2 h-24 sm:h-28 w-auto drop-shadow-xl transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-6"
+            width={area.size[0]}
+            height={area.size[1]}
+            className={`-mt-2 -mr-2 ${area.imageClass ?? "h-24 sm:h-28"} w-auto drop-shadow-xl transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-6`}
           />
         )}
       </div>
@@ -116,6 +121,8 @@ const FocusTile = ({
         alt=""
         aria-hidden="true"
         loading="lazy"
+        width={area.size[0]}
+        height={area.size[1]}
         className="h-40 sm:h-48 w-auto shrink-0 drop-shadow-xl transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-6"
       />
     )}
@@ -221,33 +228,39 @@ const Home = ({
 
   const itemVariants = sectionItemVariants;
 
-  const keyAreas = [
+  const keyAreas: FocusArea[] = [
     {
       title: "Blood Donation",
       description:
         "Our primary mission focuses on organizing blood donation camps, providing emergency blood support.",
       stats: [
-        { label: "Camps every year", value: "50+" },
+        { label: "Camps every year", value: `${IMPACT.campsPerYear}+` },
         { label: "Emergency support", value: "24/7" },
       ],
       image: "/images/focus/blood-donation.webp",
+      size: [440, 630],
     },
     {
       title: "Cancer Awareness",
       description:
         "Focus on cervical and breast cancer awareness with free testing camps.",
       image: "/images/focus/cancer-awareness.webp",
+      size: [490, 800],
     },
     {
       title: "Thalassemia Support",
       description:
-        "Free testing camps and comprehensive patient support for 68+ patients.",
+        `Free testing camps and comprehensive patient support for ${IMPACT.thalassemiaPatients}+ patients.`,
       image: "/images/focus/thalassemia.webp",
+      size: [800, 742],
     },
     {
       title: "Eye Care",
       description: "Free eye checkups, cataract screening & operations.",
       image: "/images/focus/eye-care.webp",
+      size: [800, 433],
+      // Landscape (spectacles): shorter so it stays clear of the tile number.
+      imageClass: "h-20 sm:h-24",
     },
   ];
 
@@ -256,7 +269,7 @@ const Home = ({
   const impactStats = [
     {
       label: "Blood donation camps",
-      value: 50,
+      value: IMPACT.campsPerYear,
       suffix: "+",
       unit: "every year",
       description:
@@ -264,8 +277,8 @@ const Home = ({
       icon: HeartPulse,
     },
     {
-      label: "Emergencies supported",
-      value: 9800,
+      label: IMPACT_LABELS.emergenciesSupported,
+      value: IMPACT.emergenciesSupported,
       suffix: "+",
       unit: "and counting",
       description:
@@ -273,8 +286,8 @@ const Home = ({
       icon: Activity,
     },
     {
-      label: "Eye checkups",
-      value: 15000,
+      label: IMPACT_LABELS.eyeCheckups,
+      value: IMPACT.eyeCheckups,
       suffix: "+",
       unit: "completed",
       description:
@@ -282,8 +295,8 @@ const Home = ({
       icon: Eye,
     },
     {
-      label: "Women reached",
-      value: 20000,
+      label: IMPACT_LABELS.womenReached,
+      value: IMPACT.womenReached,
       suffix: "+",
       unit: "through awareness",
       description:
@@ -292,7 +305,7 @@ const Home = ({
     },
   ];
 
-  const yearsOfService = new Date().getFullYear() - 2010;
+  const yearsOfService = new Date().getFullYear() - IMPACT.foundedYear;
   const mapUrl = safeMapsEmbedUrl(contactSettings?.googleMapsUrl);
 
   const allEvents = [...upcomingEvents, ...pastEvents];
@@ -340,6 +353,8 @@ const Home = ({
                   src={bloodDonation.image}
                   alt=""
                   aria-hidden="true"
+                  width={bloodDonation.size[0]}
+                  height={bloodDonation.size[1]}
                   className="-mt-2 h-44 sm:h-56 lg:h-64 w-auto drop-shadow-[0_30px_60px_rgba(220,38,38,0.45)] transition-transform duration-700 group-hover:scale-105 group-hover:-rotate-3"
                 />
               </div>
@@ -488,7 +503,7 @@ const Home = ({
                   <span className="block font-semibold text-gray-900">
                     years of service
                   </span>
-                  and still showing up, since 2010
+                  and still showing up, since {IMPACT.foundedYear}
                 </span>
               </div>
 
@@ -571,13 +586,12 @@ const Home = ({
             />
 
             <motion.div variants={itemVariants}>
-              <FeaturedCarousel
-                featuredImages={featuredImages}
+              <FeaturedMosaic
+                images={featuredImages}
                 onImageClick={(image, index) => {
                   setSelectedImage(image);
                   setSelectedImageIndex(index);
                 }}
-                aspectRatio="md:aspect-[21/9] aspect-[7/9]"
               />
             </motion.div>
           </div>

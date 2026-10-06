@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import PreloadLink from '../components/PreloadLink';
 import { Accent, Eyebrow, SectionHeader, SectionLink, sectionItemVariants } from '../components/ui/Section';
+import { IMPACT } from '../lib/impact';
 import DetailRow from '../components/donations/DetailRow';
 import UpiPayButton from '../components/donations/UpiPayButton';
 import type { DonationSettings } from '../types/sanity';
@@ -43,7 +44,7 @@ const uses: { title: string; tag: string; description: string; icon: IconType }[
   },
   {
     title: 'Thalassemia support',
-    tag: '68+ patients',
+    tag: `${IMPACT.thalassemiaPatients}+ patients`,
     description: 'Free testing camps and comprehensive patient support.',
     icon: HeartPulse,
   },

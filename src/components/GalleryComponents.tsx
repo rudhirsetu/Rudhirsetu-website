@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { GalleryImage } from '../types/sanity';
-import { formatCategory, imageAlt, imageSrc, imageSrcSet } from './gallery/image-utils';
+import { blurredBackdropSrc, formatCategory, imageAlt, imageSrc, imageSrcSet } from './gallery/image-utils';
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 const subscribeReducedMotion = (onChange: () => void) => {
@@ -179,6 +179,16 @@ const FeaturedCarouselComponent = ({
                 aria-label={`View photo${image.title ? `: ${image.title}` : ''}`}
                 className="group/slide relative block h-full w-full cursor-zoom-in text-left focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-white"
               >
+                {/* Featured uploads are often small or portrait: show the whole photo over a
+                    pre-blurred copy (blurred by Sanity, no CSS filter) instead of cropping it to 21:9. */}
+                <img
+                  src={blurredBackdropSrc(image.image)}
+                  alt=""
+                  aria-hidden="true"
+                  decoding="async"
+                  loading={eager ? 'eager' : 'lazy'}
+                  className="absolute inset-0 h-full w-full scale-110 object-cover"
+                />
                 <img
                   src={imageSrc(image.image, 1200)}
                   srcSet={imageSrcSet(image.image, CAROUSEL_WIDTHS)}
@@ -187,7 +197,7 @@ const FeaturedCarouselComponent = ({
                   decoding="async"
                   loading={eager ? 'eager' : 'lazy'}
                   fetchPriority={eager ? 'high' : undefined}
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover/slide:scale-[1.03]"
+                  className="absolute inset-0 h-full w-full object-contain transition-transform duration-700 group-hover/slide:scale-[1.03]"
                 />
                 <span
                   aria-hidden="true"

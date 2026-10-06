@@ -30,6 +30,24 @@ export function getImageRatio(image: GalleryImage['image'] | undefined): number 
   return Number.isFinite(ratio) && ratio > 0 ? ratio : FALLBACK_RATIO;
 }
 
+/** Pixel size of the original upload (from the asset reference), or null if unknown. */
+export function getImageSize(image: GalleryImage['image'] | undefined): { width: number; height: number } | null {
+  const match = image?.asset?._ref?.match(/-(\d+)x(\d+)-[a-z0-9]+$/i);
+  if (!match) return null;
+  const width = Number(match[1]);
+  const height = Number(match[2]);
+  return width && height ? { width, height } : null;
+}
+
+/**
+ * A tiny, already-blurred copy of the image for use as a backdrop behind a photo shown
+ * with `object-contain`. The blur is done by Sanity's image API, not a CSS `filter`,
+ * so it costs nothing while scrolling (see docs/DESIGN.md, performance rules).
+ */
+export function blurredBackdropSrc(image: GalleryImage['image']): string {
+  return urlFor(image).width(96).blur(40).auto('format').url();
+}
+
 /** Sized, auto-format (WebP/AVIF where supported) Sanity image URL. */
 export function imageSrc(image: GalleryImage['image'], width: number): string {
   return urlFor(image).width(width).fit('max').auto('format').url();

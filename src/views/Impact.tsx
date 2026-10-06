@@ -10,6 +10,7 @@ import { Accent, SectionHeader, sectionItemVariants } from '../components/ui/Sec
 import { btnOnDark, btnOnDarkOutline, btnSecondary, focusRing } from '../components/events/styles';
 import { Event, Pagination } from '../types/sanity';
 import { eventService } from '../services/sanity-client';
+import { IMPACT } from '../lib/impact';
 
 /** One page of events plus its pagination meta. Fetched on the server for page 1. */
 export interface EventsPage {
@@ -351,7 +352,7 @@ const SummaryItem = ({
 const Impact = ({ initialUpcoming = null, initialPast = null }: ImpactProps) => {
   const upcoming = useEventList(fetchUpcoming, initialUpcoming);
   const past = useEventList(fetchPast, initialPast);
-  const yearsOfService = new Date().getFullYear() - 2010;
+  const yearsOfService = new Date().getFullYear() - IMPACT.foundedYear;
 
   return (
     <MotionConfig reducedMotion="user">

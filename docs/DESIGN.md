@@ -72,6 +72,8 @@ Defined in `src/styles/globals.css` (`@theme`) and loaded in `src/app/layout.tsx
 
 **Dark feature surfaces**: `bg-red-950 text-white` with a soft glow made from a radial gradient (`bg-[radial-gradient(ellipse_50%_60%_at_50%_0%,rgba(220,38,38,0.28),transparent_70%)]`), never a `blur-*` filter. Text uses `text-white/70`, hairlines `border-white/15`.
 
+**Photo mosaic** (`components/gallery/FeaturedMosaic.tsx`, home "Moments that matter"): one 2x2 tile plus four squares, captions on hover only (uploads often carry their own text), and a "+N more photos" tile that opens the lightbox. The large tile goes to the sharpest landscape upload. Use it instead of a full-width carousel when photos are small or mixed-shape.
+
 **Bento grids**: `grid md:grid-cols-4 gap-4 lg:gap-5`, with tiles in `rounded-3xl`. Mix one dark tile, one paper tile, one white bordered tile and at most one `bg-red-700` tile. Number tiles `01`–`04`.
 
 **Navbar** (`Navbar.tsx`):
@@ -100,7 +102,7 @@ The inventory, usage rules and the generator script are in [`BRAND.md` → Illus
 - They are decorative: use `alt=""` and `aria-hidden="true"`.
 - Give them explicit `width`/`height` attributes matching the file, so no layout shift.
 - Use `loading="lazy"` below the fold and `decoding="async"`.
-- Glass objects (`focus/blood-donation.webp`, `focus/eye-care.webp`) are for dark surfaces only.
+- Glass objects (`focus/blood-donation.webp`) are for dark surfaces only; on the red tile use an opaque clay object (`focus/eye-care.webp`), since glass blends into red.
 - Never use AI imagery for real people, camps or events. Real photos come from Sanity.
 
 ## Data fetching

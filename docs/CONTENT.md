@@ -16,7 +16,7 @@ For the NGO staff who keep the Rudhirsetu Seva Sanstha website up to date. You d
 | What you changed | Where it shows up | Normally visible after |
 | --- | --- | --- |
 | An event | Home, Camps list, that event's own page, link previews | Seconds, at most about 5 minutes |
-| A gallery photo | Gallery page; Home and Gallery slideshow if featured | Seconds, at most about 5 minutes |
+| A gallery photo | Gallery page; if featured, the Home photo mosaic and the Gallery slideshow | Seconds, at most about 5 minutes |
 | Donation settings | Donations page | Seconds, at most about 5 minutes |
 | Contact settings | Contact page, Home, footer of every page | Seconds, at most about 5 minutes |
 | Social media settings | Social page, footer of every page | Seconds, at most about 5 minutes |
@@ -28,7 +28,7 @@ Link previews (WhatsApp, Facebook, LinkedIn and so on) are cached by those apps 
 | Content type in Studio | Where visitors see it |
 | --- | --- |
 | **Events** | Home page, "Where you can help": up to 3 cards (on phones only the first is shown), upcoming events first (soonest first), then the most recent past events to fill the gaps. **Camps page**: every event in two lists, "Upcoming and ongoing" and "Past events and camps", 6 per page. **Event page** (`/event/<id>`): the full details. The event's photo and title are also used in link previews. |
-| **Gallery images** | **Gallery page**: a grid of all non-featured photos with category filters, 16 per page, plus a slideshow of featured photos at the top. **Home page**: the same slideshow ("Moments that matter"), shown only if at least one photo is featured. |
+| **Gallery images** | **Gallery page**: a grid of all non-featured photos with category filters, 16 per page, plus a slideshow of featured photos at the top. **Home page**: a photo mosaic of featured photos ("Moments that matter": one large tile and four small ones, plus "+N more"), shown only if at least one photo is featured. |
 | **Donation settings** | **Donations page**: the UPI payment card (QR code, UPI ID, "Pay with your UPI app" button on phones), the bank transfer card, and the Section 80G tax benefit section. |
 | **Contact settings** | **Contact page** (details, 24/7 emergency card, map), **Home page** ("Get involved" block and map), and the **footer** of every page (phone, email, address). |
 | **Social media settings** | **Social page** (one tile per link) and the **footer** icons on every page. |
@@ -74,14 +74,16 @@ Studio: **Gallery Images, Create new Gallery Image.**
 | Title | `title` | Optional short name. | Shown as a caption on hover in the grid, and in the viewer and the slideshow. |
 | Description | `description` | Optional sentence about the photo. | Shown in the slideshow and the full-screen viewer. |
 | Category | `category` | Choose one: `blood-donation`, `eye-care`, `cancer-awareness`, `thalassemia-support`. | Visitors filter the gallery by category. A photo without a category appears under "Other". The filter buttons only list categories that have photos. |
-| Is Featured | `isFeatured` | Switch on to put the photo in the slideshow. | A featured photo appears **in the slideshow only**, not in the grid below it. |
+| Is Featured | `isFeatured` | Switch on to show the photo in the Home mosaic and the Gallery slideshow. | A featured photo appears **there only**, not in the gallery grid. |
 | Image | `image` | The photo. | Fill in the **alternative text** (a short description of what the photo shows) for screen-reader users. |
 
-**Slideshow behaviour (featured photos).** It appears on the Home page and at the top of the Gallery page. It advances every 8 seconds while visible (it stops when the visitor hovers, focuses it, or has asked their device for reduced motion) and has arrows, dots and swipe. There is no ordering control, so you cannot rearrange the slides; keep the number of featured photos modest (around 5 to 8).
+**Featured photos on the Home page.** The mosaic shows five: the sharpest landscape photo takes the large tile, and the rest fill the small ones. Real photos of camps and volunteers look best there; posters, quote cards and QR codes make the section look like an advert, so keep those out of the featured set.
+
+**Slideshow behaviour (featured photos, Gallery page).** It appears at the top of the Gallery page and shows each photo whole (nothing is cropped) over a soft blurred fill. It advances every 8 seconds while visible (it stops when the visitor hovers, focuses it, or has asked their device for reduced motion) and has arrows, dots and swipe. There is no ordering control, so you cannot rearrange the slides; keep the number of featured photos modest (around 5 to 8).
 
 **Image rules**
 
-- **Featured photos: upload at least 1600 px wide**, preferably landscape (3:2 or wider). On desktop the slideshow is a very wide **21:9** strip and on phones a tall **7:9** frame, and the photo is centre-cropped to fill it, so keep the important subject in the middle and avoid photos with people at the very edges.
+- **Featured photos: upload at least 1200 px wide, ideally landscape (3:2).** Most current featured photos are 370 to 1080 px social-media downloads; the original camera photo is always sharper. The Home mosaic crops each photo to a square (or 4:3 on phones), so keep the subject in the middle.
 - **Regular gallery photos:** any shape works (the grid keeps each photo's own proportions). Upload at least **1600 px on the long edge**: the full-screen viewer shows them at up to 1600 px.
 - Titles and descriptions are optional, but alternative text is not: please always fill it in.
 
@@ -161,7 +163,7 @@ These are written into the website itself and need a developer:
 | Event main image (landscape banner) | 1600 px wide | Landscape; shown as 16:9 on the page and on cards | Yes |
 | Event main image (poster) | 1200 px wide | Portrait or square; shown whole on the page, cropped to 16:9 on cards (set the hotspot) | Yes |
 | Event gallery photo | 1600 px on the long edge | Any; thumbnails are squares cropped around the hotspot, the viewer shows the whole photo | Yes, plus an optional caption |
-| Featured gallery photo | 1600 px wide | Landscape, 3:2 or wider; centre-cropped to 21:9 (desktop) or 7:9 (phones) | Yes |
+| Featured gallery photo | 1200 px wide | Landscape 3:2 preferred; square crop in the Home mosaic, shown whole in the Gallery slideshow | Yes |
 | Regular gallery photo | 1600 px on the long edge | Any | Yes |
 | UPI QR code | 600 by 600 px | Square, with a white border | Yes |
 
@@ -179,7 +181,7 @@ General rules: use clear, well-lit, high-quality photos; keep each file under **
 | --- | --- |
 | I published but the page still shows the old version | Press refresh. Wait a minute or two. Confirm you pressed **Publish** (not just saved). If an **event page** is still old after a few minutes, tell the developer: event pages depend on the automatic update. |
 | An event is still under "Upcoming" after it ended | Switch **Is Upcoming** off and publish again. |
-| A photo is missing from the gallery grid | It may be marked **Featured** (featured photos are in the slideshow only), or it was not published. |
+| A photo is missing from the gallery grid | It may be marked **Featured** (featured photos appear only in the Home mosaic and the slideshow), or it was not published. |
 | The map is missing | The Google Maps URL is not an embed link; see [section 6](#6-contact-settings). |
 | The UPI card has disappeared | **Is UPI Enabled** is off, or both the QR code and UPI ID are empty. |
 | The image on an event card is cut off in an odd place | Set the hotspot on the image in Studio over the important part and publish. |

@@ -98,13 +98,13 @@ All three are free Google Fonts, self-hosted on the site via `next/font`.
 ## 5. Voice and words
 
 - **Plain, warm, specific.** Write "Join our next blood donation camp", not "Engage with our initiatives".
-- **Never invent numbers or claims.** The only figures in use are below. Update them here first, then on the site.
+- **Never invent numbers or claims.** The only figures in use are below. Update them here first, then in `src/lib/impact.ts`, the single file every page reads them from (labels included, so wording stays consistent).
 
   | Fact | Figure |
   | --- | --- |
   | Founded | 2010 |
   | Blood donation camps | 50+ every year |
-  | Emergencies supported / lives impacted | 9,800+ |
+  | Emergencies supported | 9,800+ |
   | Eye checkups | 15,000+ |
   | Women reached through cancer awareness | 20,000+ |
   | Thalassemia patients supported | 68+ |
@@ -146,9 +146,9 @@ The site uses a small family of **3D clay and frosted-glass objects in the crims
 | File | Shows | Best on | Used for |
 | --- | --- | --- | --- |
 | `focus/blood-donation.webp` | glass blood drop with a heartbeat line | dark only | home bento, camp call to action |
-| `focus/eye-care.webp` | glass eye with a lens iris | dark only | home bento (red tile) |
-| `focus/cancer-awareness.webp` | awareness ribbon | any | home bento |
-| `focus/thalassemia.webp` | three red blood cells | any | home bento |
+| `focus/eye-care.webp` | rose clay spectacles with crimson lenses and a small heart | red or any | home bento (red tile) |
+| `focus/cancer-awareness.webp` | glossy crimson awareness ribbon | any | home bento |
+| `focus/thalassemia.webp` | three bright glossy red blood cells | any | home bento |
 | `illustrations/donate.webp` | slender hands cradling a glowing heart | any | donations page |
 | `illustrations/contact.webp` | envelope with a heart wax seal | any | contact page |
 | `illustrations/empty-events.webp` | calendar with a blood drop | light | no events / camps empty state |

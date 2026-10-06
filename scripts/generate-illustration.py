@@ -156,7 +156,8 @@ def main() -> None:
     with cf.ThreadPoolExecutor(max_workers=min(args.variants, 6)) as pool:
         for out, size, kb, cost in pool.map(job, range(1, args.variants + 1)):
             total += cost
-            print(f"{out.relative_to(ROOT)}  {size[0]}x{size[1]}  {kb} KB  ${cost:.3f}")
+            shown = out.relative_to(ROOT) if out.is_relative_to(ROOT) else out  # --out-dir may be outside the repo
+            print(f"{shown}  {size[0]}x{size[1]}  {kb} KB  ${cost:.3f}")
     print(f"Total cost: ${total:.3f}")
 
 

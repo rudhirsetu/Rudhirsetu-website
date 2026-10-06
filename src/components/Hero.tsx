@@ -5,6 +5,7 @@ import type { CSSProperties } from 'react';
 import { Heart, ArrowRight } from 'lucide-react';
 import CountUp from './CountUp';
 import HeroShader from './HeroShader';
+import { IMPACT, IMPACT_LABELS } from '../lib/impact';
 
 interface HeroProps {
   startAnimations?: boolean;
@@ -13,10 +14,10 @@ interface HeroProps {
 // Static data lives outside the component so it isn't re-allocated on every render
 // (Hero re-renders when the intro finishes and `startAnimations` flips).
 const impactStats = [
-  { label: 'Blood camps every year', value: 50, suffix: '+' },
-  { label: 'Lives impacted', value: 9800, suffix: '+' },
-  { label: 'Eye checkups', value: 15000, suffix: '+' },
-  { label: 'Women reached', value: 20000, suffix: '+' },
+  { label: IMPACT_LABELS.campsPerYear, value: IMPACT.campsPerYear, suffix: '+' },
+  { label: IMPACT_LABELS.emergenciesSupported, value: IMPACT.emergenciesSupported, suffix: '+' },
+  { label: IMPACT_LABELS.eyeCheckups, value: IMPACT.eyeCheckups, suffix: '+' },
+  { label: IMPACT_LABELS.womenReached, value: IMPACT.womenReached, suffix: '+' },
 ];
 
 /** Stagger index for the CSS `hero-rise` entrance (globals.css). */
