@@ -10,6 +10,7 @@ Everything written down about the Rudhirsetu Seva Sanstha website, and which fil
 | [CONTENT.md](./CONTENT.md) | NGO staff who edit the website (and developers who need to know what editors can do) | Every Sanity content type (events, gallery images, donation settings, contact settings, social media settings): fields, where each appears on the site, image sizes, how long changes take, what is not editable |
 | [`public/help.html`](../public/help.html) | NGO staff | A printable web version of the basic editing steps, served on the site at `/help.html`. CONTENT.md is the fuller and more current reference |
 | [Root README](../README.md) | Everyone | Project overview and quick start |
+| [`mockups/`](./mockups/) | Designers | Earlier hero design explorations (June 2026), kept for reference; the shipped design is in DESIGN.md |
 
 ## Reading order for a new developer
 

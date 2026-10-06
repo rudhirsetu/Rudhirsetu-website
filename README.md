@@ -28,14 +28,14 @@ The site is for donors, volunteers, patients' families and partners. Visitors ca
 
 ## Quick start
 
-You need **Node.js 22 LTS** (Next.js 16 needs at least 20.9) and **npm**.
+You need **Node.js 22 LTS** (Next.js 16 needs at least 20.9) and **[Bun](https://bun.sh)** (the package manager; production installs with it too).
 
 ```bash
 git clone <repository-url>
 cd Rudhirsetu-website
-npm install
+bun install
 cp .env.example .env.local        # PowerShell: Copy-Item .env.example .env.local
-npm run dev
+bun run dev
 ```
 
 Open http://localhost:3000.
@@ -56,13 +56,13 @@ SANITY_REVALIDATE_SECRET=<any long random string>
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Start the dev server (Turbopack) on port 3000 |
-| `npm run build` | Production build (fails on type errors; needs network access) |
-| `npm start` | Serve the production build |
-| `npm run lint` | ESLint |
-| `npm run analyze` | Bundle analyzer (`next experimental-analyze`) |
-| `npm test` | Jest unit tests (none written yet) |
-| `npm run test:e2e` | Playwright end-to-end tests (run `npx playwright install` once first) |
+| `bun run dev` | Start the dev server (Turbopack) on port 3000 |
+| `bun run build` | Production build (fails on type errors; needs network access) |
+| `bun run start` | Serve the production build |
+| `bun run lint` | ESLint |
+| `bun run analyze` | Bundle analyzer (`next experimental-analyze`) |
+| `bun run test` | Jest unit tests (none written yet) |
+| `bun run test:e2e` | Playwright end-to-end tests (run `npx playwright install` once first) |
 
 See [docs/ARCHITECTURE.md, "Scripts and testing"](./docs/ARCHITECTURE.md#11-scripts-and-testing) for details and known test issues.
 

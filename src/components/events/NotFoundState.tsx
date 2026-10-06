@@ -39,7 +39,7 @@ export default function NotFoundState({
           height={720}
           className="mb-8 h-48 w-auto sm:h-60"
         />
-        <Eyebrow>{eyebrow}</Eyebrow>
+        <Eyebrow center>{eyebrow}</Eyebrow>
         <h1 className="font-display text-4xl font-bold leading-[1.05] tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
           {title}
         </h1>

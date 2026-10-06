@@ -26,10 +26,22 @@ export const Accent = ({ children, className = 'text-red-700' }: { children: Rea
   <span className={`font-script font-normal tracking-normal ${className}`}>{children}</span>
 );
 
-/** Small pill label that sits above a section heading. */
-export const Eyebrow = ({ icon: Icon, children, dark = false }: { icon?: IconType; children: ReactNode; dark?: boolean }) => (
+/** Small pill label that sits above a section heading. Pass `center` inside centred layouts. */
+export const Eyebrow = ({
+  icon: Icon,
+  children,
+  dark = false,
+  center = false,
+}: {
+  icon?: IconType;
+  children: ReactNode;
+  dark?: boolean;
+  center?: boolean;
+}) => (
   <span
-    className={`mb-6 inline-flex w-fit self-start items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium ${
+    className={`mb-6 inline-flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium ${
+      center ? 'self-center' : 'self-start'
+    } ${
       dark ? 'border border-white/20 bg-white/10 text-white' : 'bg-red-100 text-red-900'
     }`}
   >

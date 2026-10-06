@@ -52,7 +52,7 @@ Defined in `src/styles/globals.css` (`@theme`) and loaded in `src/app/layout.tsx
 | Component | Use |
 | --- | --- |
 | `SectionHeader` | Every section header. Props: `icon`, `eyebrow`, `title` (ReactNode), `description`, `action`, `as` (`'h1'` for a page title). |
-| `Eyebrow` | Red pill label above a heading (`dark` variant for maroon surfaces). |
+| `Eyebrow` | Red pill label above a heading (`dark` for maroon surfaces, `center` inside centred layouts such as the 404 and error pages). |
 | `Accent` | The Pacifico accent word. |
 | `SectionLink` | Text link with a sliding arrow, for section-level actions ("View all events"). |
 | `sectionItemVariants` | Framer Motion item reveal. Pair it with a parent `motion.section` using `initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}` and a stagger container. |

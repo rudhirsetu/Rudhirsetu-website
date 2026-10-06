@@ -30,7 +30,7 @@ The technical guide for whoever inherits this codebase. It explains how the site
 
 | Concern | Choice | `package.json` range | Installed (lockfile) |
 | --- | --- | --- | --- |
-| Framework | Next.js, App Router, Turbopack (default bundler for `dev` and `build` in Next 16) | `^16.1.6` | 16.3.8 |
+| Framework | Next.js, App Router, Turbopack (default bundler for `dev` and `build` in Next 16) | `^16.3.8` | 16.3.8 |
 | UI | React | `^19.2.4` | 19.3.0 |
 | Language | TypeScript (`strict: false`, `strictNullChecks: true`, build fails on type errors) | `~5.7.2` | 5.7.3 |
 | Styling | Tailwind CSS v4, CSS-first config (`@theme` in `src/styles/globals.css`, PostCSS plugin `@tailwindcss/postcss`; there is no `tailwind.config.js`) | `^4.0.8` | 4.1.11 |
@@ -53,13 +53,14 @@ Dates are formatted with `Intl` in `src/components/events/format.ts` (no date li
 
 ### Package manager
 
-**npm is the primary package manager.** `package-lock.json` is tracked and current (it resolves Next 16.3.8). `bun.lockb` is also tracked, a leftover from when the project was developed with Bun. It was resynced with `package.json` on 2026-10-07 (`bun install --lockfile-only`) but can drift again. `.gitignore` lists `bun.lockb`, yet the file is tracked (Git keeps tracking a file that was committed before an ignore rule was added).
+**Bun is the package manager.** `bun.lockb` is the only lockfile, so Vercel installs with Bun (`bun install`); `.bunfig.toml` holds its install settings (exact resolution, auto-install peers). The app itself still runs on Node (`next dev`, `next build`).
 
 Practical rules:
 
-- Install with `npm install` (or `npm ci` for a clean, lockfile-exact install). Commit `package-lock.json` changes.
-- Do not mix managers in one working tree. If you change dependencies, update `package-lock.json` with npm and then either resync `bun.lockb` (`bun install --lockfile-only`) or, once Vercel is confirmed to install with npm, delete `bun.lockb`.
-- Check which install command Vercel actually runs (build log, or Project Settings, Build and Development). Vercel picks a package manager from the lockfiles it finds; with both lockfiles present, confirm it is using npm. Setting the Install Command to `npm ci` removes the ambiguity.
+- Install with `bun install`. Add or upgrade with `bun add <pkg>` / `bun add -d <pkg>`, and commit both `package.json` and `bun.lockb`.
+- Do not create a `package-lock.json` (no `npm install`): a second lockfile makes Vercel's package-manager choice ambiguous. Running scripts with `npm run <script>` is fine; it does not touch the lockfile.
+- `next`, `eslint-config-next` and `@next/eslint-plugin-next` are kept on the same version (currently 16.3.8). Upgrade them together and re-test (section 11).
+- Bun blocks the `unrs-resolver` postinstall check (an ESLint resolver); that is expected and harmless.
 
 ---
 
@@ -146,6 +147,8 @@ Why this shape:
 | `/social` | `src/app/social/page.tsx` | `src/app/social/SocialClient.tsx` | `src/views/Social.tsx` | Social media settings | ISR 300 s + tag `socialMediaSettings` |
 | `/event/[id]` | `src/app/event/[id]/page.tsx` | `src/components/EventDetailsClient.tsx` (lives in `components/`, not `app/`) | `src/views/EventDetails.tsx` | One event by `_id` | `revalidate = 300`, tags `event` and `event-<id>` |
 | 404 | `src/app/not-found.tsx`, `src/app/event/[id]/not-found.tsx` | none | `src/components/events/NotFoundState.tsx` | none | static |
+| Errors | `src/app/error.tsx` (inside the layout), `src/app/global-error.tsx` (replaces the layout; inline styles only) | n/a | n/a | n/a | n/a |
+| Loading | `src/app/{camp,gallery,donations,contact,social}/loading.tsx` | n/a | `src/components/ui/PageSkeleton.tsx` | none | shown only during client navigation to an uncached route |
 | `/api/revalidate` | `src/app/api/revalidate/route.ts` | n/a | n/a | n/a | never cached |
 
 Shared chrome is in `src/app/layout.tsx`: `Navbar` (client), `<main id="main-content">`, `Footer` (async server component), `SmoothScrollProvider`, `PageTransitionProvider`, Vercel `SpeedInsights` and `Analytics`, the inline intro script, and site-wide JSON-LD.
@@ -179,7 +182,6 @@ The Sanity dataset is **public and read without a token**. Only published docume
 - `client = createClient({ projectId, dataset, apiVersion, useCdn: true })`, configured from the three `NEXT_PUBLIC_SANITY_*` variables (see [section 5](#5-environment-variables)). It is used on the server and in the browser.
 - `urlFor(source)` returns an `@sanity/image-url` builder with `.auto('format')` already applied, so the Sanity CDN serves WebP or AVIF to browsers that accept them. Callers chain `.width()`, `.height()`, `.fit('max')` and so on. Chain `.format('jpg')` to override (the share-image code does, because Satori cannot decode WebP).
 - Hotspot behaviour: `@sanity/image-url` applies the Studio crop and hotspot when **both** width and height are requested (`EventCard`, event hero, event gallery thumbnails). With width only (gallery tiles, carousels, lightboxes) it returns the whole Studio-cropped image.
-- `src/lib/sanity.ts` also exports a `QUERIES` object. It is a second, older copy of the queries and is **not used**; the real one is `src/lib/queries.ts`.
 
 ### 4.3 GROQ queries: `src/lib/queries.ts`
 
@@ -400,7 +402,7 @@ Page-level JSON-LD is serialised with `JSON.stringify(data).replace(/</g, '\\u00
 
 ### 6.11 Bundle hygiene
 
-`experimental.optimizePackageImports` for `lucide-react` and `framer-motion`; `compiler.removeConsole` in production (keeps `console.error` and `console.warn`); `npm run analyze` runs Next's bundle analyzer. Keep new client-side libraries out unless CSS cannot do the job (DESIGN.md).
+`experimental.optimizePackageImports` for `lucide-react` and `framer-motion`; `compiler.removeConsole` in production (keeps `console.error` and `console.warn`); `bun run analyze` runs Next's bundle analyzer. Keep new client-side libraries out unless CSS cannot do the job (DESIGN.md).
 
 ---
 
@@ -523,18 +525,18 @@ What is implemented (keep it that way when adding UI):
 
 | Script | Command | Notes |
 | --- | --- | --- |
-| `npm run dev` | `next dev` | Turbopack. Dev build output goes to `.next/dev` |
-| `npm run build` | `next build` | Fails on type errors. Needs network (Google Fonts, Sanity, share-image fonts) |
-| `npm start` | `next start` | Serves the production build |
-| `npm run lint` | `eslint .` | Flat config in `eslint.config.js` (`next/core-web-vitals` and `next/typescript`; `@next/next/no-img-element` and `jsx-a11y/alt-text` are off) |
-| `npm run analyze` | `next experimental-analyze` | Turbopack bundle analyzer |
-| `npm test` | `jest` | **No Jest tests exist**, so it finds nothing |
-| `npm run test:watch`, `npm run test:coverage` | `jest --watch`, `jest --coverage` | Coverage output goes to `coverage/` |
-| `npm run test:e2e` | `playwright test` | See below |
-| `npm run test:e2e:ui` | `playwright test --ui` | Interactive runner |
-| `npm run test:a11y` | `jest --testPathPattern=accessibility` | Matches no files today |
+| `bun run dev` | `next dev` | Turbopack. Dev build output goes to `.next/dev` |
+| `bun run build` | `next build` | Fails on type errors. Needs network (Google Fonts, Sanity, share-image fonts) |
+| `bun run start` | `next start` | Serves the production build |
+| `bun run lint` | `eslint .` | Flat config in `eslint.config.js` (`next/core-web-vitals` and `next/typescript`; `@next/next/no-img-element` and `jsx-a11y/alt-text` are off) |
+| `bun run analyze` | `next experimental-analyze` | Turbopack bundle analyzer |
+| `bun run test` | `jest` | **No Jest tests exist**, so it finds nothing |
+| `bun run test:watch`, `bun run test:coverage` | `jest --watch`, `jest --coverage` | Coverage output goes to `coverage/` |
+| `bun run test:e2e` | `playwright test` | See below |
+| `bun run test:e2e:ui` | `playwright test --ui` | Interactive runner |
+| `bun run test:a11y` | `jest --testPathPattern=accessibility` | Matches no files today |
 
-There is no `typecheck` script; use `npx tsc --noEmit`.
+There is no `typecheck` script; use `npx tsc --noEmit`. Use `bun run test`, not `bun test`: the latter starts Bun's own test runner instead of Jest.
 
 ### Jest
 
@@ -555,7 +557,7 @@ There is no `typecheck` script; use `npx tsc --noEmit`.
 
 The site is deployed from the Git repository on Vercel (framework preset Next.js, default build command `next build`, output handled by Vercel).
 
-1. **Project settings**: Node.js version 22.x; confirm the install step uses npm (see [section 1](#package-manager)).
+1. **Project settings**: Node.js version 22.x. The install step is `bun install`, picked automatically from `bun.lockb` (see [section 1](#package-manager)).
 2. **Environment variables** (Production, and Preview where sensible): `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `NEXT_PUBLIC_SANITY_API_VERSION`, `NEXT_PUBLIC_BASE_URL` (the real origin of that environment), `SANITY_REVALIDATE_SECRET`; `NEXT_PUBLIC_SHOW_DEV_WARNING=true` on staging only. `NEXT_PUBLIC_*` changes need a redeploy.
 3. **Sanity**: create the webhook ([4.6](#46-isr-tags-and-the-webhook)); add the production (and staging) origins to the project's CORS origins ([4.5](#45-browser-side-helpers-srcservicessanity-clientts)).
 4. **Analytics**: `<Analytics />` and `<SpeedInsights />` are in `layout.tsx`, but data is collected only when Analytics and Speed Insights are enabled for the project in the Vercel dashboard.
@@ -647,8 +649,8 @@ Edit `@theme` in `src/styles/globals.css` (fonts and `--color-paper`; the red an
 | Symptom | Cause and fix |
 | --- | --- |
 | Edited `@theme` or `globals.css` and the dev server still shows old styles | Turbopack's dev cache is stale. Stop `next dev`, delete `.next/dev` (`rm -rf .next/dev` in Git Bash, `Remove-Item -Recurse -Force .next\dev` in PowerShell), restart. If it persists, delete all of `.next`. |
-| `npx react-doctor` (or another tool with native binaries) fails with a missing `...-win32-x64-msvc` module | npm's optional-dependency bug on Windows when the lockfile was produced on another platform. Run the tool with `bunx` instead, or delete `node_modules` and reinstall. Also check the Node version: Node 20.16 satisfies Next but not the 20.19+ these tools need (use Node 22). |
-| `next dev` crashes or serves odd errors right after `npm install` / `npm uninstall` | Changing `node_modules` under a running dev server can break Turbopack. Stop the dev server before touching dependencies, then start it again. |
+| `npx react-doctor` (or another tool with native binaries) fails with a missing `...-win32-x64-msvc` module | npm's optional-dependency bug on Windows when the lockfile was produced on another platform. Run the tool with `bunx` instead, or delete `node_modules` and run `bun install`. Also check the Node version: Node 20.16 satisfies Next but not the 20.19+ these tools need (use Node 22). |
+| `next dev` crashes or serves odd errors right after `bun install` / `bun add` | Changing `node_modules` under a running dev server can break Turbopack. Stop the dev server before touching dependencies, then start it again. |
 | Git Bash changes values like `/api/revalidate` into `C:/Program Files/Git/api/revalidate` in env vars or arguments | MSYS path conversion. Prefix the command with `MSYS_NO_PATHCONV=1`, or use PowerShell. |
 | An event page does not show the latest edit after 5 minutes | Check the webhook attempt log in Sanity; call `GET /api/revalidate?secret=...&eventId=<id>`; verify `SANITY_REVALIDATE_SECRET` matches on Vercel; redeploy as a last resort. |
 | Webhook returns 401 | The secret does not match or was not sent. Check the Secret field in Sanity against Vercel's env var (no stray whitespace or quotes). |
@@ -671,7 +673,7 @@ Edit `@theme` in `src/styles/globals.css` (fonts and `--color-paper`; the red an
 A snapshot as of 2026-10-07, so the next developer does not rediscover them. Remove items as they are fixed.
 
 **Dead or duplicate code**
-- Unused: the legacy helpers in `src/lib/seo.ts`, the `QUERIES` export in `src/lib/sanity.ts`, `galleryService` and two `settingsService` methods in `src/services/sanity-client.ts`, `getDonationSettings` in `src/lib/data.ts`, the `images` block in `next.config.mjs` (`next/image` is not used), and the `@/*` path alias. `public/favicon.ico` and `src/app/favicon.ico` are byte-identical (the second is the App Router convention).
+- Unused: the legacy helpers in `src/lib/seo.ts`, `galleryService` and two `settingsService` methods in `src/services/sanity-client.ts`, `getDonationSettings` in `src/lib/data.ts`, the `images` block in `next.config.mjs` (`next/image` is not used), and the `@/*` path alias. `public/favicon.ico` and `src/app/favicon.ico` are byte-identical (the second is the App Router convention).
 - `src/views/Home.tsx` has its own `ContactRow` and map iframe instead of `src/components/contact/ContactRow.tsx` and `LazyMap.tsx`.
 - Fetch and cache constants (`revalidate: 300`, tag literals, `PAGE_SIZE`, `baseUrl`) are repeated across `page.tsx` files instead of using `src/lib/data.ts` and `src/lib/sanity-cache.ts`.
 
@@ -680,7 +682,7 @@ A snapshot as of 2026-10-07, so the next developer does not rediscover them. Rem
 **Caching and operations**
 - `public/sitemap.xml` is static, has no event URLs and stale `lastmod` dates.
 - The code's default Sanity API version (`2023-05-03`) differs from `.env.example` (`2024-03-14`); check which one Vercel sets.
-- Two lockfiles (`package-lock.json` and `bun.lockb`); see [Package manager](#package-manager). No `engines` field.
+- No `engines` field in `package.json`.
 
 **Tests**
 - No Jest tests; `test:a11y` matches nothing; the framer-motion mock is minimal; two Playwright specs have known issues (section 11).
