@@ -89,14 +89,14 @@ const Brand = ({ tone }: { tone: 'dark' | 'light' }) => (
       height={210}
       className={`h-9 w-auto shrink-0 transition-[filter] duration-300 lg:h-10 ${tone === 'light' ? 'brightness-0 invert' : ''}`}
     />
-    <span className="flex flex-col leading-none">
+    <span className="flex flex-col">
       <span
-        className={`font-display text-xl font-bold tracking-tight transition-colors duration-300 ${tone === 'dark' ? 'text-gray-900' : 'text-white'}`}
+        className={`font-display text-xl/none font-bold tracking-tight transition-colors duration-300 ${tone === 'dark' ? 'text-gray-900' : 'text-white'}`}
       >
         Rudhirsetu
       </span>
       <span
-        className={`mt-1 text-xs font-semibold transition-colors duration-300 ${tone === 'dark' ? 'text-red-700' : 'text-red-200'}`}
+        className={`mt-1 text-xs/none font-semibold transition-colors duration-300 ${tone === 'dark' ? 'text-red-700' : 'text-red-200'}`}
       >
         Seva Sanstha
       </span>
