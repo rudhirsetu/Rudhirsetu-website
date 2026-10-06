@@ -1,6 +1,5 @@
-import type { Metadata } from 'next';
-import { Poppins, Pacifico} from 'next/font/google';
-// import localFont from 'next/font/local';
+import type { Metadata, Viewport } from 'next';
+import { Bricolage_Grotesque, Plus_Jakarta_Sans, Pacifico } from 'next/font/google';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -9,13 +8,22 @@ import Footer from '../components/Footer';
 import DevelopmentWarning from '../components/DevelopmentWarning';
 import SmoothScrollProvider from '../components/SmoothScrollProvider';
 import { PageTransitionProvider } from '../context/PageTransitionContext';
+import { OG_LOCALE, SITE_NAME, SITE_URL } from '../lib/seo';
+import { siteStructuredData } from '../lib/site-structured-data';
 import '../styles/globals.css';
 
-const poppins = Poppins({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
-  variable: '--font-poppins',
+  variable: '--font-jakarta',
+});
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  display: 'swap',
+  variable: '--font-bricolage',
 });
 
 const pacifico = Pacifico({
@@ -25,19 +33,25 @@ const pacifico = Pacifico({
   variable: '--font-pacifico',
 });
 
+// Serialised once at module load instead of on every render.
+const siteJsonLd = JSON.stringify(siteStructuredData);
 
-// const league_script = localFont({
-//   src: '../../public/font/PPPlayground-Medium.otf',
-//   display: 'swap',
-//   variable: '--font-league-script',
-// });
+// Browser UI colour (Android Chrome toolbar, Safari iOS tab bar) and viewport.
+// Zoom is deliberately not restricted. `viewport-fit=cover` is intentionally
+// omitted: nothing in the layout uses env(safe-area-inset-*), so it would let
+// content slide under the notch in landscape on iPhones.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#450a0a',
+};
 
 export const metadata: Metadata = {
   title: {
     default: 'Rudhirsetu Seva Sanstha | Transforming Lives Through Blood Donation & Healthcare',
     template: '%s | Rudhirsetu Seva Sanstha',
   },
-  description: 'Since 2010, Rudhirsetu Seva Sanstha has been empowering communities across India through life-saving blood donation drives, comprehensive healthcare support, and transformative social initiatives. Join thousands who trust us to make a real difference.',
+  description: 'Since 2010, Rudhirsetu Seva Sanstha has been empowering communities across India through life-saving blood donation drives, healthcare support and social initiatives.',
   keywords: [
     'Rudhirsetu Seva Sanstha',
     'blood donation India',
@@ -78,29 +92,19 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  // Fallback for pages that don't set their own. The share image comes from app/opengraph-image.tsx
+  // (each page folder has its own too); Next resolves its URL against `metadataBase` below.
   openGraph: {
     type: 'website',
-    locale: 'en_US',
-    url: 'https://www.rudhirsetu.org/',
-    siteName: 'Rudhirsetu Seva Sanstha',
-    title: 'Rudhirsetu Seva Sanstha: Transforming Lives Through Blood Donation & Healthcare',
-    description: 'Discover how we\'ve been empowering communities across India since 2010. From life-saving blood donation drives to comprehensive healthcare support - join thousands who trust us to make a real difference.',
-    images: [
-      {
-        url: 'https://www.rudhirsetu.org/og-thumbnail.png',
-        width: 1200,
-        height: 628,
-        alt: 'Rudhirsetu Seva Sanstha Fallback Banner',
-      },
-    ],
+    locale: OG_LOCALE,
+    siteName: SITE_NAME,
+    title: 'Rudhirsetu Seva Sanstha | Transforming Lives Through Blood Donation & Healthcare',
+    description: 'Since 2010, Rudhirsetu Seva Sanstha has been empowering communities across India through life-saving blood donation drives, healthcare support and social initiatives.',
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@rudhirsetu',
-    creator: '@rudhirsetu',
     title: 'Rudhirsetu Seva Sanstha | Transforming Lives Through Blood Donation & Healthcare',
-    description: 'Since 2010, empowering communities across India through life-saving healthcare initiatives and blood donation drives.',
-    images: ['/api/og?title=Rudhirsetu Seva Sanstha&description=Empowering communities through healthcare&route=home'],
+    description: 'Since 2010, Rudhirsetu Seva Sanstha has been empowering communities across India through life-saving blood donation drives, healthcare support and social initiatives.',
   },
   icons: {
     icon: [
@@ -117,23 +121,13 @@ export const metadata: Metadata = {
     ],
   },
   manifest: '/site.webmanifest',
-  metadataBase: new URL('https://www.rudhirsetu.org'),
+  metadataBase: new URL(SITE_URL),
   other: {
-    'theme-color': '#991B1B',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
     'apple-mobile-web-app-title': 'Rudhirsetu',
-    'msapplication-TileColor': '#991B1B',
+    'msapplication-TileColor': '#450a0a',
     'msapplication-config': '/browserconfig.xml',
-    // Enhanced SEO Meta Tags
-    'language': 'English',
-    'revisit-after': '1 days',
-    'distribution': 'global',
-    'rating': 'general',
-    'coverage': 'India',
-    'target': 'all',
-    'HandheldFriendly': 'True',
-    'MobileOptimized': '320',
     // Geographic Information
     'geo.region': 'IN',
     'geo.placename': 'India',
@@ -146,283 +140,47 @@ export const metadata: Metadata = {
   },
 };
 
+// Runs in <head> before first paint. On the first landing on "/" in a session it adds
+// `intro` to <html>, which shows the CSS curtain and delays the hero entrance (globals.css),
+// and drives the curtain's 0-100 counter and progress bar (before hydration, in every browser).
+const INTRO_SCRIPT = `(function(){var d=document.documentElement;try{if(location.pathname==='/'&&!sessionStorage.getItem('hasVisitedHome')){sessionStorage.setItem('hasVisitedHome','1');d.classList.add('intro');var t0=performance.now();var tick=function(n){var e=document.querySelector('.intro-count'),b=document.querySelector('.intro-bar'),p=Math.min((n-t0)/900,1),v=1-Math.pow(1-p,3);if(e)e.textContent=String(Math.round(v*100));if(b)b.style.transform='scaleX('+v+')';if(p<1)requestAnimationFrame(tick)};requestAnimationFrame(tick);setTimeout(function(){d.classList.remove('intro')},2400)}}catch(e){}})()`;
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`
-      ${poppins.variable} 
-      ${pacifico.variable} 
-    `}
-    >
-      {/* ${league_script.variable} ADD THIS BS LATER*/}
-
+    // suppressHydrationWarning: the intro script below may add a class to <html> before React hydrates.
+    <html lang="en" suppressHydrationWarning className={`${jakarta.variable} ${bricolage.variable} ${pacifico.variable}`}>
       <head>
-        {/* Preconnect to important domains */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
-        
+        {/* Decides the home intro before first paint (no flash, no JS wait). See globals.css "Home intro". */}
+        <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />
+        {/*
+          Fonts are self-hosted by next/font, so no preconnect to Google Fonts is needed.
+          Sanity images are plain <img> tags on cdn.sanity.io: warm that connection up
+          (no crossorigin attribute, so it matches non-CORS image requests).
+          Favicons and the manifest come from the `metadata` export above.
+        */}
+        <link rel="preconnect" href="https://cdn.sanity.io" />
+
         {/* Sitemap */}
         <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
-        
-        {/* Explicit favicon links for better browser compatibility */}
-        <link rel="icon" type="image/x-icon" href="/icon.ico" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="96x96" href="/icons/favicon-96x96.png" />
-        <link rel="shortcut icon" href="/icons/favicon-32x32.png" />
-        
 
-        {/* Comprehensive Structured Data for Google Search Results & Sitelinks */}
-        <script 
+        {/* Structured data for Google Search results & sitelinks (see lib/site-structured-data.ts) */}
+        <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@graph": [
-                {
-                  "@type": "NGO",
-                  "@id": "https://www.rudhirsetu.org/#organization",
-                  "name": "Rudhirsetu Seva Sanstha",
-                  "alternateName": ["Rudhirsetu", "Rudhir Setu", "Rudhirsetu NGO"],
-                  "url": "https://www.rudhirsetu.org/",
-                  "logo": {
-                    "@type": "ImageObject",
-                    "url": "https://www.rudhirsetu.org/images/logo-dark.svg",
-                    "width": 300,
-                    "height": 300,
-                    "caption": "Rudhirsetu Seva Sanstha Logo"
-                  },
-                  "image": [
-                    {
-                      "@type": "ImageObject",
-                      "url": "https://www.rudhirsetu.org/images/logo-dark.svg",
-                      "width": 300,
-                      "height": 300,
-                      "caption": "Rudhirsetu Seva Sanstha Logo"
-                    },
-                    {
-                      "@type": "ImageObject",
-                      "url": "https://www.rudhirsetu.org/icons/favicon.ico",
-                      "width": 48,
-                      "height": 48,
-                      "caption": "Rudhirsetu Favicon"
-                    }
-                  ],
-                  "description": "Rudhirsetu Seva Sanstha is a leading NGO empowering communities through blood donation drives, comprehensive healthcare support, cancer awareness programs, and transformative social initiatives since 2010.",
-                  "foundingDate": "2010",
-                  "areaServed": {
-                    "@type": "Country",
-                    "name": "India"
-                  },
-                  "knowsAbout": [
-                    "Blood Donation",
-                    "Healthcare Support",
-                    "Social Initiatives",
-                    "Community Empowerment",
-                    "Cancer Awareness",
-                    "Health Camps",
-                    "Medical Aid",
-                    "Social Welfare"
-                  ],
-                  "keywords": "blood donation, healthcare, NGO, social service, community health, cancer awareness, medical support",
-                  "slogan": "Empowering Communities Through Service",
-                  "mission": "To drive community empowerment through blood donation, healthcare support, and transformative social initiatives",
-                  "sameAs": [
-                    "https://www.facebook.com/rudhirsetu",
-                    "https://www.instagram.com/rudhirsetu",
-                    "https://twitter.com/rudhirsetu",
-                    "https://www.youtube.com/rudhirsetu",
-                    "https://www.linkedin.com/company/rudhirsetu"
-                  ],
-                  "contactPoint": [
-                    {
-                      "@type": "ContactPoint",
-                      "contactType": "customer service",
-                      "url": "https://www.rudhirsetu.org/contact",
-                      "availableLanguage": ["English", "Hindi"]
-                    },
-                    {
-                      "@type": "ContactPoint",
-                      "contactType": "donations",
-                      "url": "https://www.rudhirsetu.org/donations",
-                      "availableLanguage": ["English", "Hindi"]
-                    }
-                  ],
-                  "address": {
-                    "@type": "PostalAddress",
-                    "addressCountry": "IN",
-                    "addressRegion": "India"
-                  },
-                  "hasOfferCatalog": {
-                    "@type": "OfferCatalog",
-                    "name": "Community Services",
-                    "itemListElement": [
-                      {
-                        "@type": "Offer",
-                        "itemOffered": {
-                          "@type": "Service",
-                          "name": "Blood Donation Drives",
-                          "description": "Regular blood donation camps and drives"
-                        }
-                      },
-                      {
-                        "@type": "Offer",
-                        "itemOffered": {
-                          "@type": "Service",
-                          "name": "Healthcare Support",
-                          "description": "Medical aid and healthcare assistance programs"
-                        }
-                      },
-                      {
-                        "@type": "Offer",
-                        "itemOffered": {
-                          "@type": "Service",
-                          "name": "Cancer Awareness",
-                          "description": "Cancer awareness and support programs"
-                        }
-                      }
-                    ]
-                  }
-                },
-                {
-                  "@type": "WebSite",
-                  "@id": "https://www.rudhirsetu.org/#website",
-                  "url": "https://www.rudhirsetu.org/",
-                  "name": "Rudhirsetu Seva Sanstha - Official Website",
-                  "alternateName": "Rudhirsetu Website",
-                  "description": "Official website of Rudhirsetu Seva Sanstha - Leading NGO for Blood Donation, Healthcare Support & Social Initiatives in India",
-                  "publisher": {
-                    "@id": "https://www.rudhirsetu.org/#organization"
-                  },
-                  "potentialAction": [
-                    {
-                      "@type": "DonateAction",
-                      "target": "https://www.rudhirsetu.org/donations",
-                      "name": "Make a Donation"
-                    }
-                  ],
-                  "mainEntity": {
-                    "@id": "https://www.rudhirsetu.org/#organization"
-                  }
-                },
-                {
-                  "@type": "WebPage",
-                  "@id": "https://www.rudhirsetu.org/#webpage",
-                  "url": "https://www.rudhirsetu.org/",
-                  "name": "Rudhirsetu Seva Sanstha | Blood Donation, Healthcare Support & Social Initiatives",
-                  "isPartOf": {
-                    "@id": "https://www.rudhirsetu.org/#website"
-                  },
-                  "about": {
-                    "@id": "https://www.rudhirsetu.org/#organization"
-                  },
-                  "datePublished": "2010-01-01",
-                  "dateModified": "2025-06-29",
-                  "description": "Join Rudhirsetu Seva Sanstha in empowering communities through regular blood donation drives, comprehensive healthcare support, and innovative social initiatives.",
-                  "inLanguage": "en-US",
-                  "potentialAction": [
-                    {
-                      "@type": "ReadAction",
-                      "target": "https://www.rudhirsetu.org/"
-                    }
-                  ]
-                },
-                {
-                  "@type": "BreadcrumbList",
-                  "@id": "https://www.rudhirsetu.org/#breadcrumb",
-                  "itemListElement": [
-                    {
-                      "@type": "ListItem",
-                      "position": 1,
-                      "name": "Home",
-                      "item": "https://www.rudhirsetu.org/",
-                      "description": "Homepage - Learn about our mission and services"
-                    },
-                    {
-                      "@type": "ListItem",
-                      "position": 2,
-                      "name": "Camps",
-                      "item": "https://www.rudhirsetu.org/camp",
-                      "description": "See our healthcare camps and blood donation drives"
-                    },
-                    {
-                      "@type": "ListItem",
-                      "position": 3,
-                      "name": "Gallery",
-                      "item": "https://www.rudhirsetu.org/gallery",
-                      "description": "Photo gallery of our events and activities"
-                    },
-                    {
-                      "@type": "ListItem",
-                      "position": 4,
-                      "name": "Donations",
-                      "item": "https://www.rudhirsetu.org/donations",
-                      "description": "Support our cause with donations"
-                    },
-                    {
-                      "@type": "ListItem",
-                      "position": 5,
-                      "name": "Social",
-                      "item": "https://www.rudhirsetu.org/social",
-                      "description": "Connect with us on social media"
-                    },
-                    {
-                      "@type": "ListItem",
-                      "position": 6,
-                      "name": "Contact",
-                      "item": "https://www.rudhirsetu.org/contact",
-                      "description": "Get in touch with our team"
-                    }
-                  ]
-                },
-                {
-                  "@type": "ItemList",
-                  "@id": "https://www.rudhirsetu.org/#services",
-                  "name": "Our Services",
-                  "description": "Core services offered by Rudhirsetu Seva Sanstha",
-                  "itemListElement": [
-                    {
-                      "@type": "ListItem",
-                      "position": 1,
-                      "name": "Blood Donation Drives",
-                      "url": "https://www.rudhirsetu.org/camp"
-                    },
-                    {
-                      "@type": "ListItem",
-                      "position": 2,
-                      "name": "Healthcare Support",
-                      "url": "https://www.rudhirsetu.org/camp"
-                    },
-                    {
-                      "@type": "ListItem",
-                      "position": 3,
-                      "name": "Cancer Awareness Programs",
-                      "url": "https://www.rudhirsetu.org/camp"
-                    },
-                    {
-                      "@type": "ListItem",
-                      "position": 4,
-                      "name": "Community Health Camps",
-                      "url": "https://www.rudhirsetu.org/camp"
-                    }
-                  ]
-                }
-              ]
-            })
-          }}
+          dangerouslySetInnerHTML={{ __html: siteJsonLd }}
         />
       </head>
-      <body className={`${poppins.className} font-sans antialiased`}>
+      <body className={`${jakarta.className} font-sans antialiased`}>
         <SmoothScrollProvider>
           <PageTransitionProvider>
-            <DevelopmentWarning />
+            {/* Staging-only banner; NEXT_PUBLIC_ vars are inlined at build time, so this is dropped entirely when off. */}
+            {process.env.NEXT_PUBLIC_SHOW_DEV_WARNING === 'true' && <DevelopmentWarning />}
             <div className="min-h-screen flex flex-col">
               <Navbar />
-              <main className="p-0">
+              <main id="main-content" tabIndex={-1} className="p-0 outline-none">
                 {children}
               </main>
             </div>

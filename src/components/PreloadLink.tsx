@@ -1,123 +1,58 @@
-import React, { useRef, useCallback } from 'react';
+'use client';
+
+import React from 'react';
 import Link from 'next/link';
 
 interface PreloadLinkProps {
   href: string;
   children: React.ReactNode;
   className?: string;
+  /**
+   * `high` opts the route into a full prefetch as soon as the link is in view.
+   * Everything else uses Next's default (auto) prefetching, which already warms
+   * the route on viewport entry and again on hover / touch intent.
+   */
   priority?: 'high' | 'medium' | 'low';
+  /** @deprecated Hover prefetching is handled by next/link; kept for API compatibility. */
   preloadDelay?: number;
   prefetch?: boolean;
-  onClick?: (e: React.MouseEvent) => void;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   [key: string]: unknown;
 }
 
-// Cache to prevent duplicate preloads
-const preloadCache = new Set<string>();
-
-// Preload function that works with App Router
-const preloadRoute = async (href: string) => {
-  if (preloadCache.has(href)) return;
-  
-  try {
-    preloadCache.add(href);
-    
-    // For App Router, we'll use manual resource preloading
-    if (typeof window !== 'undefined') {
-      // Preload the page as a module
-      const link = document.createElement('link');
-      link.rel = 'prefetch';
-      link.href = href;
-      document.head.appendChild(link);
-      
-      // DNS prefetch for external resources
-      const dnsLink = document.createElement('link');
-      dnsLink.rel = 'dns-prefetch';
-      dnsLink.href = new URL(href, window.location.origin).origin;
-      document.head.appendChild(dnsLink);
-    }
-  } catch (error) {
-    console.warn('Preload failed for:', href, error);
-    preloadCache.delete(href);
-  }
-};
-
+/**
+ * Thin wrapper around `next/link`.
+ *
+ * It used to inject extra `<link rel="prefetch">` / `dns-prefetch` tags on
+ * hover. That re-downloaded the HTML document next/link had already prefetched
+ * (and a same-origin DNS prefetch does nothing), and it only ever fired on
+ * hover, so touch devices got nothing from it. next/link handles viewport,
+ * hover, focus and touch intent itself.
+ */
 const PreloadLink: React.FC<PreloadLinkProps> = ({
   href,
   children,
   className = '',
   priority = 'medium',
-  preloadDelay = 150,
-  prefetch = true,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  preloadDelay,
+  prefetch,
   onClick,
   ...props
 }) => {
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const hasPreloaded = useRef(false);
-
-  // Determine prefetch strategy based on priority
   const shouldPrefetch = priority === 'high' ? true : prefetch;
-  const hoverDelay = priority === 'high' ? 50 : preloadDelay;
-
-  const handleMouseEnter = useCallback(() => {
-    if (hasPreloaded.current) return;
-
-    // Clear any existing timeout
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
-
-    // Set up delayed preload
-    hoverTimeoutRef.current = setTimeout(() => {
-      if (!hasPreloaded.current && href) {
-        hasPreloaded.current = true;
-        preloadRoute(href);
-      }
-    }, hoverDelay);
-  }, [href, hoverDelay]);
-
-  const handleMouseLeave = useCallback(() => {
-    // Clear timeout if user moves away quickly
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-  }, []);
-
-  const handleFocus = useCallback(() => {
-    // Preload immediately on focus for accessibility
-    if (!hasPreloaded.current && href) {
-      hasPreloaded.current = true;
-      preloadRoute(href);
-    }
-  }, [href]);
-
-  // Enhanced click handler for even faster navigation
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    if (onClick) {
-      onClick(e);
-    }
-    
-    // Ensure preload happens immediately on click if not already done
-    if (!hasPreloaded.current && href) {
-      preloadRoute(href);
-    }
-  }, [href, onClick]);
 
   return (
     <Link
+      {...props}
       href={href}
       prefetch={shouldPrefetch}
-      {...props}
       className={className}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onFocus={handleFocus}
-      onClick={handleClick}
+      onClick={onClick}
     >
       {children}
     </Link>
   );
 };
 
-export default PreloadLink; 
+export default PreloadLink;

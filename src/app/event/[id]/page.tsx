@@ -1,15 +1,15 @@
 import EventDetailsClient from '../../../components/EventDetailsClient';
 import { Metadata } from 'next';
-import { client } from '../../../lib/sanity';
+import { client, urlFor } from '../../../lib/sanity';
 import { Event } from '../../../types/sanity';
+import { buildMetadata, truncateText } from '../../../lib/seo';
 import { notFound } from 'next/navigation';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
 
-// Use on-demand revalidation via webhooks instead of time-based
-// Pages will be revalidated when content changes in Sanity
-// Set to false so pages are static until webhook triggers revalidation
-export const revalidate = false;
+// Same model as the other pages: cached for 5 minutes, refreshed sooner by the Sanity webhook
+// (`event-<id>` and `event` tags), so an edit still appears if a webhook delivery is missed.
+export const revalidate = 300;
 
 interface EventPageProps {
   params: Promise<{ id: string }>;
@@ -73,7 +73,7 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
       }`,
       { id },
       {
-        next: { tags: [`event-${id}`] } // Tag for on-demand revalidation
+        next: { revalidate: 300, tags: ['event', `event-${id}`] }
       }
     );
 
@@ -86,47 +86,28 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
 
     // Format date
     const eventDate = new Date(event.date).toLocaleDateString('en-US', {
+      timeZone: 'Asia/Kolkata',
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
 
-    // Generate Open Graph image URL
-    const ogImageUrl = `/api/og/event/${id}`;
-    
-    const title = `${event.title} - ${eventDate}`;
-    const description = event.shortDesc || event.desc || `Join us for ${event.title} at ${event.location}`;
+    // The page title is the event title; the root layout template appends the site name.
+    // Link previews also get the date and place, which the share image shows too.
+    // The share image itself comes from ./opengraph-image.tsx.
+    const summary = event.shortDesc || event.desc || `Join us for ${event.title}`;
+    const description = truncateText(
+      `${eventDate}${event.location ? ` · ${event.location}` : ''}. ${summary}`,
+      200,
+    );
 
-    return {
-      title,
+    return buildMetadata({
+      title: event.title,
       description,
-      openGraph: {
-        title,
-        description,
-        type: 'article',
-        url: `${baseUrl}/event/${id}`,
-        images: [
-          {
-            url: ogImageUrl,
-            width: 1200,
-            height: 628,
-            alt: event.title,
-          },
-        ],
-        siteName: 'Rudhirsetu Seva Sanstha',
-        locale: 'en_US',
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description,
-        images: [ogImageUrl],
-      },
-      alternates: {
-        canonical: `${baseUrl}/event/${id}`,
-      },
-    };
+      path: `/event/${id}`,
+      type: 'article',
+    });
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
@@ -138,14 +119,15 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
 
 export default async function EventDetailsPage({ params }: EventPageProps) {
   const { id } = await params;
-  
+
   if (!id) {
     notFound();
   }
-  
+
+  let event: Event | null = null;
   try {
     // Fetch event data on the server with proper revalidation
-    const event: Event = await client.fetch(
+    event = await client.fetch(
       `*[_type == "event" && _id == $id][0]{
         _id,
         _type,
@@ -163,17 +145,50 @@ export default async function EventDetailsPage({ params }: EventPageProps) {
       }`,
       { id },
       {
-        next: { tags: [`event-${id}`] } // Tag for on-demand revalidation
+        next: { revalidate: 300, tags: ['event', `event-${id}`] }
       }
     );
-
-    if (!event) {
-      notFound();
-    }
-
-    return <EventDetailsClient eventId={id} eventData={event} />;
   } catch (error) {
     console.error('Error fetching event:', error);
+  }
+
+  // Called outside the try block: notFound() works by throwing, and must not be caught above.
+  if (!event) {
     notFound();
   }
-} 
+
+  // schema.org Event markup for rich results. "<" is escaped so CMS text can't close the script tag.
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: event.title,
+    startDate: event.date,
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    description: event.shortDesc || event.desc,
+    url: `${baseUrl}/event/${id}`,
+    ...(event.location && {
+      location: { '@type': 'Place', name: event.location, address: event.location },
+    }),
+    ...(event.image?.asset && {
+      image: [urlFor(event.image).width(1200).height(675).auto('format').url()],
+    }),
+    organizer: {
+      '@type': 'Organization',
+      name: 'Rudhirsetu Seva Sanstha',
+      url: baseUrl,
+    },
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
+        }}
+      />
+      <EventDetailsClient eventId={id} eventData={event} />
+    </>
+  );
+}

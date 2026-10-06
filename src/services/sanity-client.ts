@@ -1,5 +1,6 @@
 import { client } from '../lib/sanity';
 import { QUERIES } from '../lib/queries';
+import { SANITY_REVALIDATE_SECONDS, SANITY_TAGS, type SanityTag } from '../lib/sanity-cache';
 import type {
   Event,
   GalleryImage,
@@ -8,6 +9,15 @@ import type {
   SocialMediaSettings,
   Pagination
 } from '../types/sanity';
+
+/**
+ * Fetch with Next's data cache options. When these services run on the server
+ * (server components, route handlers) responses are cached for
+ * SANITY_REVALIDATE_SECONDS and can be purged by tag from /api/revalidate.
+ * In the browser the `next` option is simply ignored by fetch.
+ */
+const cachedFetch = <T = unknown>(query: string, tags: SanityTag[]): Promise<T> =>
+  client.fetch<T>(query, {}, { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags } });
 
 /**
  * Helper function for retrying API calls
@@ -40,8 +50,8 @@ export const eventService = {
     try {
       const [events, totalCount] = await retryApiCall(() => 
         Promise.all([
-          client.fetch(QUERIES.upcomingEvents(page, pageSize)),
-          client.fetch(QUERIES.upcomingEventsCount)
+          cachedFetch<Event[]>(QUERIES.upcomingEvents(page, pageSize), [SANITY_TAGS.event]),
+          cachedFetch<number>(QUERIES.upcomingEventsCount, [SANITY_TAGS.event])
         ])
       );
 
@@ -68,8 +78,8 @@ export const eventService = {
     try {
       const [events, totalCount] = await retryApiCall(() =>
         Promise.all([
-          client.fetch(QUERIES.pastEvents(page, pageSize)),
-          client.fetch(QUERIES.pastEventsCount)
+          cachedFetch<Event[]>(QUERIES.pastEvents(page, pageSize), [SANITY_TAGS.event]),
+          cachedFetch<number>(QUERIES.pastEventsCount, [SANITY_TAGS.event])
         ])
       );
 
@@ -99,7 +109,7 @@ export const eventService = {
 export const galleryService = {
   fetchAll: async (): Promise<GalleryImage[] | null> => {
     try {
-      return await client.fetch(QUERIES.galleryImages);
+      return await cachedFetch(QUERIES.galleryImages, [SANITY_TAGS.galleryImage]);
     } catch (error) {
       console.error('Error fetching gallery images:', error);
       return null;
@@ -108,7 +118,7 @@ export const galleryService = {
 
   fetchByCategory: async (category: string): Promise<GalleryImage[] | null> => {
     try {
-      return await client.fetch(QUERIES.galleryImagesByCategory(category));
+      return await cachedFetch(QUERIES.galleryImagesByCategory(category), [SANITY_TAGS.galleryImage]);
     } catch (error) {
       console.error('Error fetching gallery images by category:', error);
       return null;
@@ -117,7 +127,7 @@ export const galleryService = {
 
   fetchFeatured: async (): Promise<GalleryImage[] | null> => {
     try {
-      return await client.fetch(QUERIES.featuredImages);
+      return await cachedFetch(QUERIES.featuredImages, [SANITY_TAGS.galleryImage]);
     } catch (error) {
       console.error('Error fetching featured images:', error);
       return null;
@@ -131,7 +141,7 @@ export const galleryService = {
 export const settingsService = {
   fetchDonation: async (): Promise<DonationSettings | null> => {
     try {
-      return await client.fetch(QUERIES.donationSettings);
+      return await cachedFetch(QUERIES.donationSettings, [SANITY_TAGS.donationSettings]);
     } catch (error) {
       console.error('Error fetching donation settings:', error);
       return null;
@@ -140,7 +150,7 @@ export const settingsService = {
 
   fetchContact: async (): Promise<ContactSettings | null> => {
     try {
-      return await client.fetch(QUERIES.contactSettings);
+      return await cachedFetch(QUERIES.contactSettings, [SANITY_TAGS.contactSettings]);
     } catch (error) {
       console.error('Error fetching contact settings:', error);
       return null;
@@ -149,7 +159,7 @@ export const settingsService = {
 
   fetchSocialMedia: async (): Promise<SocialMediaSettings | null> => {
     try {
-      return await client.fetch(QUERIES.socialMediaSettings);
+      return await cachedFetch(QUERIES.socialMediaSettings, [SANITY_TAGS.socialMediaSettings]);
     } catch (error) {
       console.error('Error fetching social media settings:', error);
       return null;

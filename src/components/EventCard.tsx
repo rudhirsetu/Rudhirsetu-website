@@ -1,12 +1,14 @@
 'use client';
 
 import { MapPin, Users, ArrowRight, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
+import Link from 'next/link';
 import { urlFor } from '../lib/sanity';
+import { getEventDateParts } from './events/format';
 import { Event } from '../types/sanity';
 import { usePageTransition } from '../context/PageTransitionContext';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
+import type { MouseEvent } from 'react';
 
 interface EventCardProps {
   event: Event;
@@ -14,123 +16,103 @@ interface EventCardProps {
   layoutStyle?: 'grid' | 'list';
 }
 
-const EventCard = ({ event, variant = 'upcoming', layoutStyle = 'list' }: EventCardProps) => {
+const EventCard = ({ event, variant = 'upcoming' }: EventCardProps) => {
     const isUpcoming = variant === 'upcoming';
-    const isList = layoutStyle === 'list';
     const { startTransition } = usePageTransition();
     const router = useRouter();
-    const cardRef = useRef<HTMLDivElement>(null);
-    
-    const handleCardClick = (e: React.MouseEvent) => {
+    const cardRef = useRef<HTMLAnchorElement>(null);
+    const href = `/event/${event._id}`;
+    // Dates are always shown in IST so server and client render identical text.
+    const date = getEventDateParts(event.date);
+
+    const handleCardClick = (e: MouseEvent<HTMLAnchorElement>) => {
+        // Let modified clicks (new tab/window) behave like a normal link.
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         e.preventDefault();
-        
+
         if (cardRef.current) {
             const rect = cardRef.current.getBoundingClientRect();
             startTransition(event._id, rect);
             
             // Small delay to ensure transition state is set
             setTimeout(() => {
-                router.push(`/event/${event._id}`);
+                router.push(href);
             }, 100);
         }
     };
     
     return (
-        <div 
+        <Link
             ref={cardRef}
-            className={`h-full bg-white rounded-2xl border border-gray-200/60 ${isUpcoming ? 'shadow-xl hover:shadow-2xl' : 'shadow-lg hover:shadow-xl'} 
-                transition-all duration-300 overflow-hidden group ${isList ? 'flex flex-col md:flex-col' : 'flex flex-col'} cursor-pointer hover:-translate-y-1`}
+            href={href}
             onClick={handleCardClick}
+            className="group h-full w-full flex flex-col bg-white rounded-3xl border border-red-900/10 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_24px_48px_-24px_rgba(69,10,10,0.35)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-700"
         >
             {event.image && (
-                <div 
-                    className={`relative ${isList ? 'h-60 md:h-auto' : 'h-60 sm:h-60 md:h-60'} overflow-hidden p-3 bg-white`}
-                >
-                    <div className="relative w-full h-full rounded-xl overflow-hidden">
+                <div className="p-2.5">
+                    <div className="relative h-56 rounded-2xl overflow-hidden bg-paper">
                         <img
-                            src={urlFor(event.image).width(800).height(400).url()}
+                            src={urlFor(event.image).width(800).height(450).url()}
+                            width={800}
+                            height={450}
+                            decoding="async"
                             alt={event.title}
-                            className={`w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ${!isUpcoming && 'filter grayscale-[30%] group-hover:grayscale-0'}`}
+                            loading="lazy"
+                            className={`w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105`}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                        <div className="absolute top-4 right-4">
-                            <span className={`px-3 py-1.5 ${isUpcoming ? 'bg-red-600' : 'bg-gray-500'} text-white text-sm font-medium rounded-full border border-white/20`}>
-                                {isUpcoming ? 'Upcoming' : 'Completed'}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                        <span className={`absolute top-3 left-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${isUpcoming ? 'bg-red-600 text-white' : 'bg-white/95 text-gray-700'}`}>
+                            {isUpcoming && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+                            {isUpcoming ? 'Upcoming' : 'Completed'}
+                        </span>
+                        <div className="absolute bottom-3 left-3 rounded-xl bg-white px-3 py-1.5 text-center leading-none shadow-sm">
+                            <span className="block text-[0.65rem] font-semibold uppercase tracking-wider text-red-700">
+                                {date?.monthShort}
                             </span>
-                        </div>
-                        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                            <span className={`px-3 py-1.5 ${isUpcoming ? 'bg-red-600/90 backdrop-blur-sm' : 'bg-gray-700/90 backdrop-blur-sm'} text-white text-sm font-medium rounded-full inline-flex items-center border border-white/20`}>
-                                <Calendar className="w-3.5 h-3.5 mr-1.5" />
-                                {format(new Date(event.date), 'MMM d, yyyy')}
+                            <span className="block font-display text-xl font-bold text-gray-900">
+                                {date?.day}
                             </span>
                         </div>
                     </div>
                 </div>
             )}
-            
-            <div className={`flex flex-col flex-grow`}>
-                {/* Title Section */}
-                <div className="p-4 sm:p-5 md:p-6 pb-2">
-                    <h3 
-                        className={`text-lg sm:text-xl md:text-xl font-bold ${isUpcoming ? 'text-gray-900 group-hover:text-[#9B2C2C]' : 'text-gray-700 group-hover:text-gray-900'} transition-colors duration-300`}
-                    >
-                        {event.title.slice(0, 60)}
-                    </h3>
-                </div>
 
-                    {/* Description Section */}
-                    {/* {event.desc && (
-                    <div className="px-4 sm:px-5 md:px-6 pb-3">
-                        <div className="text-gray-600">
-                            <p className={`${isList ? 'line-clamp-2' : 'line-clamp-2'} text-sm leading-relaxed`}>{event.desc}</p>
-                        </div>
-                    </div>
-                )} */}
+            <div className="flex flex-col flex-grow px-5 sm:px-6 pt-3 pb-5 sm:pb-6">
+                <h3 className={`font-display text-xl font-bold tracking-tight leading-snug line-clamp-2 transition-colors ${isUpcoming ? 'text-gray-900 group-hover:text-red-700' : 'text-gray-800 group-hover:text-gray-900'}`}>
+                    {event.title}
+                </h3>
 
-                {/* Divider */}
-                <div className="mx-4 sm:mx-5 md:mx-6">
-                    <div className="h-px bg-gray-400/30"></div>
-                </div>
-                
-                {/* Event Details Section */}
-                <div className="px-4 sm:px-5 md:px-6 py-3">
-                    {/* Date & Time, Participants, Location Row */}
-                    <div className={`grid ${event.expectedParticipants ? 'grid-cols-3' : 'grid-cols-2'} gap-3`}>
-                        <div className={`flex flex-col items-center ${isUpcoming ? 'text-gray-700' : 'text-gray-600'} p-3 rounded-lg border border-gray-100 bg-gray-50/50 text-center`}>
-                            <Calendar className={`w-5 h-5 mb-2 ${isUpcoming ? 'text-[#9B2C2C]' : 'text-gray-500'}`} />
-                            <span className="text-xs font-medium">{format(new Date(event.date), 'MMM d, yyyy')}</span>
-                            <span className="text-xs text-gray-500">{format(new Date(event.date), 'h:mm a')}</span>
-                        </div>
-                        {event.expectedParticipants && (
-                            <div className={`flex flex-col items-center ${isUpcoming ? 'text-gray-700' : 'text-gray-600'} p-3 rounded-lg border border-gray-100 bg-gray-50/50 text-center`}>
-                                <Users className={`w-5 h-5 mb-2 ${isUpcoming ? 'text-[#9B2C2C]' : 'text-gray-500'}`} />
-                                <span className="text-xs font-medium">
-                                    {isUpcoming ? `${event.expectedParticipants} exp.` : `${event.expectedParticipants.slice(0, 25)} ...`}
-                                </span>
-                            </div>
-                        )}
-                        <div className={`flex flex-col items-center ${isUpcoming ? 'text-gray-700' : 'text-gray-600'} p-3 rounded-lg border border-gray-100 bg-gray-50/50 text-center`}>
-                            <MapPin className={`w-5 h-5 mb-2 ${isUpcoming ? 'text-[#9B2C2C]' : 'text-gray-500'}`} />
-                            <span className="text-xs font-medium text-center leading-tight">{event.location.slice(0, 25)}...</span>
-                        </div>
-                    </div>
-                </div>
-                
-                {/* Action Button Section */}
-                <div className="p-4 sm:p-5 md:p-6 mt-auto">
-                    <div 
-                        className={`inline-flex items-center justify-center w-full px-5 py-3 ${
-                            isUpcoming 
-                                ? 'bg-red-600 text-white border border-red-600 hover:bg-red-700' 
-                                : 'bg-gray-700 text-white hover:bg-gray-600 border border-gray-600'
-                        } font-medium rounded-md transition-all duration-300 shadow-md hover:shadow-lg ${isUpcoming ? 'group-hover:shadow-xl' : ''} text-base border`}
-                    >
-                        <span>View Details</span>
-                        <ArrowRight className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
+                <ul className="mt-4 space-y-2 text-sm text-gray-600">
+                    <li className="flex items-center gap-2.5">
+                        <Calendar className="w-4 h-4 shrink-0 text-red-700/70" />
+                        <span>{date ? `${date.weekday.slice(0, 3)}, ${date.short} · ${date.time}` : ''}</span>
+                    </li>
+                    {event.location && (
+                        <li className="flex items-center gap-2.5 min-w-0">
+                            <MapPin className="w-4 h-4 shrink-0 text-red-700/70" />
+                            <span className="truncate">{event.location}</span>
+                        </li>
+                    )}
+                    {event.expectedParticipants && (
+                        <li className="flex items-center gap-2.5 min-w-0">
+                            <Users className="w-4 h-4 shrink-0 text-red-700/70" />
+                            <span className="truncate">
+                                {isUpcoming ? `${event.expectedParticipants} expected` : event.expectedParticipants}
+                            </span>
+                        </li>
+                    )}
+                </ul>
+
+                <div className="mt-auto pt-5">
+                    <div className="flex items-center justify-between border-t border-red-900/10 pt-4">
+                        <span className="font-semibold text-gray-900 group-hover:text-red-700 transition-colors">View details</span>
+                        <span className="flex w-9 h-9 items-center justify-center rounded-full bg-paper text-red-700 transition-colors group-hover:bg-red-700 group-hover:text-white">
+                            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                        </span>
                     </div>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 };
 

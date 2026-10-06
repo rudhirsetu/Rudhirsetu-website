@@ -1,40 +1,24 @@
 import { Metadata } from "next";
 import DonationsClient from './DonationsClient';
+import { client, urlFor } from '../../lib/sanity';
+import { QUERIES } from '../../lib/queries';
+import { buildMetadata } from '../../lib/seo';
+import { DonationsPageData } from '../../lib/structured-data';
+import type { DonationSettings } from '../../types/sanity';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
 
 export const metadata: Metadata = {
-  title: "Support Our Mission | Rudhirsetu Seva Sanstha",
-  description: "Make a meaningful impact with your donation. Support our blood donation camps, healthcare initiatives, and community outreach programs across India.",
+  // The root layout title template appends " | Rudhirsetu Seva Sanstha". The share image comes from ./opengraph-image.tsx.
+  ...buildMetadata({
+    title: "Support Our Mission",
+    description: 'Support our blood donation camps, healthcare initiatives and community outreach programs across India with your contribution.',
+    path: '/donations',
+  }),
   keywords: ["donations", "support", "contribute", "blood donation", "healthcare", "NGO", "charity", "rudhirsetu"],
-  openGraph: {
-    title: "Support Our Mission | Rudhirsetu Seva Sanstha",
-    description: "Transform lives with your contribution",
-    url: `${baseUrl}/donations`,
-    siteName: "Rudhirsetu Seva Sanstha",
-    images: [
-      {
-        url: `${baseUrl}/api/og?title=${encodeURIComponent('Support Our Mission')}&description=${encodeURIComponent('Transform lives with your contribution')}&route=donations`,
-        width: 1200,
-        height: 630,
-        alt: "Rudhirsetu Seva Sanstha - Support Our Mission",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Support Our Mission | Rudhirsetu Seva Sanstha",
-    description: "Transform lives with your contribution",
-    images: [`${baseUrl}/api/og?title=${encodeURIComponent('Support Our Mission')}&description=${encodeURIComponent('Transform lives with your contribution')}&route=donations`],
-  },
   robots: {
     index: true,
     follow: true,
-  },
-  alternates: {
-    canonical: `${baseUrl}/donations`,
   },
   other: {
     'article:section': 'Donations',
@@ -43,6 +27,35 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DonationsPage() {
-  return <DonationsClient />;
-} 
+async function getDonationSettings(): Promise<DonationSettings | null> {
+  try {
+    return await client.fetch<DonationSettings | null>(
+      QUERIES.donationSettings,
+      {},
+      { next: { revalidate: 300, tags: ['donationSettings'] } }
+    );
+  } catch (error) {
+    console.error('Error fetching donation settings:', error);
+    return null;
+  }
+}
+
+export default async function DonationsPage() {
+  const settings = await getDonationSettings();
+
+  // Size the QR for its on-screen frame (max ~288px wide, so 576px covers 2x screens).
+  const qrCodeUrl = settings?.qrCodeImage?.asset
+    ? urlFor(settings.qrCodeImage).width(576).quality(90).auto('format').url()
+    : null;
+
+  return (
+    <>
+      <script
+        id="donations-page-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(DonationsPageData).replace(/</g, '\\u003c') }}
+      />
+      <DonationsClient settings={settings} qrCodeUrl={qrCodeUrl} />
+    </>
+  );
+}

@@ -1,360 +1,426 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { MouseEvent } from 'react';
 import { usePathname } from 'next/navigation';
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
+import { ArrowUpRight, Heart, Menu, X } from 'lucide-react';
 import PreloadLink from './PreloadLink';
-import { Heart, Phone, Menu, X, Home, Share2, Image, Gift } from 'lucide-react';
-import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
 
-const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [shouldAnimate, setShouldAnimate] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const pathname = usePathname();
-  const { scrollY } = useScroll();
+interface NavItem {
+  href: string;
+  label: string;
+  /** Extra path prefixes that should light this item up (e.g. event pages belong to Camps). */
+  match?: string[];
+}
 
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setIsScrolled(latest > 50);
-  });
+const DONATE_HREF = '/donations';
 
-  useEffect(() => {
-    // Check if we're on homepage and if loading screen should be shown
-    const isHomepage = pathname === '/';
-    const hasVisited = sessionStorage.getItem('hasVisitedHome');
+const NAV_ITEMS: NavItem[] = [
+  { href: '/', label: 'Home' },
+  { href: '/camp', label: 'Camps', match: ['/camp', '/event'] },
+  { href: '/gallery', label: 'Gallery' },
+  { href: DONATE_HREF, label: 'Donate' },
+  { href: '/social', label: 'Socials' },
+  { href: '/contact', label: 'Contact' },
+];
 
-    if (isHomepage && !hasVisited) {
-      // Delay navbar animation to sync with loading screen split (2.1 seconds)
-      const timer = setTimeout(() => {
-        setShouldAnimate(true);
-      }, 2100);
-      return () => clearTimeout(timer);
-    } else {
-      // On other pages or if already visited, animate immediately
-      setShouldAnimate(true);
-    }
-  }, [pathname]);
+/** Desktop shows Donate as the CTA button, so it is not repeated in the link row. */
+const DESKTOP_LINKS = NAV_ITEMS.filter((item) => item.href !== DONATE_HREF);
 
-  const navItems = [
-    { path: '/', label: 'Home', icon: Home },
-    { path: '/camp', label: 'Camps', icon: Heart },
-    { path: '/gallery', label: 'Gallery', icon: Image },
-    { path: '/donations', label: 'Donate', icon: Gift },
-    { path: '/social', label: 'Socials', icon: Share2 },
-    { path: '/contact', label: 'Contact', icon: Phone }
-  ];
+const MENU_ID = 'mobile-menu';
+const SCROLLED_AT = 16;
+const HIDE_AFTER = 480;
+/** Routes whose top section is the dark hero, where the bar starts out white-on-dark. */
+const DARK_TOP_ROUTES = ['/'];
+const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
-  const isActive = (path: string) => {
-    return pathname === path;
+const isActive = (pathname: string, item: NavItem) => {
+  if (item.href === '/') return pathname === '/';
+  return (item.match ?? [item.href]).some((base) => pathname === base || pathname.startsWith(`${base}/`));
+};
+
+/**
+ * Freezes the page behind the mobile menu.
+ *
+ * `overflow: hidden` alone is not enough on older iOS Safari, so the body is
+ * pinned with `position: fixed` and the scroll offset is restored on unlock.
+ * The scrollbar width is re-added as padding so desktop layouts do not jump.
+ * (`top` needs `!important` because globals.css pins `body { top: 0 !important }`.)
+ * Lenis ignores wheel events inside the menu via `data-lenis-prevent`.
+ */
+const lockBodyScroll = () => {
+  const { body, documentElement: html } = document;
+  const scrollY = window.scrollY;
+  const scrollbarWidth = window.innerWidth - html.clientWidth;
+  const style = body.style;
+  const prev = {
+    position: style.position,
+    left: style.left,
+    right: style.right,
+    width: style.width,
+    paddingRight: style.paddingRight,
   };
 
+  style.position = 'fixed';
+  style.setProperty('top', `${-scrollY}px`, 'important');
+  style.left = '0';
+  style.right = '0';
+  style.width = '100%';
+  if (scrollbarWidth > 0) style.paddingRight = `${scrollbarWidth}px`;
+
+  return () => {
+    style.position = prev.position;
+    style.removeProperty('top');
+    style.left = prev.left;
+    style.right = prev.right;
+    style.width = prev.width;
+    style.paddingRight = prev.paddingRight;
+    window.scrollTo(0, scrollY);
+  };
+};
+
+const Brand = ({ tone }: { tone: 'dark' | 'light' }) => (
+  <span className="flex items-center gap-2.5">
+    <img
+      src="/images/monogram.svg"
+      alt=""
+      width={219}
+      height={210}
+      className={`h-9 w-auto shrink-0 transition-[filter] duration-300 lg:h-10 ${tone === 'light' ? 'brightness-0 invert' : ''}`}
+    />
+    <span className="flex flex-col leading-none">
+      <span
+        className={`font-display text-xl font-bold tracking-tight transition-colors duration-300 ${tone === 'dark' ? 'text-gray-900' : 'text-white'}`}
+      >
+        Rudhirsetu
+      </span>
+      <span
+        className={`mt-1 text-xs font-semibold transition-colors duration-300 ${tone === 'dark' ? 'text-red-700' : 'text-red-200'}`}
+      >
+        Seva Sanstha
+      </span>
+    </span>
+  </span>
+);
+
+const Navbar = () => {
+  const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  // The menu is "open" only for the route it was opened on, so navigating closes it without an effect.
+  const [openFor, setOpenFor] = useState<string | null>(null);
+  const open = openFor === pathname;
+
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Scroll state: passive listener, rAF-throttled; React only re-renders when a flag flips.
+  // The bar condenses into a pill once scrolled, hides while scrolling down and returns on scroll up.
+  useEffect(() => {
+    let frame = 0;
+    let lastY = window.scrollY;
+    const update = () => {
+      frame = 0;
+      const y = Math.max(0, window.scrollY);
+      const delta = y - lastY;
+      setScrolled(y > SCROLLED_AT);
+      if (y < HIDE_AFTER) setHidden(false);
+      else if (delta > 6) setHidden(true);
+      else if (delta < -6) setHidden(false);
+      lastY = y;
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  const closeMenu = useCallback((restoreFocus: boolean) => {
+    setOpenFor(null);
+    if (restoreFocus) toggleRef.current?.focus();
+  }, []);
+
+  // While the menu is open: lock scroll, move focus in, trap Tab, close on Escape / when the desktop layout kicks in.
+  useEffect(() => {
+    if (!open) return;
+
+    const unlock = lockBodyScroll();
+    closeRef.current?.focus({ preventScroll: true });
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeMenu(true);
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const dialog = dialogRef.current;
+      if (!dialog) return;
+      const focusable = dialog.querySelectorAll<HTMLElement>('a[href], button:not([disabled])');
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      const outside = !dialog.contains(active);
+      if (event.shiftKey && (active === first || outside)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || outside)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const onBreakpoint = (event: MediaQueryListEvent) => {
+      if (event.matches) setOpenFor(null);
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    desktop.addEventListener('change', onBreakpoint);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      desktop.removeEventListener('change', onBreakpoint);
+      unlock();
+    };
+  }, [open, closeMenu]);
+
+  // "Skip to content": works without an id on <main> (falls back to the first <main>).
+  const skipToContent = (event: MouseEvent<HTMLAnchorElement>) => {
+    const main = document.getElementById('main-content') ?? document.querySelector('main');
+    if (!main) return;
+    event.preventDefault();
+    if (!main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1');
+    main.style.outline = 'none';
+    main.focus({ preventScroll: false });
+  };
+
+  // Over the dark hero the bar is transparent and white; once scrolled it becomes the solid white pill.
+  const pill = scrolled;
+  const light = !scrolled && DARK_TOP_ROUTES.includes(pathname);
+
   return (
-    <motion.nav
-      initial={{ y: -100, opacity: 0 }}
-      animate={shouldAnimate ? { y: 0, opacity: 1 } : { y: -100, opacity: 0 }}
-      transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
-      className="fixed top-0 left-0 right-0 z-[50] w-full flex justify-center py-4 pointer-events-none"
-    >
-      <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 pointer-events-auto">
-        <div className="flex items-center justify-center">
-          {/* Desktop Menu Island with Logo */}
-          <div className="hidden lg:flex items-center justify-center w-full">
-            <motion.div
-              layout
-              className={`flex items-center space-x-6 rounded-2xl p-3 border shadow-sm transition-all duration-300 ${isScrolled
-                  ? "bg-white/95 backdrop-blur-md border-gray-200/50 shadow-md scale-95"
-                  : "bg-white/90 backdrop-blur-sm border-white/20 shadow-sm"
-                }`}
+    <MotionConfig reducedMotion="user">
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-50 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-[max(1rem,env(safe-area-inset-top))]">
+        <a
+          href="#main-content"
+          onClick={skipToContent}
+          className="pointer-events-auto absolute left-4 top-3 z-20 -translate-y-24 rounded-md bg-red-700 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-transform focus:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        >
+          Skip to content
+        </a>
+
+        <div
+          className={`mx-auto max-w-7xl pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-6 lg:px-8 ${
+            hidden && !open ? '-translate-y-[140%]' : 'translate-y-0'
+          }`}
+        >
+          <div
+            className={`pointer-events-auto relative mx-auto flex h-14 items-center justify-between transition-[max-width,padding] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:grid lg:h-16 lg:grid-cols-[1fr_auto_1fr] ${
+              pill ? 'max-w-[60rem] pl-3 pr-1.5 lg:pl-4 lg:pr-2' : 'max-w-7xl pl-1 pr-0 lg:pl-4 lg:pr-0'
+            }`}
+          >
+            {/* Pill surface. Deliberately no backdrop-filter: re-blurring the page under a fixed bar
+                on every scroll frame caused heavy jank (measured on /camp). Near-opaque white instead. */}
+            <div
+              aria-hidden="true"
+              className={`pointer-events-none absolute inset-0 rounded-full border transition-[opacity,box-shadow] duration-300 ${
+                pill
+                  ? 'border-red-900/10 bg-white/95 opacity-100 shadow-[0_16px_40px_-18px_rgba(69,10,10,0.35)]'
+                  : 'border-transparent opacity-0'
+              }`}
+            />
+
+            {/* Logo */}
+            <PreloadLink
+              href="/"
+              priority="high"
+              aria-label="Rudhirsetu Seva Sanstha, home"
+              className={`relative flex items-center justify-self-start rounded-full py-1 pr-2 focus-visible:outline-2 focus-visible:outline-offset-2 [-webkit-tap-highlight-color:transparent] ${
+                light ? 'focus-visible:outline-white' : 'focus-visible:outline-red-700'
+              }`}
             >
-              {/* Logo inside island */}
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="flex items-center"
-              >
-                <PreloadLink href="/" priority="high" className="flex items-center space-x-2">
-                  <motion.img
-                    whileHover={{ rotate: 10 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                    className="h-10 w-auto"
-                    src="/images/logo-dark.svg"
-                    alt="Rudhirsetu Logo"
-                  />
-                  <div className="flex flex-col">
-                    <span className="text-xl font-light tracking-tight text-[#9B2C2C]" style={{ fontFamily: 'var(--font-pacifico)', fontWeight: '400' }}>
-                      Rudhirsetu
-                    </span>
-                    <span className="text-xs font-semibold tracking-tight text-[#9B2C2C]">
-                      Seva Sanstha
-                    </span>
-                  </div>
-                </PreloadLink>
-              </motion.div>
+              <Brand tone={light ? 'light' : 'dark'} />
+            </PreloadLink>
 
-              {/* Divider */}
-              <div className="w-px h-8 bg-gray-300/60"></div>
-
-              {/* Navigation Items */}
-              <div className="flex items-center space-x-1 relative">
-                {/* Top bar indicator */}
-                <motion.div
-                  className="absolute top-0 bg-[#9B2C2C] rounded-b-lg"
-                  style={{
-                    height: '3px',
-                    zIndex: 10
-                  }}
-                  animate={{
-                    x: navItems.findIndex(item => isActive(item.path)) * 110 + 30, // Approximate width + gap + centering
-                    width: '50px',
-                    opacity: navItems.some(item => isActive(item.path)) ? 1 : 0
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 400,
-                    damping: 25,
-                    duration: 0.3
-                  }}
-                />
-
-                {navItems.map((item) => {
-                  const Icon = item.icon;
+            {/* Desktop links */}
+            <nav aria-label="Primary" className="relative hidden lg:block">
+              <ul className="flex items-center gap-0.5">
+                {DESKTOP_LINKS.map((item) => {
+                  const active = isActive(pathname, item);
                   return (
-                    <motion.div
-                      key={item.path}
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                      style={{ zIndex: 1 }}
-                    >
+                    <li key={item.href}>
                       <PreloadLink
-                        href={item.path}
-                        priority={item.path === '/' || item.path === '/donations' || item.path === '/camp' ? 'high' : 'medium'}
-                        className={`relative px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 flex items-center space-x-2 group ${isActive(item.path)
-                            ? 'text-[#9B2C2C] font-semibold'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-black/5'
-                          }`}
+                        href={item.href}
+                        priority={item.href === '/' || item.href === '/camp' ? 'high' : 'medium'}
+                        aria-current={active ? (pathname === item.href ? 'page' : 'true') : undefined}
+                        className={`relative flex h-11 items-center rounded-full px-4 text-[15px] font-medium transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 [-webkit-tap-highlight-color:transparent] ${
+                          light
+                            ? `focus-visible:outline-white ${active ? 'text-white' : 'text-white/70 hover:text-white'}`
+                            : `focus-visible:outline-red-700 ${active ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900'}`
+                        }`}
                       >
-                        <Icon className={`w-4 h-4 transition-transform duration-300 ${isActive(item.path) ? 'text-[#9B2C2C]' : 'group-hover:scale-110'
-                          }`} />
-                        <span className="font-semibold">{item.label}</span>
+                        <span className="relative">{item.label}</span>
+                        {active && (
+                          <motion.span
+                            layoutId="nav-active-dot"
+                            layoutDependency={pathname}
+                            aria-hidden="true"
+                            className={`absolute bottom-1 left-1/2 h-1 w-1 -ml-0.5 rounded-full ${light ? 'bg-white' : 'bg-red-600'}`}
+                            transition={{ type: 'spring', stiffness: 520, damping: 42 }}
+                          />
+                        )}
                       </PreloadLink>
-                    </motion.div>
+                    </li>
                   );
                 })}
-              </div>
-            </motion.div>
-          </div>
+              </ul>
+            </nav>
 
-          {/* Mobile Menu Island */}
-          <div className="lg:hidden flex items-center justify-center w-full">
-            <motion.div
-              className={`flex items-center justify-between w-full max-w-sm rounded-2xl p-3 border shadow-sm transition-all duration-300 ${isScrolled
-                  ? "bg-white/95 backdrop-blur-md border-gray-200/50 shadow-md"
-                  : "bg-white/90 backdrop-blur-sm border-white/20 shadow-sm"
+            {/* Donate CTA + mobile menu toggle */}
+            <div className="relative flex items-center justify-end gap-1.5 lg:gap-2">
+              <PreloadLink
+                href={DONATE_HREF}
+                priority="high"
+                className={`group inline-flex h-11 items-center justify-center gap-2 rounded-full px-4 text-[15px] font-semibold transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 sm:px-5 [-webkit-tap-highlight-color:transparent] ${
+                  light
+                    ? 'bg-white text-red-900 hover:bg-red-100 focus-visible:outline-white'
+                    : 'bg-red-600 text-white hover:bg-red-700 focus-visible:outline-red-700'
                 }`}
-            >
-              {/* Mobile Logo */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="flex items-center"
               >
-                <PreloadLink href="/" priority="high" className="flex items-center space-x-2">
-                  <motion.img
-                    whileHover={{ rotate: 10 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                    className="h-8 w-auto"
-                    src="/images/logo-dark.svg"
-                    alt="Rudhirsetu Logo"
-                  />
-                  <div className="flex flex-col">
-                    <span className="text-lg font-light tracking-tight text-[#9B2C2C]" style={{ fontFamily: 'var(--font-pacifico)', fontWeight: '400' }}>
-                      Rudhirsetu
-                    </span>
-                    <span className="text-xs font-semibold tracking-tight text-[#9B2C2C]">
-                      Seva Sanstha
-                    </span>
-                  </div>
-                </PreloadLink>
-              </motion.div>
+                Donate
+                <Heart
+                  aria-hidden="true"
+                  className={`hidden h-4 w-4 transition-transform group-hover:scale-110 min-[400px]:block ${light ? 'fill-red-900/20' : 'fill-white/30'}`}
+                />
+              </PreloadLink>
 
-              {/* Mobile Menu Button */}
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsOpen(!isOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-100/80"
-                aria-label="Menu"
+              <button
+                ref={toggleRef}
+                type="button"
+                aria-expanded={open}
+                aria-controls={MENU_ID}
+                aria-label={open ? 'Close menu' : 'Open menu'}
+                onClick={() => setOpenFor(open ? null : pathname)}
+                className={`inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 lg:hidden [-webkit-tap-highlight-color:transparent] ${
+                  light
+                    ? 'border-white/30 bg-white/10 text-white hover:bg-white/20 focus-visible:outline-white'
+                    : 'border-red-900/10 bg-paper text-gray-900 hover:bg-red-100 focus-visible:outline-red-700'
+                }`}
               >
-                <AnimatePresence mode="wait">
-                  {!isOpen ? (
-                    <motion.div
-                      key="menu"
-                      initial={{ scale: 0, rotate: -90 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      exit={{ scale: 0, rotate: 90 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Menu className="w-6 h-6" />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="close"
-                      initial={{ scale: 0, rotate: 90 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      exit={{ scale: 0, rotate: -90 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <X className="w-6 h-6" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.button>
-            </motion.div>
+                <Menu aria-hidden="true" className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* Backdrop */}
+        {/* Mobile menu: full-screen maroon sheet */}
+        <AnimatePresence>
+          {open && (
             <motion.div
+              ref={dialogRef}
+              id={MENU_ID}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Site menu"
+              data-lenis-prevent
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="lg:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-30 pointer-events-auto"
-              onClick={() => setIsOpen(false)}
-            />
-
-            {/* Dropdown Menu */}
-            <motion.div
-              initial={{ opacity: 0, y: -20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="lg:hidden fixed top-24 left-1/2 transform -translate-x-1/2 z-40 w-[92%] max-w-sm pointer-events-auto"
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="pointer-events-auto fixed inset-x-0 top-0 z-10 h-screen overflow-y-auto overscroll-contain bg-red-950 text-white supports-[height:100dvh]:h-[100dvh] lg:hidden"
             >
-              <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-gray-200/50 shadow-xl overflow-hidden">
-                {/* Header with Logo and Close Button */}
-                <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-200/50">
-                  <div className="flex items-center space-x-2">
-                    <img
-                      className="h-8 w-auto"
-                      src="/images/logo-dark.svg"
-                      alt="Rudhirsetu Logo"
-                    />
-                    <div className="flex flex-col">
-                      <span className="text-base font-light tracking-tight text-[#9B2C2C]" style={{ fontFamily: 'var(--font-pacifico)', fontWeight: '400' }}>
-                        Rudhirsetu
-                      </span>
-                      <span className="text-xs font-semibold tracking-tight text-[#9B2C2C]">
-                        Seva Sanstha
-                      </span>
-                    </div>
+              {/* Soft glow (gradient, not a blur filter) */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -top-24 left-1/2 h-[28rem] w-[44rem] max-w-[200%] -translate-x-1/2 bg-[radial-gradient(closest-side,rgba(220,38,38,0.3),transparent)]"
+              />
+
+              <div className="relative flex min-h-full flex-col pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:pt-[max(1rem,env(safe-area-inset-top))]">
+                <div className="mx-auto w-full max-w-7xl pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] sm:px-6">
+                  <div className="flex h-14 items-center justify-between pl-3 pr-1.5">
+                    <PreloadLink
+                      href="/"
+                      priority="high"
+                      aria-label="Rudhirsetu Seva Sanstha, home"
+                      onClick={() => closeMenu(false)}
+                      className="flex items-center rounded-full py-1 pr-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white [-webkit-tap-highlight-color:transparent]"
+                    >
+                      <Brand tone="light" />
+                    </PreloadLink>
+                    <button
+                      ref={closeRef}
+                      type="button"
+                      aria-label="Close menu"
+                      onClick={() => closeMenu(true)}
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/25 text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white [-webkit-tap-highlight-color:transparent]"
+                    >
+                      <X aria-hidden="true" className="h-5 w-5" />
+                    </button>
                   </div>
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsOpen(false)}
-                    className="p-2 rounded-lg hover:bg-gray-100/80 transition-colors"
-                    aria-label="Close menu"
-                  >
-                    <X className="w-5 h-5 text-gray-600" />
-                  </motion.button>
                 </div>
 
-                {/* Navigation Items */}
-                <div className="p-5 space-y-3">
-                  {navItems
-                    .filter(item => item.path !== '/donations' && item.path !== '/social')
-                    .map((item, index) => {
-                      const Icon = item.icon;
+                <nav aria-label="Mobile" className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-4 py-6 sm:px-6">
+                  <ul className="border-t border-white/15">
+                    {NAV_ITEMS.map((item, index) => {
+                      const active = isActive(pathname, item);
                       return (
-                        <motion.div
-                          key={item.path}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05, duration: 0.2 }}
-                          whileTap={{ scale: 0.98 }}
+                        <motion.li
+                          key={item.href}
+                          className="border-b border-white/15"
+                          initial={{ opacity: 0, y: 24 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.08 + index * 0.05, duration: 0.5, ease: EASE_OUT }}
                         >
                           <PreloadLink
-                            href={item.path}
-                            priority={item.path === '/' || item.path === '/camp' ? 'high' : 'medium'}
-                            className={`relative flex items-center space-x-3 px-5 py-4 rounded-xl text-sm font-medium transition-all duration-200 group ${isActive(item.path)
-                                ? 'bg-[#9B2C2C] text-white shadow-lg shadow-red-900/25'
-                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50/80'
-                              }`}
-                            onClick={() => setIsOpen(false)}
+                            href={item.href}
+                            priority={item.href === '/' || item.href === '/camp' || item.href === DONATE_HREF ? 'high' : 'medium'}
+                            aria-current={active ? (pathname === item.href ? 'page' : 'true') : undefined}
+                            onClick={() => closeMenu(false)}
+                            className="group flex min-h-14 items-center gap-4 py-3 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white sm:gap-6 sm:py-4 [-webkit-tap-highlight-color:transparent]"
                           >
-                            <Icon className={`w-5 h-5 transition-transform duration-200 ${isActive(item.path) ? '' : 'group-hover:scale-110'
-                              }`} />
-                            <span className="font-semibold">{item.label}</span>
+                            <span className="w-7 shrink-0 text-sm font-semibold tabular-nums text-red-300/60">
+                              {String(index + 1).padStart(2, '0')}
+                            </span>
+                            <span
+                              className={`font-display text-[clamp(2rem,10vw,3.25rem)] font-bold leading-none tracking-tight transition-colors ${
+                                active ? 'text-white' : 'text-white/75 group-hover:text-white'
+                              }`}
+                            >
+                              {item.label}
+                            </span>
+                            {active ? (
+                              <span aria-hidden="true" className="ml-auto h-2.5 w-2.5 shrink-0 rounded-full bg-red-400" />
+                            ) : (
+                              <ArrowUpRight
+                                aria-hidden="true"
+                                className="ml-auto h-6 w-6 shrink-0 text-white/30 transition-colors group-hover:text-white"
+                              />
+                            )}
                           </PreloadLink>
-                        </motion.div>
+                        </motion.li>
                       );
                     })}
-                </div>
+                  </ul>
+                </nav>
 
-                {/* Featured Actions - Donate & Social */}
-                <div className="p-5 pt-3 border-t border-gray-200/50 bg-gradient-to-b from-transparent to-red-50/30">
-                  <div className="grid grid-cols-2 gap-3">
-                    {/* Donate Button */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2, duration: 0.2 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <PreloadLink
-                        href="/donations"
-                        priority="high"
-                        className={`relative flex flex-col items-center justify-center px-4 py-4 rounded-xl font-medium transition-all duration-200 group overflow-hidden ${isActive('/donations')
-                            ? 'bg-[#9B2C2C] text-white shadow-lg shadow-red-900/30'
-                            : 'bg-gradient-to-br from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg'
-                          }`}
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {/* Decorative elements */}
-                        <div className="absolute top-0 right-0 w-12 h-12 bg-white/10 rounded-full -mr-4 -mt-4"></div>
-                        <div className="absolute bottom-0 left-0 w-8 h-8 bg-white/10 rounded-full -ml-2 -mb-2"></div>
-
-                        <Gift className="w-6 h-6 mb-1 transition-transform duration-200 group-hover:scale-110 text-white" />
-                        <span className="text-sm font-bold">Donate</span>
-                      </PreloadLink>
-                    </motion.div>
-
-                    {/* Social Button */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.25, duration: 0.2 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <PreloadLink
-                        href="/social"
-                        priority="medium"
-                        className={`relative flex flex-col items-center justify-center px-4 py-4 rounded-xl font-medium transition-all duration-200 group overflow-hidden border-2 ${isActive('/social')
-                            ? 'bg-[#9B2C2C] text-white border-[#9B2C2C] shadow-lg shadow-red-900/30'
-                            : 'bg-white text-red-600 border-red-200 hover:border-red-300 hover:bg-red-50 shadow-sm hover:shadow-md'
-                          }`}
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {/* Decorative elements */}
-                        <div className="absolute top-0 right-0 w-10 h-10 bg-red-100/50 rounded-full -mr-3 -mt-3"></div>
-                        <div className="absolute bottom-0 left-0 w-6 h-6 bg-red-100/50 rounded-full -ml-1 -mb-1"></div>
-
-                        <Share2 className="w-6 h-6 mb-1 transition-transform duration-200 group-hover:scale-110" />
-                        <span className="text-sm font-bold">Socials</span>
-                      </PreloadLink>
-                    </motion.div>
-                  </div>
+                <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 text-sm text-white/50 sm:px-6">
+                  <p>Rudhirsetu means bridge of blood</p>
+                  <p className="shrink-0 tabular-nums">Since 2010</p>
                 </div>
               </div>
             </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-
-    </motion.nav>
+          )}
+        </AnimatePresence>
+      </header>
+    </MotionConfig>
   );
 };
 

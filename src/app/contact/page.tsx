@@ -1,40 +1,22 @@
 import { Metadata } from "next";
 import ContactClient from './ContactClient';
-
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+import { client } from '../../lib/sanity';
+import { QUERIES } from '../../lib/queries';
+import { buildMetadata } from '../../lib/seo';
+import { ContactPageData } from '../../lib/structured-data';
+import type { ContactSettings } from '../../types/sanity';
 
 export const metadata: Metadata = {
-  title: "Get in Touch | Rudhirsetu Seva Sanstha",
-  description: "Connect with Rudhirsetu Seva Sanstha. Join our life-saving mission of blood donation and healthcare services. Get in touch to volunteer, donate, or learn more about our community impact.",
+  // The root layout title template appends " | Rudhirsetu Seva Sanstha". The share image comes from ./opengraph-image.tsx.
+  ...buildMetadata({
+    title: "Get in Touch",
+    description: 'Get in touch with Rudhirsetu Seva Sanstha to volunteer, donate, partner with us or learn more about our blood donation and healthcare work.',
+    path: '/contact',
+  }),
   keywords: ["contact", "rudhirsetu", "blood donation", "volunteer", "healthcare", "NGO", "community service"],
-  openGraph: {
-    title: "Get in Touch | Rudhirsetu Seva Sanstha",
-    description: "Join our life-saving mission of blood donation and healthcare services",
-    url: `${baseUrl}/contact`,
-    siteName: "Rudhirsetu Seva Sanstha",
-    images: [
-      {
-        url: `${baseUrl}/api/og?title=${encodeURIComponent('Get in Touch')}&description=${encodeURIComponent('Join our life-saving mission')}&route=contact`,
-        width: 1200,
-        height: 630,
-        alt: "Rudhirsetu Seva Sanstha - Get in Touch",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Get in Touch | Rudhirsetu Seva Sanstha",
-    description: "Join our life-saving mission of blood donation and healthcare services",
-    images: [`${baseUrl}/api/og?title=${encodeURIComponent('Get in Touch')}&description=${encodeURIComponent('Join our life-saving mission')}&route=contact`],
-  },
   robots: {
     index: true,
     follow: true,
-  },
-  alternates: {
-    canonical: `${baseUrl}/contact`,
   },
   other: {
     'article:section': 'Contact',
@@ -44,6 +26,30 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ContactPage() {
-  return <ContactClient />;
-} 
+async function getContactSettings(): Promise<ContactSettings | null> {
+  try {
+    return await client.fetch<ContactSettings | null>(
+      QUERIES.contactSettings,
+      {},
+      { next: { revalidate: 300, tags: ['contactSettings'] } }
+    );
+  } catch (error) {
+    console.error('Error fetching contact settings:', error);
+    return null;
+  }
+}
+
+export default async function ContactPage() {
+  const settings = await getContactSettings();
+
+  return (
+    <>
+      <script
+        id="contact-page-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ContactPageData).replace(/</g, '\\u003c') }}
+      />
+      <ContactClient settings={settings} />
+    </>
+  );
+}

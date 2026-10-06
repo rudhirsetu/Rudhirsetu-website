@@ -1,11 +1,31 @@
-import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import { MapPin, Users, Heart, Clock, ArrowLeft, X, ChevronLeft, ChevronRight, Calendar, Share2, ExternalLink, FileText, Camera, CalendarHeart } from 'lucide-react';
-import { motion } from 'framer-motion';
+'use client';
+
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import type { ComponentType, ReactNode } from 'react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calendar,
+  Camera,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  ExternalLink,
+  Heart,
+  MapPin,
+  Share2,
+  Users,
+  X,
+} from 'lucide-react';
+import { motion, MotionConfig } from 'framer-motion';
+import PreloadLink from '../components/PreloadLink';
+import NotFoundState from '../components/events/NotFoundState';
+import { Accent, Eyebrow, SectionHeader, sectionItemVariants } from '../components/ui/Section';
+import { btnPrimary, btnSecondary, focusRing } from '../components/events/styles';
+import { getEventDateParts, getSanityImageSize } from '../components/events/format';
 import { Event } from '../types/sanity';
-import { client } from '../lib/sanity';
-import { urlFor } from '../lib/sanity';
-import { format } from 'date-fns';
+import { client, urlFor } from '../lib/sanity';
 import { usePageTransition } from '../context/PageTransitionContext';
 
 interface EventDetailsProps {
@@ -13,65 +33,385 @@ interface EventDetailsProps {
   eventData?: Event;
 }
 
+type GalleryItem = NonNullable<Event['gallery']>[number];
+type IconType = ComponentType<{ className?: string }>;
+
+const containerVariants = {
+  hidden: { opacity: 1 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+};
+
+const galleryGridVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.05 } },
+};
+
+const sectionPadding = 'px-4 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-32';
+
+/** Candidate srcset widths, capped at the original's width so Sanity never has to upscale. */
+const responsiveWidths = (candidates: number[], natural?: number) => {
+  if (!natural) return candidates;
+  const smaller = candidates.filter((w) => w < natural);
+  return smaller.length === candidates.length ? candidates : [...smaller, natural];
+};
+
+const imageAlt = (image: GalleryItem, title: string, index: number) =>
+  image.alt || image.caption || `${title}, photo ${index + 1}`;
+
+/* -------------------------------------------------------------------------- */
+/*  Ledger row                                                                 */
+/* -------------------------------------------------------------------------- */
+
+const MetaRow = ({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: IconType;
+  label: string;
+  children: ReactNode;
+}) => (
+  <li className="flex items-start gap-4 border-b border-red-900/10 py-4">
+    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-red-700">
+      <Icon className="h-5 w-5" />
+    </span>
+    <span className="min-w-0">
+      <span className="block text-sm text-gray-500">{label}</span>
+      <span className="mt-0.5 block break-words font-medium text-gray-900">{children}</span>
+    </span>
+  </li>
+);
+
+/* -------------------------------------------------------------------------- */
+/*  Share                                                                      */
+/* -------------------------------------------------------------------------- */
+
+const ShareButton = ({ title, text }: { title: string; text: string }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      if (typeof navigator.share === 'function') {
+        await navigator.share({ title, text, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // The share sheet was dismissed or the clipboard is unavailable: nothing to do.
+    }
+  };
+
+  return (
+    <button type="button" onClick={handleShare} className={`${btnSecondary} w-full`}>
+      <Share2 className="h-4 w-4 text-red-700" />
+      {copied ? 'Link copied' : 'Share this event'}
+      <span role="status" className="sr-only">
+        {copied ? 'Link copied to clipboard' : ''}
+      </span>
+    </button>
+  );
+};
+
+/* -------------------------------------------------------------------------- */
+/*  Lightbox                                                                   */
+/* -------------------------------------------------------------------------- */
+
+const iconButton =
+  'flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white hover:text-red-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
+
+const Lightbox = ({
+  images,
+  index,
+  title,
+  onClose,
+  onChange,
+}: {
+  images: GalleryItem[];
+  index: number;
+  title: string;
+  onClose: () => void;
+  onChange: (index: number) => void;
+}) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const touchStartX = useRef<number | null>(null);
+  const total = images.length;
+  const image = images[index];
+
+  const goPrev = useCallback(() => onChange((index - 1 + total) % total), [index, total, onChange]);
+  const goNext = useCallback(() => onChange((index + 1) % total), [index, total, onChange]);
+
+  // Lock page scroll, move focus into the dialog, and hand it back on close.
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    const root = document.documentElement;
+    const previousOverflow = root.style.overflow;
+    root.style.overflow = 'hidden';
+    closeRef.current?.focus();
+    return () => {
+      root.style.overflow = previousOverflow;
+      opener?.focus?.();
+    };
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      } else if (e.key === 'ArrowLeft') {
+        goPrev();
+      } else if (e.key === 'ArrowRight') {
+        goNext();
+      } else if (e.key === 'Tab' && dialogRef.current) {
+        // Keep keyboard focus inside the dialog.
+        const focusable = dialogRef.current.querySelectorAll<HTMLElement>('button');
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [onClose, goPrev, goNext]);
+
+  const size = getSanityImageSize(image.asset?._ref);
+
+  return createPortal(
+    <div
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${title} photo gallery`}
+      data-lenis-prevent
+      className="fixed inset-0 z-[100] flex flex-col bg-red-950 text-white"
+    >
+      <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6">
+        <p className="text-sm font-semibold tabular-nums text-white/70">
+          <span className="font-display text-lg text-white">{index + 1}</span> / {total}
+        </p>
+        <button
+          ref={closeRef}
+          type="button"
+          onClick={onClose}
+          aria-label="Close gallery"
+          className={iconButton}
+        >
+          <X className="h-6 w-6" />
+        </button>
+      </div>
+
+      <div
+        className="relative min-h-0 flex-1"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
+        onTouchStart={(e) => {
+          touchStartX.current = e.touches[0].clientX;
+        }}
+        onTouchEnd={(e) => {
+          if (touchStartX.current === null) return;
+          const delta = e.changedTouches[0].clientX - touchStartX.current;
+          touchStartX.current = null;
+          if (Math.abs(delta) > 50) (delta > 0 ? goPrev : goNext)();
+        }}
+      >
+        {total > 1 && (
+          <button
+            type="button"
+            onClick={goPrev}
+            aria-label="Previous photo"
+            className={`${iconButton} absolute left-3 top-1/2 z-10 hidden -translate-y-1/2 sm:flex`}
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+        )}
+
+        {/* Absolutely positioned so max-height resolves against a definite box in every browser. */}
+        <div className="pointer-events-none absolute inset-y-0 inset-x-4 sm:inset-x-24">
+          <img
+            key={index}
+            src={urlFor(image).width(1600).fit('max').auto('format').url()}
+            alt={imageAlt(image, title, index)}
+            width={size?.width}
+            height={size?.height}
+            className="pointer-events-auto absolute inset-0 m-auto h-auto max-h-full w-auto max-w-full rounded-2xl object-contain"
+          />
+        </div>
+
+        {total > 1 && (
+          <button
+            type="button"
+            onClick={goNext}
+            aria-label="Next photo"
+            className={`${iconButton} absolute right-3 top-1/2 z-10 hidden -translate-y-1/2 sm:flex`}
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
+        )}
+      </div>
+
+      <div className="px-4 pb-5 pt-4 sm:px-6">
+        {image.caption && (
+          <p className="mx-auto mb-4 max-w-2xl text-center text-white/80">{image.caption}</p>
+        )}
+        {total > 1 && (
+          <ul className="mx-auto flex w-fit max-w-full gap-2 overflow-x-auto pb-1">
+            {images.map((thumb, i) => (
+              <li key={thumb.asset?._ref ?? i} className="shrink-0">
+                <button
+                  type="button"
+                  onClick={() => onChange(i)}
+                  aria-label={`Show photo ${i + 1}`}
+                  aria-current={i === index}
+                  className={`block h-14 w-14 overflow-hidden rounded-xl border-2 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:h-16 sm:w-16 ${
+                    i === index ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <img
+                    src={urlFor(thumb).width(128).height(128).auto('format').url()}
+                    alt=""
+                    width={64}
+                    height={64}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>,
+    document.body
+  );
+};
+
+/* -------------------------------------------------------------------------- */
+/*  Gallery                                                                    */
+/* -------------------------------------------------------------------------- */
+
+const GalleryGrid = ({
+  images,
+  title,
+  onOpen,
+}: {
+  images: GalleryItem[];
+  title: string;
+  onOpen: (index: number) => void;
+}) => {
+  // With three or more photos the first one leads as a large tile.
+  const hasLead = images.length >= 3;
+
+  return (
+    <motion.ul
+      variants={galleryGridVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: '-60px' }}
+      className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3"
+    >
+      {images.map((image, index) => {
+        const lead = hasLead && index === 0;
+        const natural = getSanityImageSize(image.asset?._ref);
+        // Never ask Sanity for more pixels than the original has.
+        const side = Math.min(lead ? 1000 : 640, natural ? Math.min(natural.width, natural.height) : Infinity);
+        return (
+          <motion.li
+            key={image.asset?._ref ?? index}
+            variants={sectionItemVariants}
+            className={lead ? 'col-span-2 row-span-2 aspect-square md:aspect-auto' : 'aspect-square'}
+          >
+            <button
+              type="button"
+              onClick={() => onOpen(index)}
+              aria-label={`Open photo ${index + 1} of ${images.length}${
+                image.caption ? `: ${image.caption}` : ''
+              }`}
+              className={`group relative block h-full w-full overflow-hidden rounded-2xl border border-red-900/10 bg-white ${focusRing}`}
+            >
+              <img
+                src={urlFor(image).width(side).height(side).auto('format').url()}
+                alt={imageAlt(image, title, index)}
+                width={side}
+                height={side}
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              {image.caption && (
+                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-red-950/80 to-transparent p-4 pt-10 text-left text-sm font-medium text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
+                  {image.caption}
+                </span>
+              )}
+            </button>
+          </motion.li>
+        );
+      })}
+    </motion.ul>
+  );
+};
+
+/* -------------------------------------------------------------------------- */
+/*  Loading state                                                              */
+/* -------------------------------------------------------------------------- */
+
+const EventSkeleton = () => (
+  <div
+    className="bg-white px-4 pb-20 pt-28 sm:px-6 sm:pt-32 lg:px-8 lg:pt-36"
+    role="status"
+    aria-busy="true"
+    aria-label="Loading event"
+  >
+    <div className="mx-auto max-w-7xl animate-pulse">
+      <div className="h-5 w-40 rounded bg-red-900/5" />
+      <div className="mt-8 h-8 w-32 rounded-full bg-red-900/5" />
+      <div className="mt-6 h-12 w-3/4 rounded-lg bg-red-900/5 sm:h-16" />
+      <div className="mt-10 aspect-[4/3] rounded-3xl border border-red-900/5 bg-red-900/5 sm:aspect-[16/9]" />
+      <div className="mt-14 grid gap-12 lg:grid-cols-12">
+        <div className="space-y-3 lg:col-span-8">
+          <div className="h-4 w-full rounded bg-red-900/5" />
+          <div className="h-4 w-full rounded bg-red-900/5" />
+          <div className="h-4 w-3/4 rounded bg-red-900/5" />
+        </div>
+        <div className="h-72 rounded-3xl bg-paper lg:col-span-4" />
+      </div>
+    </div>
+  </div>
+);
+
+/* -------------------------------------------------------------------------- */
+/*  Page                                                                       */
+/* -------------------------------------------------------------------------- */
+
 const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
   const id = eventId;
   const [event, setEvent] = useState<Event | null>(eventData || null);
   const [loading, setLoading] = useState(!eventData);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
-  const [scrollPosition, setScrollPosition] = useState(0);
   const { transitionState, endTransition } = usePageTransition();
 
-  // Track scroll position for parallax and reveal effects
+  // End the card -> page transition once this page has mounted.
+  // (endTransition is memoised in PageTransitionContext, so this runs once.)
   useEffect(() => {
-    let ticking = false;
-    const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          setScrollPosition(window.scrollY);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handlePrevImage = useCallback(() => {
-    if (selectedImage === null || !event?.gallery) return;
-    setSelectedImage(selectedImage === 0 ? event.gallery.length - 1 : selectedImage - 1);
-  }, [selectedImage, event?.gallery]);
-
-  const handleNextImage = useCallback(() => {
-    if (selectedImage === null || !event?.gallery) return;
-    setSelectedImage(selectedImage === event.gallery.length - 1 ? 0 : selectedImage + 1);
-  }, [selectedImage, event?.gallery]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setSelectedImage(null);
-      } else if (e.key === 'ArrowLeft' && selectedImage !== null) {
-        handlePrevImage();
-      } else if (e.key === 'ArrowRight' && selectedImage !== null) {
-        handleNextImage();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedImage, handlePrevImage, handleNextImage]);
-
-  useEffect(() => {
-    // End transition when component mounts
     endTransition();
-    
-    // Only fetch if we don't have eventData from the server
-    if (eventData) {
-      return;
-    }
+  }, [endTransition]);
 
+  useEffect(() => {
+    // Only fetch if we don't have eventData from the server.
+    if (eventData || !id) return;
+
+    let cancelled = false;
     const fetchEvent = async () => {
       try {
         const data = await client.fetch(
@@ -92,554 +432,395 @@ const EventDetails = ({ eventId, eventData }: EventDetailsProps = {}) => {
           }`,
           { id }
         );
-        setEvent(data);
+        if (!cancelled) setEvent(data);
       } catch (err) {
         console.error('Error fetching event:', err);
-        setError('Failed to load event details');
+        if (!cancelled) setError('Failed to load event details');
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
-    if (id && !eventData) {
-      fetchEvent();
-    }
-  }, [id, eventData, endTransition]);
+    fetchEvent();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, eventData]);
 
-  const Lightbox = () => {
-    if (selectedImage === null || !event?.gallery) return null;
-
-    const image = event.gallery[selectedImage];
-
-    return (
-      <div className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center backdrop-blur-sm">
-        <button
-          onClick={() => setSelectedImage(null)}
-          className="absolute bg-black/70 border border-gray-700 rounded-full top-6 right-6 p-2 text-red-600 hover:text-white hover:bg-red-600 transition-colors duration-300 z-[60]"
-          aria-label="Close lightbox"
-        >
-          <X className="w-6 h-6 md:w-8 md:h-8" />
-        </button>
-
-        <div className="relative w-full h-full flex items-center justify-center p-4">
-          <button
-            onClick={handlePrevImage}
-            className="absolute bg-black/70 border border-gray-700 rounded-full left-4 p-2 sm:p-3 z-[60] text-white hover:bg-white hover:text-black transition-colors duration-300"
-            aria-label="Previous image"
-          >
-            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-          </button>
-
-          <div className="relative max-w-5xl max-h-full">
-            <img
-              src={urlFor(image).width(1500).url()}
-              alt={image.alt || 'Gallery image'}
-              className="max-w-full max-h-[80vh] mb-10 object-fit rounded-lg shadow-2xl"
-            />
-            
-            {image.caption && (
-              <div className="absolute top-[-50px] left-0 right-0 text-center">
-                <p className="text-white p-3 text-sm md:text-base rounded-lg backdrop-blur-sm">
-                  {image.caption}
-                </p>
-              </div>
-            )}
-          </div>
-
-          <button
-            onClick={handleNextImage}
-            className="absolute bg-black/70 border border-gray-700 rounded-full right-4 p-2 sm:p-3 z-[60] text-white hover:bg-white hover:text-black transition-colors duration-300"
-            aria-label="Next image"
-          >
-            <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
-          </button>
-        </div>
-
-        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 px-4">
-          <div className="flex gap-2 p-2 bg-black/60 rounded-full backdrop-blur-sm overflow-x-auto max-w-full">
-            {event.gallery.map((img, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedImage(index)}
-                className="relative flex-shrink-0"
-                aria-label={`Go to image ${index + 1}`}
-              >
-                <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 transition-colors ${
-                  index === selectedImage ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'
-                }`}>
-                  <img 
-                    src={urlFor(img).width(100).height(100).url()} 
-                    alt={`Thumbnail ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
+  const closeLightbox = useCallback(() => setSelectedImage(null), []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen py-12 bg-gradient-to-b from-gray-50 to-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-red-100 rounded-full w-40 mb-8"></div>
-            <div className="h-[400px] bg-gray-200 rounded-2xl mb-8 relative overflow-hidden">
-              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-300 to-transparent"></div>
-              <div className="absolute bottom-8 left-8">
-                <div className="h-10 bg-gray-300 rounded-full w-64 mb-4"></div>
-                <div className="h-6 bg-gray-300 rounded-full w-32"></div>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="md:col-span-2 space-y-6">
-                <div className="h-8 bg-gray-200 rounded-lg w-1/3 mb-4"></div>
-                <div className="space-y-3">
-                  <div className="h-4 bg-gray-200 rounded w-full"></div>
-                  <div className="h-4 bg-gray-200 rounded w-full"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                </div>
-                <div className="h-8 bg-gray-200 rounded-lg w-1/3 mb-4 mt-8"></div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {[1, 2, 3, 4, 5].map(i => (
-                    <div key={i} className="aspect-square bg-gray-200 rounded-lg"></div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="bg-gray-100 rounded-2xl p-6 h-64"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <EventSkeleton />;
   }
 
   if (error || !event) {
     return (
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="min-h-screen py-16 bg-gradient-to-b from-red-50 to-white flex items-center justify-center"
-      >
-        <div className="container mx-auto px-4 text-center">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0, transition: { delay: 0.2 } }}
-            className="bg-white p-8 rounded-2xl shadow-xl inline-block max-w-md mx-auto border border-red-100"
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 100, delay: 0.3 }}
-            >
-              <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-red-50 flex items-center justify-center">
-                <X className="w-12 h-12 text-red-500" />
-              </div>
-            </motion.div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-3">Event Not Found</h2>
-            <p className="text-red-700 text-lg mb-8">{error || 'We couldn\'t find the event you\'re looking for. It may have been removed or is temporarily unavailable.'}</p>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                href="/camp"
-                className="inline-flex items-center px-6 py-3 bg-red-900 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-300"
-              >
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                Back to Camps
-              </Link>
-            </motion.div>
-          </motion.div>
-        </div>
-      </motion.div>
+      <NotFoundState
+        eyebrow="Event not found"
+        title={
+          <>
+            We couldn&apos;t find that <Accent>event</Accent>
+          </>
+        }
+        message={
+          error ||
+          "It may have been removed, or the link might be out of date. Browse our camps to find what's happening near you."
+        }
+        primary={{ href: '/camp', label: 'See camps' }}
+        secondary={{ href: '/', label: 'Back home' }}
+      />
     );
   }
 
-  // Animation variants
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (delay = 0) => ({
-      opacity: 1,
-      y: 0,
-      transition: { 
-        duration: 0.6, 
-        delay: delay 
-      }
-    })
-  };
+  const dateParts = getEventDateParts(event.date);
+  const gallery = event.gallery?.filter((image) => image?.asset) ?? [];
+  const hasGallery = gallery.length > 0;
+  const hasImage = Boolean(event.image?.asset);
+  const isUpcoming = event.isUpcoming;
+  const aboutText = event.desc || event.shortDesc;
+  const skipEntrance = transitionState.isTransitioning;
 
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.12,
-        delayChildren: 0.3
-      }
-    }
-  };
+  const heroSrc = (width: number) =>
+    urlFor(event.image)
+      .width(width)
+      .height(Math.round((width * 9) / 16))
+      .auto('format')
+      .url();
+
+  // Event images are often portrait posters. Those are shown whole beside the details
+  // instead of being cropped into a wide banner.
+  const imageSize = hasImage ? getSanityImageSize(event.image.asset?._ref) : null;
+  const ratio = imageSize ? imageSize.width / imageSize.height : 16 / 9;
+  const isPoster = hasImage && ratio < 1.5;
+
+  const heroWidths = responsiveWidths([800, 1200, 1600], imageSize?.width);
+  const heroMax = heroWidths[heroWidths.length - 1];
+
+  const posterSrc = (width: number) =>
+    urlFor(event.image).width(width).fit('max').auto('format').url();
+  const posterWidths = responsiveWidths([640, 960, 1200], imageSize?.width);
+  const posterMax = posterWidths[posterWidths.length - 1];
+
+  const mapsLink = event.location
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`
+    : null;
+
+  const ledger = (
+    <div className="rounded-3xl bg-paper p-6 sm:p-8">
+      <h2 className="font-display text-2xl font-bold tracking-tight text-gray-900">
+        Event details
+      </h2>
+      <ul className="mt-4 border-t border-red-900/10">
+        {dateParts && (
+          <>
+            <MetaRow icon={Calendar} label="Date">
+              {dateParts.full}
+            </MetaRow>
+            <MetaRow icon={Clock} label="Time">
+              {dateParts.time} IST
+            </MetaRow>
+          </>
+        )}
+        {event.location && (
+          <MetaRow icon={MapPin} label="Location">
+            {event.location}
+            {mapsLink && (
+              <a
+                href={mapsLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`mt-1 flex w-fit items-center gap-1.5 text-sm font-semibold text-red-700 hover:text-red-800 ${focusRing}`}
+              >
+                Open in Maps
+                <ExternalLink className="h-3.5 w-3.5" />
+                <span className="sr-only">(opens in a new tab)</span>
+              </a>
+            )}
+          </MetaRow>
+        )}
+        {event.expectedParticipants && (
+          <MetaRow
+            icon={Users}
+            label={isUpcoming ? 'Expected participants' : 'Participants'}
+          >
+            {event.expectedParticipants}
+          </MetaRow>
+        )}
+      </ul>
+
+      {!isUpcoming && (
+        <p className="mt-5 text-sm leading-relaxed text-gray-600">
+          This event has already taken place. Browse the gallery to see the highlights.
+        </p>
+      )}
+
+      <div className="mt-6 flex flex-col gap-3">
+        {isUpcoming ? (
+          <PreloadLink href="/contact" priority="high" className={`${btnPrimary} w-full`}>
+            <Heart className="h-4 w-4" />
+            Get involved
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </PreloadLink>
+        ) : (
+          <PreloadLink href="/gallery" priority="medium" className={`${btnPrimary} w-full`}>
+            See the gallery
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </PreloadLink>
+        )}
+        <ShareButton
+          title={event.title}
+          text={event.shortDesc || `Check out this event: ${event.title}`}
+        />
+      </div>
+    </div>
+  );
+
+  const about = aboutText ? (
+    <>
+      <h2 className="font-display text-3xl font-bold leading-[1.05] tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+        About this <Accent>event</Accent>
+      </h2>
+      <p className="mt-8 max-w-3xl whitespace-pre-line text-lg leading-relaxed text-gray-600">
+        {aboutText}
+      </p>
+    </>
+  ) : null;
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="bg-gradient-to-br from-gray-50 via-white to-red-50/30 pb-16 overflow-hidden max-w-7xl mx-auto min-h-screen"
-    >
-      {/* Hero Section with Parallax */}
-      <div className="relative w-full">
-        {event.image && (
-          <motion.div 
-            layoutId={`event-image-${event._id}`}
-            className="relative h-[65vh] md:h-[70vh] lg:h-[80vh] overflow-hidden"
+    <MotionConfig reducedMotion="user">
+      <article>
+        {/* Header, hero image and details */}
+        <section className="bg-white px-4 pb-20 pt-28 sm:px-6 sm:pb-24 sm:pt-32 lg:px-8 lg:pb-32 lg:pt-36">
+          <motion.div
+            initial={skipEntrance ? false : 'hidden'}
+            animate="visible"
+            variants={containerVariants}
+            className="mx-auto max-w-7xl"
           >
-            <motion.div
-              initial={transitionState.isTransitioning ? false : { scale: 1.1 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: transitionState.isTransitioning ? 0 : 0.8 }}
-              style={{ 
-                y: scrollPosition * 0.2,
-                scale: 1 + scrollPosition * 0.0005
-              }}
-              className="absolute inset-0 w-full h-full"
-            >
-              <motion.img
-                layoutId={`event-img-${event._id}`}
-                src={urlFor(event.image).width(1920).height(1080).url()}
-                alt={event.title}
-                className="w-full h-full object-cover object-center"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-80" />
+            <motion.div variants={sectionItemVariants}>
+              <PreloadLink
+                href="/camp"
+                priority="high"
+                className={`group inline-flex items-center gap-2 font-semibold text-red-700 hover:text-red-800 ${focusRing}`}
+              >
+                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                <span className="border-b border-red-700/30 pb-0.5 transition-colors group-hover:border-red-800">
+                  All events &amp; camps
+                </span>
+              </PreloadLink>
             </motion.div>
-            
-            {/* Overlay Content */}
-            <div className="absolute inset-0 flex flex-col justify-between container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 mt-20">
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Link
-                  href="/camp"
-                  className="inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 bg-black/30 hover:bg-red-900 text-white rounded-full backdrop-blur-sm border border-white/20 transition-all duration-300 group shadow-lg text-sm sm:text-base"
-                >
-                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-                  <span>Back to Camps</span>
-                </Link>
-              </motion.div>
 
-              <motion.div 
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="max-w-4xl mb-4 sm:mb-6 md:mb-12"
-              >
-                <div className="space-y-3 sm:space-y-4">
-                  <motion.div 
-                    initial={{ opacity: 0, x: -30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="inline-flex flex-wrap gap-2 sm:gap-3 mb-3 sm:mb-4"
+            <motion.div
+              variants={sectionItemVariants}
+              className="mt-8 grid gap-6 sm:mt-10 lg:grid-cols-12 lg:items-end lg:gap-16"
+            >
+              <div className="lg:col-span-8">
+                <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <span
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium ${
+                      isUpcoming
+                        ? 'bg-red-100 text-red-900'
+                        : 'border border-red-900/10 bg-paper text-gray-700'
+                    }`}
                   >
-                    <span className={`px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium inline-flex items-center gap-1.5 ${
-                      event.isUpcoming 
-                        ? 'bg-red-600 text-white' 
-                        : 'bg-black/30 text-white backdrop-blur-sm'
-                    }`}>
-                      <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                      {event.isUpcoming ? 'Upcoming Event' : 'Past Event'}
+                    {isUpcoming && (
+                      <span aria-hidden="true" className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-600" />
+                    )}
+                    {isUpcoming ? 'Upcoming event' : 'Completed event'}
+                  </span>
+                  {dateParts && (
+                    <span className="text-sm font-medium tabular-nums text-gray-500">
+                      {dateParts.full}
                     </span>
-                    <span className="px-3 sm:px-4 py-1.5 bg-black/30 text-white rounded-full text-xs sm:text-sm font-medium backdrop-blur-sm inline-flex items-center">
-                      <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1.5" />
-                      {format(new Date(event.date), 'MMM d, yyyy')}
-                    </span>
-                  </motion.div>
-                  
-                  <motion.h1 
-                    layoutId={`event-title-${event._id}`}
-                    initial={transitionState.isTransitioning ? false : { opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: transitionState.isTransitioning ? 0 : 0.5, duration: transitionState.isTransitioning ? 0 : 0.7 }}
-                    className="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight shadow-text mb-4 md:mb-6"
-                  >
-                    {event.title}
-                  </motion.h1>
-                  
-                  {event.shortDesc && (
-                    <motion.p 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.7 }}
-                      className="text-base sm:text-lg md:text-xl text-white/90 max-w-3xl mt-2 sm:mt-4 shadow-text mb-4 md:mb-6"
-                    >
-                      {event.shortDesc}
-                    </motion.p>
                   )}
                 </div>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Decorative curve */}
-        <div className="absolute -bottom-1 left-0 right-0 h-12 sm:h-16">
-          <svg className="w-full h-full fill-white" preserveAspectRatio="none" viewBox="0 0 1440 74">
-            <path d="M0,0V72.8C239.9,72.9,480.1,73,720,73C959.9,73,1200.1,73,1440,73V0Z" />
-          </svg>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mt-6 sm:mt-8">
-        {/* Background gradient overlay for glass morphism effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-red-50/30 via-white/10 to-red-100/20 pointer-events-none -mx-4 sm:-mx-6 lg:-mx-8"></div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* About This Event - First on mobile */}
-          <motion.div 
-            className="order-1 lg:order-1 lg:col-span-2"
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-          >
-            {/* Description */}
-            <motion.div 
-              variants={fadeIn}
-              custom={0.1}
-              className="mb-12"
-            >
-              <motion.h2 
-                variants={fadeIn}
-                className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8 flex items-center"
-              >
-                <FileText className="w-8 h-8 mr-3 text-red-600" />
-                About This Event
-              </motion.h2>
-              <motion.div 
-                variants={fadeIn}
-                className="prose prose-lg prose-red max-w-none"
-              >
-                <p className="text-gray-700 whitespace-pre-line leading-relaxed text-lg">{event.desc}</p>
-              </motion.div>
+                <motion.h1
+                  layoutId={`event-title-${event._id}`}
+                  className="text-balance break-words font-display text-4xl font-bold leading-[1.05] tracking-tight text-gray-900 sm:text-5xl lg:text-6xl"
+                >
+                  {event.title}
+                </motion.h1>
+              </div>
+              {event.desc && event.shortDesc && (
+                <p className="text-lg leading-relaxed text-gray-600 lg:col-span-4 lg:pb-2">
+                  {event.shortDesc}
+                </p>
+              )}
             </motion.div>
 
-            {/* Event Gallery - Third on mobile, but on left column on desktop */}
-            {event.gallery && event.gallery.length > 0 && (
-              <motion.div 
-                className="order-3 lg:order-1"
-                variants={fadeIn}
-                custom={0.3}
-              >
-                <motion.h2 
-                  variants={fadeIn}
-                  className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8 flex items-center"
+            {hasImage && !isPoster && (
+              <motion.div variants={sectionItemVariants} className="mt-10 sm:mt-12">
+                <motion.div
+                  layoutId={`event-image-${event._id}`}
+                  className="rounded-3xl border border-red-900/10 bg-white p-2.5"
                 >
-                  <Camera className="w-8 h-8 mr-3 text-red-600" />
-                  Event Gallery
-                </motion.h2>
-                <motion.div 
-                  variants={fadeIn}
-                  className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
-                >
-                  {event.gallery.map((image, index) => (
-                    <motion.button
-                      key={index}
-                      onClick={() => setSelectedImage(index)}
-                      className="relative aspect-square group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-white/20 backdrop-blur-sm"
-                      whileHover={{ y: -8, scale: 1.03 }}
-                      whileTap={{ scale: 0.96 }}
-                    >
-                      <img
-                        src={urlFor(image).width(400).height(400).url()}
-                        alt={image.alt || `Gallery image ${index + 1}`}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3" />
-                      {image.caption && (
-                        <div className="absolute inset-x-0 bottom-0 p-3 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                          <p className="text-white text-sm font-medium">{image.caption}</p>
-                        </div>
-                      )}
-                    </motion.button>
-                  ))}
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-paper sm:aspect-[16/9]">
+                    <img
+                      src={heroSrc(heroMax)}
+                      srcSet={heroWidths.map((w) => `${heroSrc(w)} ${w}w`).join(', ')}
+                      sizes="(min-width: 1280px) 1200px, (min-width: 640px) 100vw, 140vw"
+                      width={heroMax}
+                      height={Math.round((heroMax * 9) / 16)}
+                      alt={event.image.alt || event.title}
+                      fetchPriority="high"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent"
+                    />
+                    {dateParts && (
+                      <div className="absolute bottom-4 left-4 rounded-xl bg-white px-4 py-2 text-center leading-none shadow-sm sm:bottom-5 sm:left-5">
+                        <span className="block text-xs font-semibold uppercase tracking-wider text-red-700">
+                          {dateParts.monthShort}
+                        </span>
+                        <span className="block font-display text-2xl font-bold text-gray-900">
+                          {dateParts.day}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </motion.div>
               </motion.div>
             )}
           </motion.div>
 
-          {/* Event Details - Sidebar on desktop */}
-          <div className="order-2 lg:order-2 lg:col-span-1 lg:sticky lg:top-6 lg:self-start">
-            {/* Main Event Details Box */}
-            <motion.div 
-              variants={fadeIn}
-              initial="hidden" 
-              whileInView="visible"
-              viewport={{ once: true }}
-              custom={0.2}
-              className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20 relative mb-6"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-transparent to-red-600/5 pointer-events-none"></div>
-              <div className="relative flex items-center bg-gradient-to-r from-red-900/90 to-red-800/90 backdrop-blur-sm text-white p-6">
-                <CalendarHeart className="w-5 h-5 mr-2" />
-                <h2 className="text-xl font-bold">Event Details</h2>
-              </div>
-              
-              <div className="relative p-6 space-y-5 backdrop-blur-sm">
-                <motion.div 
-                  variants={fadeIn}
-                  className="flex items-start p-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg"
-                >
-                  <div className="bg-gradient-to-br from-red-100 to-red-50 p-3 rounded-xl mr-4 shadow-sm">
-                    <Calendar className="w-6 h-6 text-red-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">Date & Time</h3>
-                    <p className="text-gray-600">
-                      {format(new Date(event.date), 'EEEE, MMMM d, yyyy')}
-                      <br />
-                      {format(new Date(event.date), 'h:mm a')}
-                    </p>
-                  </div>
-                </motion.div>
-
-                {event.expectedParticipants && (
-                  <motion.div 
-                    variants={fadeIn}
-                    className="flex items-start p-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg"
+          {/* Poster (when portrait), details and description */}
+          <div className="mx-auto mt-14 grid max-w-7xl gap-12 sm:mt-16 lg:mt-20 lg:grid-cols-12 lg:gap-16">
+            {isPoster ? (
+              <>
+                <div className="mx-auto w-full max-w-md lg:col-span-5 lg:max-w-none">
+                  <motion.div
+                    layoutId={`event-image-${event._id}`}
+                    className="rounded-3xl border border-red-900/10 bg-paper p-2.5"
                   >
-                    <div className="bg-gradient-to-br from-red-100 to-red-50 p-3 rounded-xl mr-4 shadow-sm">
-                      <Users className="w-6 h-6 text-red-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900">Expected Participants</h3>
-                      <p className="text-gray-600">{event.expectedParticipants}</p>
+                    <div
+                      className="overflow-hidden rounded-2xl bg-white"
+                      style={{ aspectRatio: `${imageSize?.width} / ${imageSize?.height}` }}
+                    >
+                      <img
+                        src={posterSrc(posterMax)}
+                        srcSet={posterWidths.map((w) => `${posterSrc(w)} ${w}w`).join(', ')}
+                        sizes="(min-width: 1024px) 40vw, (min-width: 448px) 448px, 100vw"
+                        width={posterMax}
+                        height={Math.round(posterMax / ratio)}
+                        alt={event.image.alt || event.title}
+                        fetchPriority="high"
+                        className="h-full w-full object-cover"
+                      />
                     </div>
                   </motion.div>
-                )}
-                
-                <motion.div 
-                  variants={fadeIn}
-                  className="pt-6 mt-6 border-t border-white/30"
-                >
-                  {event.isUpcoming ? (
-                    <Link
-                      href="/contact"
-                      className="w-full inline-flex items-center justify-center px-6 py-3.5 bg-gradient-to-r from-[#9B2C2C] to-red-600 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-300 group"
-                    >
-                      <Heart className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                      <span>Get Involved</span>
-                    </Link>
-                  ) : (
-                    <div className="bg-gradient-to-r from-blue-100/80 to-blue-50/60 backdrop-blur-sm rounded-2xl p-5 text-blue-800 text-center border border-blue-200/50 shadow-lg">
-                      <p className="font-medium">This event has already taken place</p>
-                      <p className="text-sm mt-1 opacity-80">Browse our gallery to see the highlights</p>
-                    </div>
-                  )}
-                </motion.div>
-                
-                <motion.div 
-                  variants={fadeIn}
-                  className="flex justify-center gap-4 pt-6 mt-6 border-t border-white/30"
-                >
-                  <button 
-                    onClick={() => {
-                      if (navigator.share) {
-                        navigator.share({
-                          title: event.title,
-                          text: event.shortDesc || `Check out this event: ${event.title}`,
-                          url: window.location.href
-                        });
-                      } else {
-                        navigator.clipboard.writeText(window.location.href);
-                        alert('Link copied to clipboard!');
-                      }
-                    }}
-                    className="flex flex-col items-center text-gray-700 hover:text-red-600 transition-all duration-300 group"
-                  >
-                    <div className="p-3 bg-white/70 backdrop-blur-sm rounded-2xl mb-2 hover:bg-red-50 transition-all duration-300 shadow-lg group-hover:shadow-xl border border-white/50">
-                      <Share2 className="w-5 h-5" />
-                    </div>
-                    <span className="text-xs font-medium">Share</span>
-                  </button>
-                </motion.div>
-              </div>
-            </motion.div>
-
-            {/* Location Section - Outside the main box */}
-            <motion.div 
-              variants={fadeIn}
-              initial="hidden" 
-              whileInView="visible"
-              viewport={{ once: true }}
-              custom={0.3}
-              className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20 relative"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-transparent to-red-600/5 pointer-events-none"></div>
-              <div className="relative flex items-center bg-gradient-to-r from-red-900/90 to-red-800/90 backdrop-blur-sm text-white p-6">
-                <MapPin className="w-5 h-5 mr-2" />
-                <h2 className="text-xl font-bold">Location</h2>
-              </div>
-              
-              <div className="relative p-6 backdrop-blur-sm">
-                <motion.div 
-                  variants={fadeIn}
-                  className="p-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg"
-                >
-                  <div className="flex items-start mb-4">
-                    <div className="bg-gradient-to-br from-red-100 to-red-50 p-3 rounded-xl mr-4 shadow-sm">
-                      <MapPin className="w-6 h-6 text-red-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900">Event Location</h3>
-                      <p className="text-gray-600">{event.location}</p>
-                      <a 
-                        href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-red-600 hover:text-red-700 text-sm inline-flex items-center mt-1 transition-colors"
-                      >
-                        <span>View on map</span>
-                        <ExternalLink className="w-3.5 h-3.5 ml-1" />
-                      </a>
-                    </div>
-                  </div>
-                  
-                  {/* Embedded Map */}
-                  <div className="rounded-xl overflow-hidden shadow-lg">
-                    <iframe
-                      src={`https://maps.google.com/maps?q=${encodeURIComponent(event.location)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
-                      width="100%"
-                      height="200"
-                      style={{ border: 0 }}
-                      allowFullScreen={true}
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      className="w-full"
-                      title={`Map showing location: ${event.location}`}
-                    ></iframe>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
+                </div>
+                <div className="space-y-14 lg:col-span-7">
+                  {ledger}
+                  {about}
+                </div>
+              </>
+            ) : (
+              <>
+                <aside className="order-1 lg:order-2 lg:col-span-5 lg:self-start xl:col-span-4 lg:sticky lg:top-28">
+                  {ledger}
+                </aside>
+                <div className="order-2 lg:order-1 lg:col-span-7 xl:col-span-8">{about}</div>
+              </>
+            )}
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Lightbox */}
-      {selectedImage !== null && <Lightbox />}
+        {/* Gallery */}
+        {hasGallery && (
+          <motion.section
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-100px' }}
+            variants={containerVariants}
+            className={`bg-paper ${sectionPadding}`}
+          >
+            <div className="mx-auto max-w-7xl">
+              <SectionHeader
+                icon={Camera}
+                eyebrow="Photos"
+                title={
+                  <>
+                    Event <Accent>gallery</Accent>
+                  </>
+                }
+                description={`${gallery.length} ${
+                  gallery.length === 1 ? 'photo' : 'photos'
+                } from this event. Tap any photo to view it full size.`}
+              />
+              <GalleryGrid images={gallery} title={event.title} onOpen={setSelectedImage} />
+            </div>
+          </motion.section>
+        )}
 
-      {/* Custom CSS for text shadow */}
-      <style>
-        {`
-          .shadow-text {
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-          }
-        `}
-      </style>
-    </motion.div>
+        {/* Map */}
+        {event.location && (
+          <motion.section
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-100px' }}
+            variants={containerVariants}
+            className={`bg-white ${sectionPadding}`}
+          >
+            <div
+              className={`mx-auto grid max-w-7xl gap-10 lg:grid-cols-12 lg:gap-16 ${
+                hasGallery ? '' : 'border-t border-red-900/10 pt-20 sm:pt-24 lg:pt-32'
+              }`}
+            >
+              <motion.div variants={sectionItemVariants} className="lg:col-span-5">
+                <Eyebrow icon={MapPin}>Location</Eyebrow>
+                <h2 className="font-display text-3xl font-bold leading-[1.05] tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+                  Find the <Accent>venue</Accent>
+                </h2>
+                <p className="mt-6 break-words text-lg leading-relaxed text-gray-600">
+                  {event.location}
+                </p>
+                {mapsLink && (
+                  <a
+                    href={mapsLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${btnPrimary} mt-8`}
+                  >
+                    Open in Google Maps
+                    <ExternalLink className="h-4 w-4" />
+                    <span className="sr-only">(opens in a new tab)</span>
+                  </a>
+                )}
+              </motion.div>
+
+              <motion.div variants={sectionItemVariants} className="lg:col-span-7">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-red-900/10 bg-paper lg:aspect-[16/10]">
+                  <iframe
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                      event.location
+                    )}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
+                    className="absolute inset-0 h-full w-full border-0"
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+                    title={`Map showing location: ${event.location}`}
+                  />
+                </div>
+              </motion.div>
+            </div>
+          </motion.section>
+        )}
+      </article>
+
+      {selectedImage !== null && gallery[selectedImage] && (
+        <Lightbox
+          images={gallery}
+          index={selectedImage}
+          title={event.title}
+          onClose={closeLightbox}
+          onChange={setSelectedImage}
+        />
+      )}
+    </MotionConfig>
   );
 };
 
-export default EventDetails; 
+export default EventDetails;

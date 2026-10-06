@@ -19,7 +19,10 @@ const builder = imageUrlBuilder(client);
  * @returns An image URL builder instance
  */
 export function urlFor(source: SanityImageSource) {
-  return builder.image(source);
+  // auto('format') lets the Sanity CDN serve WebP/AVIF to browsers that
+  // accept it (Chrome, Firefox, Safari 14+), falling back to the original
+  // format elsewhere. Callers can still chain .format('jpg') to override.
+  return builder.image(source).auto('format');
 }
 
 

@@ -1,4 +1,6 @@
-import { useEffect, useRef } from "react";
+'use client';
+
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { useInView, useMotionValue, useSpring } from "framer-motion";
 
 interface CountUpProps {
@@ -14,6 +16,35 @@ interface CountUpProps {
   onEnd?: () => void;
 }
 
+// Reuse formatters: building an Intl.NumberFormat on every animation frame is slow.
+const groupedFormatter = new Intl.NumberFormat("en-US", {
+  useGrouping: true,
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+const plainFormatter = new Intl.NumberFormat("en-US", {
+  useGrouping: false,
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
+const formatNumber = (value: number, separator: string) => {
+  const rounded = Math.round(value) || 0; // `|| 0` avoids "-0"
+  if (!separator) return plainFormatter.format(rounded);
+  return groupedFormatter.format(rounded).replace(/,/g, separator);
+};
+
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * Animated number. The server (and no-JS / crawlers / reduced-motion users)
+ * always gets the final value, already formatted, so there is no empty span
+ * and no layout shift. When JS runs and motion is allowed, the number resets
+ * to `from` and springs to the end value once it scrolls into view.
+ */
 export default function CountUp({
   to,
   from = 0,
@@ -39,70 +70,56 @@ export default function CountUp({
 
   const isInView = useInView(ref, { once: true, margin: "0px" });
 
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.textContent = String(direction === "down" ? to : from);
+  const startValue = direction === "down" ? to : from;
+  const endValue = direction === "down" ? from : to;
+
+  // Before the animation runs, show the start value (unless motion is reduced,
+  // in which case the server-rendered final value is simply kept).
+  useLayoutEffect(() => {
+    if (ref.current && !prefersReducedMotion()) {
+      ref.current.textContent = formatNumber(startValue, separator);
     }
-  }, [from, to, direction]);
+  }, [startValue, separator]);
 
   useEffect(() => {
-    if (isInView && startWhen) {
-      if (typeof onStart === "function") {
-        onStart();
-      }
+    if (!isInView || !startWhen) return;
 
-      const timeoutId = setTimeout(() => {
-        motionValue.set(direction === "down" ? from : to);
-      }, delay * 1000);
+    onStart?.();
 
-      const durationTimeoutId = setTimeout(
-        () => {
-          if (typeof onEnd === "function") {
-            onEnd();
-          }
-        },
-        delay * 1000 + duration * 1000
-      );
-
-      return () => {
-        clearTimeout(timeoutId);
-        clearTimeout(durationTimeoutId);
-      };
+    if (prefersReducedMotion()) {
+      // No counting: keep the final value and report completion straight away.
+      if (ref.current) ref.current.textContent = formatNumber(endValue, separator);
+      onEnd?.();
+      return;
     }
-  }, [
-    isInView,
-    startWhen,
-    motionValue,
-    direction,
-    from,
-    to,
-    delay,
-    onStart,
-    onEnd,
-    duration,
-  ]);
+
+    const timeoutId = setTimeout(() => {
+      motionValue.set(endValue);
+    }, delay * 1000);
+
+    const durationTimeoutId = setTimeout(() => {
+      onEnd?.();
+    }, delay * 1000 + duration * 1000);
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(durationTimeoutId);
+    };
+  }, [isInView, startWhen, motionValue, endValue, separator, delay, onStart, onEnd, duration]);
 
   useEffect(() => {
     const unsubscribe = springValue.on("change", (latest) => {
       if (ref.current) {
-        const options = {
-          useGrouping: !!separator,
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        };
-
-        const formattedNumber = Intl.NumberFormat("en-US", options).format(
-          Number(latest.toFixed(0))
-        );
-
-        ref.current.textContent = separator
-          ? formattedNumber.replace(/,/g, separator)
-          : formattedNumber;
+        ref.current.textContent = formatNumber(latest, separator);
       }
     });
 
     return () => unsubscribe();
   }, [springValue, separator]);
 
-  return <span className={`${className}`} ref={ref} />;
-} 
+  return (
+    <span className={`tabular-nums ${className}`.trim()} ref={ref} suppressHydrationWarning>
+      {formatNumber(endValue, separator)}
+    </span>
+  );
+}

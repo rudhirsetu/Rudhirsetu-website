@@ -1,176 +1,191 @@
-import { useState, useEffect } from 'react';
-import { Phone, Mail, MapPin, MessageSquare } from 'lucide-react';
-import { ContactSettings } from '../types/sanity';
-import { settingsService } from '../services/sanity-client';
-import { StructuredData } from '../components/StructuredData';
-import { ContactPageData } from '../lib/structured-data';
+import { motion, MotionConfig } from 'framer-motion';
+import { ArrowRight, HandHeart, Heart, Mail, MapPin, MessageSquare, Phone } from 'lucide-react';
+import PreloadLink from '../components/PreloadLink';
+import { Accent, Eyebrow, SectionHeader, sectionItemVariants } from '../components/ui/Section';
+import ContactRow from '../components/contact/ContactRow';
+import LazyMap from '../components/contact/LazyMap';
+import type { ContactSettings } from '../types/sanity';
 
-const Contact = () => {
-  const [settings, setSettings] = useState<ContactSettings | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface ContactProps {
+  settings: ContactSettings | null;
+}
 
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const data = await settingsService.fetchContact();
-        setSettings(data);
-      } catch (err) {
-        setError('Failed to load contact settings');
-        console.error('Error loading contact settings:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSettings();
-  }, []);
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } },
+};
 
-  if (loading) {
-    return (
-      <div className="py-12">
-        <div className="container mx-auto px-4">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mx-auto"></div>
-            <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="h-[400px] bg-gray-200 rounded-lg"></div>
-              <div className="space-y-4">
-                <div className="h-12 bg-gray-200 rounded"></div>
-                <div className="h-12 bg-gray-200 rounded"></div>
-                <div className="h-12 bg-gray-200 rounded"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+const itemVariants = sectionItemVariants;
 
-  if (error) {
-    return (
-      <div className="py-12">
-        <div className="container mx-auto px-4 text-center">
-          <div className="bg-red-50 p-4 rounded-lg inline-block">
-            <p className="text-red-700">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800"
-            >
-              Try Again
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+const Contact = ({ settings }: ContactProps) => {
+  const phone = settings?.phone;
+  const email = settings?.email;
+  const address = settings?.address;
+  const hasDetails = Boolean(phone || email || address);
+
+  const directionsUrl = address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address.replace(/\s+/g, ' ').trim())}`
+    : undefined;
 
   return (
-    <>
-      <StructuredData data={ContactPageData} id="contact-page-structured-data" />
-      <div className="py-12 pt-[100px]">
-        <div className="container mx-auto px-4">
-          {/* Header */}
-          <div className="text-center mb-16">
-          <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 inline-flex items-center">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Contact
-            </span>
-            <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto text-balance">
-              Get in touch with us to learn more about our services, volunteer opportunities, or how you can support our cause.
-            </p>
-          </div>
+    <MotionConfig reducedMotion="user">
+      <div className="overflow-x-clip bg-white">
+        {/* Header + details + map */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-100px' }}
+          variants={containerVariants}
+          className="px-4 pb-20 pt-32 sm:px-6 sm:pb-24 sm:pt-36 lg:px-8 lg:pb-32 lg:pt-40"
+        >
+          <div className="mx-auto max-w-7xl">
+            <SectionHeader
+              as="h1"
+              icon={MessageSquare}
+              eyebrow="Contact us"
+              title={
+                <>
+                  Get in <Accent>touch</Accent>
+                </>
+              }
+              description="Reach out to learn more about our services, volunteer opportunities, or how you can support our cause."
+            />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Map Section */}
-            <div className="bg-white p-8 rounded-xl shadow-lg">
-              <h2 className="text-2xl font-semibold mb-6">Find Us</h2>
-              <div className="aspect-[4/3] w-full mb-6">
-                {settings?.googleMapsUrl ? (
-                  <div className="relative w-full h-full">
-                    <iframe
-                      src={settings.googleMapsUrl}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      className="rounded-lg"
-                    ></iframe>
-                  </div>
-                ) : (
-                  <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
-                    <p className="text-gray-500">Map not available</p>
-                  </div>
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
+              <div className="flex flex-col gap-8 lg:col-span-5">
+                {/* Contact ledger */}
+                <motion.div variants={itemVariants}>
+                  <h2 className="sr-only">Contact information</h2>
+                  {hasDetails ? (
+                    <ul className="border-t border-red-900/10">
+                      {phone && (
+                        <ContactRow icon={Phone} label="Call us" href={`tel:${phone}`}>
+                          {phone}
+                        </ContactRow>
+                      )}
+                      {email && (
+                        <ContactRow icon={Mail} label="Email us" href={`mailto:${email}`}>
+                          {email}
+                        </ContactRow>
+                      )}
+                      {address && (
+                        <ContactRow icon={MapPin} label="Visit us" href={directionsUrl} external>
+                          {address}
+                        </ContactRow>
+                      )}
+                    </ul>
+                  ) : (
+                    <div className="border-t border-red-900/10 py-6">
+                      <p className="font-medium text-gray-900">Contact details are unavailable right now.</p>
+                      <p className="mt-1 text-sm text-gray-500">Please try again in a little while.</p>
+                    </div>
+                  )}
+                </motion.div>
+
+                {/* Emergency helpline */}
+                {phone && (
+                  <motion.div
+                    variants={itemVariants}
+                    className="relative overflow-hidden rounded-3xl bg-red-950 p-7 text-white sm:p-8"
+                  >
+                    <div
+                      aria-hidden="true"
+                      className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 bg-[radial-gradient(closest-side,rgba(220,38,38,0.4),transparent)]"
+                    />
+                    <div className="relative">
+                      <p className="inline-flex items-center gap-2.5 text-sm font-semibold uppercase tracking-[0.15em] text-white/50">
+                        <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-400" />
+                        </span>
+                        24/7 helpline
+                      </p>
+                      <h2 className="mt-4 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+                        Emergency contact
+                      </h2>
+                      <p className="mt-3 leading-relaxed text-white/70">
+                        For emergency blood requirements or immediate assistance, please contact our 24/7 helpline.
+                      </p>
+                      <a
+                        href={`tel:${phone}`}
+                        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-white px-6 py-3.5 font-semibold text-red-900 transition-colors hover:bg-red-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:w-auto"
+                      >
+                        <Phone className="h-4 w-4" aria-hidden="true" />
+                        Call {phone}
+                      </a>
+                    </div>
+                  </motion.div>
                 )}
               </div>
-            </div>
 
-            {/* Contact Information */}
-            <div className="space-y-8">
-              <div className="bg-white p-8 rounded-xl shadow-lg">
-                <h2 className="text-2xl font-semibold mb-6">Contact Information</h2>
-                <div className="space-y-6">
-                  <div className="flex items-start">
-                    <MapPin className="w-6 h-6 text-red-700 mt-1 mr-3" />
-                    <div>
-                      <h3 className="font-semibold mb-1">Address</h3>
-                      <p className="text-gray-600 whitespace-pre-line">
-                        {settings?.address || 'Address not available'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start">
-                    <Phone className="w-6 h-6 text-red-700 mt-1 mr-3" />
-                    <div>
-                      <h3 className="font-semibold mb-1">Phone</h3>
-                      <a 
-                        href={`tel:${settings?.phone}`}
-                        className="text-gray-600 hover:text-red-700"
-                      >
-                        {settings?.phone || 'Phone not available'}
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start">
-                    <Mail className="w-6 h-6 text-red-700 mt-1 mr-3" />
-                    <div>
-                      <h3 className="font-semibold mb-1">Email</h3>
-                      <a 
-                        href={`mailto:${settings?.email}`}
-                        className="text-gray-600 hover:text-red-700"
-                      >
-                        {settings?.email || 'Email not available'}
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-8 rounded-xl shadow-lg">
-                <h2 className="text-2xl font-semibold mb-6">Emergency Contact</h2>
-                <p className="text-gray-600 mb-4">
-                  For emergency blood requirements or immediate assistance, please contact our 24/7 helpline.
-                </p>
-                <div className="flex items-center justify-center bg-red-50 p-4 rounded-lg">
-                  <Phone className="w-6 h-6 text-red-700 mr-2" />
-                  <a 
-                    href={`tel:${settings?.phone}`}
-                    className="text-xl font-bold text-red-700 hover:text-red-800"
-                  >
-                    {settings?.phone}
-                  </a>
-                </div>
-              </div>
+              {/* Map */}
+              <motion.div variants={itemVariants} className="lg:col-span-7">
+                <LazyMap src={settings?.googleMapsUrl} title="Rudhirsetu Seva Sanstha location" />
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.section>
+
+        {/* Write to us */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-100px' }}
+          variants={containerVariants}
+          className="bg-paper px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-32"
+        >
+          <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-16">
+            <motion.div
+              variants={itemVariants}
+              className="group flex items-center justify-center rounded-3xl border border-red-900/10 bg-white p-8 sm:p-12 lg:col-span-5"
+            >
+              <img
+                src="/images/illustrations/contact.webp"
+                alt=""
+                aria-hidden="true"
+                width={715}
+                height={579}
+                loading="lazy"
+                decoding="async"
+                className="h-auto w-full max-w-[18rem] drop-shadow-[0_20px_24px_rgba(127,29,29,0.22)] transition-transform duration-700 group-hover:-rotate-3 group-hover:scale-105"
+              />
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="lg:col-span-7">
+              <Eyebrow icon={HandHeart}>Volunteer and partner</Eyebrow>
+              <h2 className="font-display text-4xl font-bold leading-[1.05] tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+                Prefer to <Accent>write</Accent> to us?
+              </h2>
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-gray-600 sm:text-xl">
+                Tell us how you would like to get involved, whether that is volunteering, partnering with us or
+                supporting our camps and programmes.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                {email && (
+                  <a
+                    href={`mailto:${email}`}
+                    className="group/cta inline-flex items-center justify-center gap-2 rounded-md bg-red-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                  >
+                    <Mail className="h-4 w-4" aria-hidden="true" />
+                    Email us
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover/cta:translate-x-1" />
+                  </a>
+                )}
+                <PreloadLink
+                  href="/donations"
+                  priority="medium"
+                  className="inline-flex items-center justify-center gap-2 rounded-md border border-red-900/15 bg-white px-6 py-3.5 font-semibold text-gray-900 transition-colors hover:bg-red-50"
+                >
+                  Donate now
+                  <Heart className="h-4 w-4 text-red-700" />
+                </PreloadLink>
+              </div>
+            </motion.div>
+          </div>
+        </motion.section>
       </div>
-    </>
+    </MotionConfig>
   );
 };
 
-export default Contact; 
+export default Contact;

@@ -1,4 +1,97 @@
 // SEO utilities for dynamic meta tag management and better search results
+import type { Metadata } from 'next';
+
+// ---------------------------------------------------------------------------
+// Shared metadata helper
+//
+// Every page builds its <head> tags with `buildMetadata` so Open Graph and
+// Twitter tags stay complete and consistent (title, description, url, type,
+// site name, locale, card type). The share image itself comes from the
+// `opengraph-image.tsx` file in each route segment (see src/app/_og): Next
+// prerenders it, adds absolute og:image tags (with type, width, height and alt)
+// using `metadataBase`, and copies the image to twitter:image. That only works
+// while `openGraph.images` / `twitter.images` are NOT set in a page's metadata.
+// ---------------------------------------------------------------------------
+
+export const SITE_NAME = 'Rudhirsetu Seva Sanstha';
+
+/** Canonical origin, without a trailing slash. `NEXT_PUBLIC_BASE_URL` overrides it per environment. */
+export const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org').replace(/\/+$/, '');
+
+/** `en_IN` is the accurate Open Graph locale for an Indian audience. */
+export const OG_LOCALE = 'en_IN';
+
+/** Pages that have a preset share image in `src/app/_og/presets.ts`. */
+export type OgRoute = 'home' | 'camp' | 'gallery' | 'social' | 'donations' | 'contact';
+
+/** Turns a site path ("/camp") into an absolute URL. Absolute URLs pass through. */
+export function absoluteUrl(path = '/'): string {
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${SITE_URL}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
+/** Shortens text to `max` characters at a word boundary, adding an ellipsis when cut. */
+export function truncateText(text: string, max: number): string {
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max - 1);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).replace(/[\s,;:.\-–—]+$/, '')}…`;
+}
+
+export interface BuildMetadataOptions {
+  /**
+   * The page title WITHOUT the site name: the root layout's title template
+   * (`%s | Rudhirsetu Seva Sanstha`) appends it. Pass `{ absolute }` to opt out (home page).
+   */
+  title: string | { absolute: string };
+  /** Title for link previews. Defaults to "<title> | Rudhirsetu Seva Sanstha". */
+  ogTitle?: string;
+  /** Search-result description; also used for link previews unless `ogDescription` is given. */
+  description: string;
+  ogDescription?: string;
+  /** Site path of the page ("/camp"). Omit it for pages that must not declare a URL (404). */
+  path?: string;
+  /** Open Graph object type. Defaults to "website". */
+  type?: 'website' | 'article';
+}
+
+/**
+ * Builds the title, description, canonical URL, Open Graph and Twitter metadata for a page.
+ * Spread the result into the page's `metadata` and add page-specific fields
+ * (`keywords`, `robots`, ...) next to it.
+ */
+export function buildMetadata({
+  title,
+  ogTitle,
+  description,
+  ogDescription,
+  path,
+  type = 'website',
+}: BuildMetadataOptions): Metadata {
+  const shareTitle = ogTitle ?? (typeof title === 'string' ? `${title} | ${SITE_NAME}` : title.absolute);
+  const shareDescription = ogDescription ?? description;
+  const url = path === undefined ? undefined : absoluteUrl(path);
+
+  return {
+    title,
+    description,
+    ...(url && { alternates: { canonical: url } }),
+    openGraph: {
+      type,
+      siteName: SITE_NAME,
+      locale: OG_LOCALE,
+      ...(url && { url }),
+      title: shareTitle,
+      description: shareDescription,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: shareTitle,
+      description: shareDescription,
+    },
+  };
+}
 
 export interface PageSEO {
   title: string;

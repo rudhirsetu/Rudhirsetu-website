@@ -2,6 +2,14 @@
 
 @import "tailwindcss";
 
+/* Design tokens: see docs/DESIGN.md */
+@theme {
+  --font-sans: var(--font-jakarta), "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", var(--font-jakarta), ui-sans-serif, sans-serif;
+  --font-script: var(--font-pacifico), "Pacifico", cursive;
+  --color-paper: #FBF6F4;
+}
+
 /* Lenis smooth scroll styles */
 html.lenis, html.lenis body {
   height: auto;
@@ -39,7 +47,7 @@ html.lenis, html.lenis body {
 }
 
 body {
-  font-family: var(--font-poppins), 'Poppins', sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   top: 0 !important;
@@ -64,3 +72,67 @@ html {
 .text-balance {
   text-wrap: balance;
 } 
+
+/* ---------------------------------------------------------------------------
+   Home intro (no JS needed)
+   The inline script in layout.tsx adds `html.intro` on the first landing on "/"
+   in a session, before first paint. The curtain and the hero entrance below are
+   plain CSS animations, so the page paints immediately (good LCP) and nothing
+   waits for hydration. Timings must match LOADING_REVEAL_MS in LoadingScreen.tsx.
+   --------------------------------------------------------------------------- */
+:root {
+  --intro-reveal: 1050ms;
+}
+
+@keyframes hero-rise {
+  /* 0.001 (not 0) so the hero text is painted, and counted for LCP, on the first frame */
+  from { opacity: 0.001; transform: translate3d(0, 24px, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+.hero-rise {
+  animation: hero-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--hero-delay, 0ms) + 100ms + var(--i, 0) * 120ms);
+}
+
+html.intro .hero-rise {
+  --hero-delay: var(--intro-reveal);
+}
+
+.intro-curtain {
+  display: none;
+}
+
+html.intro .intro-curtain {
+  display: block;
+  animation: intro-lift 650ms cubic-bezier(0.76, 0, 0.24, 1) var(--intro-reveal) both;
+}
+
+@keyframes intro-lift {
+  to { transform: translate3d(0, -115%, 0); visibility: hidden; }
+}
+
+.intro-logo {
+  animation: hero-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.intro-bar {
+  /* Driven by the intro script in layout.tsx, in step with the counter. */
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise,
+  .intro-logo {
+    animation: none;
+  }
+
+  html.intro .intro-curtain {
+    animation: intro-fade 325ms ease var(--intro-reveal) both;
+  }
+
+  @keyframes intro-fade {
+    to { opacity: 0; visibility: hidden; }
+  }
+}

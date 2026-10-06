@@ -1,40 +1,22 @@
 import { Metadata } from "next";
 import SocialClient from './SocialClient';
-
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+import { client } from '../../lib/sanity';
+import { QUERIES } from '../../lib/queries';
+import { buildMetadata } from '../../lib/seo';
+import { SocialPageData } from '../../lib/structured-data';
+import type { SocialMediaSettings } from '../../types/sanity';
 
 export const metadata: Metadata = {
-  title: "Connect With Us | Rudhirsetu Seva Sanstha",
-  description: "Stay connected with our life-saving mission. Follow us on social media for updates on blood donation camps, healthcare initiatives, and community impact stories.",
+  // The root layout title template appends " | Rudhirsetu Seva Sanstha". The share image comes from ./opengraph-image.tsx.
+  ...buildMetadata({
+    title: "Connect With Us",
+    description: 'Follow Rudhirsetu on social media for updates on blood donation camps, healthcare initiatives and community impact stories.',
+    path: '/social',
+  }),
   keywords: ["social media", "follow us", "community", "updates", "blood donation", "healthcare", "rudhirsetu", "NGO"],
-  openGraph: {
-    title: "Connect With Us | Rudhirsetu Seva Sanstha",
-    description: "Stay updated on our community impact",
-    url: `${baseUrl}/social`,
-    siteName: "Rudhirsetu Seva Sanstha",
-    images: [
-      {
-        url: `${baseUrl}/api/og?title=${encodeURIComponent('Connect With Us')}&description=${encodeURIComponent('Stay updated on our community impact')}&route=social`,
-        width: 1200,
-        height: 630,
-        alt: "Rudhirsetu Seva Sanstha - Connect With Us",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Connect With Us | Rudhirsetu Seva Sanstha",
-    description: "Stay updated on our community impact",
-    images: [`${baseUrl}/api/og?title=${encodeURIComponent('Connect With Us')}&description=${encodeURIComponent('Stay updated on our community impact')}&route=social`],
-  },
   robots: {
     index: true,
     follow: true,
-  },
-  alternates: {
-    canonical: `${baseUrl}/social`,
   },
   other: {
     'article:section': 'Social Media',
@@ -47,6 +29,28 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SocialPage() {
-  return <SocialClient />;
-} 
+// Fetched on the server so the links ship with the page (no skeleton flash).
+// Revalidated every 5 minutes, or on demand via the `socialMediaSettings` tag.
+export default async function SocialPage() {
+  let settings: SocialMediaSettings | null = null;
+
+  try {
+    settings = await client.fetch<SocialMediaSettings | null>(
+      QUERIES.socialMediaSettings,
+      {},
+      { next: { revalidate: 300, tags: ['socialMediaSettings'] } },
+    );
+  } catch (error) {
+    console.error('Error fetching social media settings on the server:', error);
+  }
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(SocialPageData).replace(/</g, '\\u003c') }}
+      />
+      <SocialClient settings={settings ?? null} />
+    </>
+  );
+}

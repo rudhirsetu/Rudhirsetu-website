@@ -4,7 +4,7 @@
   "description": "Blood donation, healthcare support, and social initiatives",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#991B1B",
+  "theme_color": "#450a0a",
   "background_color": "#ffffff",
   "orientation": "portrait-primary",
   "icons": [

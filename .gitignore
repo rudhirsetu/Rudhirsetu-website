@@ -29,8 +29,12 @@ my-ngo-cms
 
 
 
-coverage*.tsbuildinfo
+coverage
+*.tsbuildinfo
 playwright-report/*
 test-results/*
 
 bun.lockb
+
+# Raw renders from scripts/generate-illustration.py
+scripts/.renders/

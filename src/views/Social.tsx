@@ -1,162 +1,325 @@
-import { useState, useEffect } from 'react';
-import { Linkedin, Facebook, Instagram, Youtube, ExternalLink, MessageSquare } from 'lucide-react';
-import { SocialMediaSettings } from '../types/sanity';
+'use client';
+
+import { useEffect, useState } from 'react';
+import type { ComponentType } from 'react';
+import { ArrowRight, ArrowUpRight, Facebook, Heart, Instagram, Linkedin, MessageSquare, Youtube } from 'lucide-react';
+import { motion, MotionConfig } from 'framer-motion';
+import type { SocialMediaSettings } from '../types/sanity';
 import { settingsService } from '../services/sanity-client';
-import { StructuredData } from '../components/StructuredData';
-import { SocialPageData } from '../lib/structured-data';
+import PreloadLink from '../components/PreloadLink';
+import { Accent, SectionHeader, sectionItemVariants } from '../components/ui/Section';
 
-const SocialMedia = () => {
-  const [settings, setSettings] = useState<SocialMediaSettings | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+type IconType = ComponentType<{ className?: string }>;
 
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const data = await settingsService.fetchSocialMedia();
-        if (data) {
-          setSettings(data);
-        }
-      } catch (err) {
-        setError('Failed to load social media settings');
-        console.error('Error loading social media settings:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+interface Platform {
+  key: keyof Pick<SocialMediaSettings, 'instagramUrl' | 'facebookUrl' | 'youtubeUrl' | 'linkedinUrl'>;
+  name: string;
+  icon: IconType;
+  action: string;
+  description: string;
+}
 
-    loadSettings();
-  }, []);
+const PLATFORMS: Platform[] = [
+  {
+    key: 'instagramUrl',
+    name: 'Instagram',
+    icon: Instagram,
+    action: 'Follow',
+    description: 'Join our Instagram community for visual stories and daily inspiration.',
+  },
+  {
+    key: 'facebookUrl',
+    name: 'Facebook',
+    icon: Facebook,
+    action: 'Follow',
+    description: 'Follow us on Facebook for event updates and community stories.',
+  },
+  {
+    key: 'youtubeUrl',
+    name: 'YouTube',
+    icon: Youtube,
+    action: 'Subscribe',
+    description: 'Subscribe to our YouTube channel for event recordings and impact stories.',
+  },
+  {
+    key: 'linkedinUrl',
+    name: 'LinkedIn',
+    icon: Linkedin,
+    action: 'Connect',
+    description: 'Connect with us on LinkedIn for professional updates and networking.',
+  },
+];
 
-  const socialLinks = [
-    {
-      name: 'LinkedIn',
-      icon: Linkedin,
-      url: settings?.linkedinUrl,
-      color: 'bg-[#0077B5]',
-      hoverColor: 'hover:bg-[#006399]',
-      description: 'Connect with us on LinkedIn for professional updates and networking.'
-    },
-    {
-      name: 'Facebook',
-      icon: Facebook,
-      url: settings?.facebookUrl,
-      color: 'bg-[#1877F2]',
-      hoverColor: 'hover:bg-[#1666D9]',
-      description: 'Follow us on Facebook for event updates and community stories.'
-    },
-    {
-      name: 'Instagram',
-      icon: Instagram,
-      url: settings?.instagramUrl,
-      color: 'bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#FCAF45]',
-      hoverColor: 'hover:opacity-90',
-      description: 'Join our Instagram community for visual stories and daily inspiration.'
-    },
-    {
-      name: 'YouTube',
-      icon: Youtube,
-      url: settings?.youtubeUrl,
-      color: 'bg-[#FF0000]',
-      hoverColor: 'hover:bg-[#E60000]',
-      description: 'Subscribe to our YouTube channel for event recordings and impact stories.'
-    }
-  ];
+/** Tile surfaces, in order: one dark, one paper, one white bordered, one red. Reds and maroons only. */
+const SURFACES = [
+  {
+    tile: 'bg-red-950 text-white',
+    glow: 'bg-[radial-gradient(circle_at_100%_0%,rgba(220,38,38,0.35),transparent_60%)]',
+    index: 'text-white/50',
+    description: 'text-white/70',
+    rule: 'border-white/15',
+    meta: 'text-white/60',
+    icon: 'bg-white/10 text-white group-hover:bg-white group-hover:text-red-950',
+    arrow: 'border-white/25 text-white group-hover:border-white group-hover:bg-white group-hover:text-red-950',
+    ring: 'focus-visible:ring-white focus-visible:ring-offset-white',
+  },
+  {
+    tile: 'bg-paper text-gray-900',
+    glow: '',
+    index: 'text-red-700/50',
+    description: 'text-gray-600',
+    rule: 'border-red-900/10',
+    meta: 'text-gray-500',
+    icon: 'bg-white text-red-700 group-hover:bg-red-700 group-hover:text-white',
+    arrow: 'border-red-900/15 text-red-700 group-hover:border-red-700 group-hover:bg-red-700 group-hover:text-white',
+    ring: 'focus-visible:ring-red-700 focus-visible:ring-offset-white',
+  },
+  {
+    tile: 'bg-white text-gray-900 border border-red-900/10',
+    glow: '',
+    index: 'text-red-700/50',
+    description: 'text-gray-600',
+    rule: 'border-red-900/10',
+    meta: 'text-gray-500',
+    icon: 'bg-paper text-red-700 group-hover:bg-red-700 group-hover:text-white',
+    arrow: 'border-red-900/15 text-red-700 group-hover:border-red-700 group-hover:bg-red-700 group-hover:text-white',
+    ring: 'focus-visible:ring-red-700 focus-visible:ring-offset-white',
+  },
+  {
+    tile: 'bg-red-700 text-white',
+    glow: 'bg-[radial-gradient(circle_at_0%_100%,rgba(69,10,10,0.45),transparent_65%)]',
+    index: 'text-white/60',
+    description: 'text-white/80',
+    rule: 'border-white/20',
+    meta: 'text-white/70',
+    icon: 'bg-white/15 text-white group-hover:bg-white group-hover:text-red-700',
+    arrow: 'border-white/30 text-white group-hover:border-white group-hover:bg-white group-hover:text-red-700',
+    ring: 'focus-visible:ring-white focus-visible:ring-offset-white',
+  },
+];
 
-  if (loading) {
-    return (
-      <div className="py-12">
-        <div className="container mx-auto px-4">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mx-auto"></div>
-            <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-48 bg-gray-200 rounded-lg"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.12, delayChildren: 0.15 },
+  },
+};
+
+/** Only http(s) links from the CMS are rendered; bare domains get https://. */
+const toSafeUrl = (value?: string): URL | null => {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  try {
+    const url = new URL(/^[a-z][a-z0-9+.-]*:/i.test(trimmed) ? trimmed : `https://${trimmed}`);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url : null;
+  } catch {
+    return null;
   }
+};
 
-  if (error) {
-    return (
-      <div className="py-12">
-        <div className="container mx-auto px-4 text-center">
-          <div className="bg-red-50 p-4 rounded-lg inline-block">
-            <p className="text-red-700">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800"
-            >
-              Try Again
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+const displayUrl = (url: URL) => (url.hostname.replace(/^www\./, '') + url.pathname).replace(/\/$/, '');
+
+const SocialTile = ({
+  platform,
+  url,
+  index,
+  wide,
+}: {
+  platform: Platform;
+  url: URL;
+  index: number;
+  wide: boolean;
+}) => {
+  const surface = SURFACES[index % SURFACES.length];
+  const Icon = platform.icon;
 
   return (
-    <>
-      <StructuredData data={SocialPageData} id="social-page-structured-data" />
-      <div className="py-12 pt-[100px]">
-        <div className="container mx-auto px-4">
-          {/* Header */}
-          <div className="text-center mb-16">
-          <span className="px-4 py-1.5 bg-red-50 text-[#9B2C2C] text-sm font-medium rounded-full mb-4 inline-flex items-center">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Connect
+    <motion.div variants={sectionItemVariants} className={wide ? 'md:col-span-2' : undefined}>
+      <a
+        href={url.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`group relative isolate flex min-h-[19rem] flex-col justify-between overflow-hidden rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_48px_-24px_rgba(69,10,10,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:min-h-[21rem] sm:p-8 ${surface.tile} ${surface.ring}`}
+      >
+        {surface.glow && (
+          <span aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 ${surface.glow}`} />
+        )}
+
+        <div className="flex items-start justify-between gap-4">
+          <span className={`text-sm font-semibold tabular-nums ${surface.index}`}>
+            {String(index + 1).padStart(2, '0')}
+          </span>
+          <span
+            aria-hidden="true"
+            className={`flex h-11 w-11 items-center justify-center rounded-full border transition-colors ${surface.arrow}`}
+          >
+            <ArrowUpRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </span>
+        </div>
+
+        <div>
+          <span
+            aria-hidden="true"
+            className={`flex h-14 w-14 items-center justify-center rounded-full transition-colors ${surface.icon}`}
+          >
+            <Icon className="h-6 w-6" />
+          </span>
+          <h2 className="mt-6 font-display text-3xl font-bold tracking-tight sm:text-4xl">{platform.name}</h2>
+          <p className={`mt-3 max-w-md leading-relaxed ${surface.description}`}>{platform.description}</p>
+          <div
+            className={`mt-6 flex items-center justify-between gap-4 border-t pt-4 text-sm ${surface.rule} ${surface.meta}`}
+          >
+            <span className="min-w-0 truncate">{displayUrl(url)}</span>
+            <span className="shrink-0 font-semibold">
+              {platform.action}
+              <span className="sr-only"> on {platform.name} (opens in a new tab)</span>
             </span>
-            <h1 className="text-4xl font-bold mb-4">Connect With Us</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto text-balance">
-              {settings?.description || 'Follow us on social media to stay updated with our latest events, initiatives, and community stories.'}
-            </p>
-          </div>
-
-          {/* Social Media Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {socialLinks.map((platform) => (
-              platform.url && (
-                <a
-                  key={platform.name}
-                  href={platform.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`group relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl ${platform.color} text-white ${platform.hoverColor}`}
-                >
-                  <div className="p-8 relative z-10">
-                    <div className="flex items-center justify-between mb-4">
-                      <platform.icon className="w-8 h-8" />
-                      <ExternalLink className="w-5 h-5 opacity-75 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <h2 className="text-2xl font-bold mb-2">{platform.name}</h2>
-                    <p className="text-white/90">{platform.description}</p>
-                  </div>
-                </a>
-              )
-            ))}
-          </div>
-
-          {/* Call to Action */}
-          <div className="text-center mt-16">
-            <h2 className="text-2xl font-bold mb-4">Join Our Community</h2>
-            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-              Follow us on social media to stay connected and be part of our journey in making a difference.
-            </p>
-            <a
-              href="/contact"
-              className="inline-block bg-red-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-800 transition-colors"
-            >
-              Get Involved
-            </a>
           </div>
         </div>
-      </div>
-    </>
+      </a>
+    </motion.div>
   );
 };
 
-export default SocialMedia; 
+interface SocialProps {
+  /** Social media settings fetched on the server. */
+  settings: SocialMediaSettings | null;
+}
+
+const Social = ({ settings: initialSettings }: SocialProps) => {
+  const [settings, setSettings] = useState<SocialMediaSettings | null>(initialSettings);
+  const [loading, setLoading] = useState(initialSettings === null);
+
+  // Browser fallback, only used when the server fetch returned nothing.
+  useEffect(() => {
+    if (initialSettings) return;
+    let cancelled = false;
+    settingsService
+      .fetchSocialMedia()
+      .then((data) => {
+        if (!cancelled && data) setSettings(data);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [initialSettings]);
+
+  const links = PLATFORMS.flatMap((platform) => {
+    const url = toSafeUrl(settings?.[platform.key]);
+    return url ? [{ platform, url }] : [];
+  });
+
+  return (
+    <MotionConfig reducedMotion="user">
+      <motion.section
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+        className="bg-white px-4 pb-20 pt-28 sm:px-6 sm:pb-24 sm:pt-36 lg:px-8 lg:pb-32 lg:pt-40"
+      >
+        <div className="mx-auto max-w-7xl">
+          <SectionHeader
+            as="h1"
+            icon={MessageSquare}
+            eyebrow="Connect"
+            title={
+              <>
+                Follow our <Accent>journey</Accent>
+              </>
+            }
+            description={
+              settings?.description ||
+              'Follow us on social media to stay updated with our latest events, initiatives, and community stories.'
+            }
+          />
+
+          {loading ? (
+            <div aria-hidden="true" className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-5">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="min-h-[19rem] animate-pulse rounded-3xl bg-red-900/5 sm:min-h-[21rem]" />
+              ))}
+            </div>
+          ) : links.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-5">
+              {links.map(({ platform, url }, index) => (
+                <SocialTile
+                  key={platform.key}
+                  platform={platform}
+                  url={url}
+                  index={index}
+                  wide={links.length % 2 === 1 && index === links.length - 1}
+                />
+              ))}
+            </div>
+          ) : (
+            <motion.div variants={sectionItemVariants} className="mx-auto max-w-md py-8 text-center">
+              <img
+                src="/images/illustrations/contact.webp"
+                alt=""
+                aria-hidden="true"
+                width={715}
+                height={579}
+                decoding="async"
+                className="mx-auto mb-8 h-40 w-auto"
+              />
+              <h2 className="font-display text-2xl font-bold tracking-tight text-gray-900">
+                Our channels are on their way
+              </h2>
+              <p className="mt-3 text-gray-600">
+                We haven&apos;t linked our social profiles yet. In the meantime, you can reach us directly.
+              </p>
+            </motion.div>
+          )}
+
+          {/* Join the community */}
+          <motion.div
+            variants={sectionItemVariants}
+            className="mt-16 flex flex-col gap-8 border-t border-red-900/10 pt-12 sm:mt-20 md:flex-row md:items-center md:gap-12"
+          >
+            <img
+              src="/images/illustrations/social.webp"
+              alt=""
+              aria-hidden="true"
+              width={720}
+              height={579}
+              loading="lazy"
+              decoding="async"
+              className="h-28 w-auto shrink-0 self-start sm:h-36 md:self-center"
+            />
+            <div className="flex-1">
+              <h2 className="font-display text-3xl font-bold leading-[1.1] tracking-tight text-gray-900 sm:text-4xl">
+                Join our <Accent>community</Accent>
+              </h2>
+              <p className="mt-4 max-w-xl text-lg leading-relaxed text-gray-600">
+                Follow us to stay connected and be part of our journey in making a difference, one donation at a time.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row md:flex-col lg:flex-row">
+              <PreloadLink
+                href="/contact"
+                priority="high"
+                className="group inline-flex items-center justify-center gap-2 rounded-md bg-red-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-red-700"
+              >
+                Get Involved
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </PreloadLink>
+              <PreloadLink
+                href="/donations"
+                priority="medium"
+                className="inline-flex items-center justify-center gap-2 rounded-md border border-red-900/15 px-6 py-3.5 font-semibold text-gray-900 transition-colors hover:bg-paper"
+              >
+                Donate Now
+                <Heart className="h-4 w-4 text-red-700" />
+              </PreloadLink>
+            </div>
+          </motion.div>
+        </div>
+      </motion.section>
+    </MotionConfig>
+  );
+};
+
+export default Social;

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, ReactNode } from 'react';
 
 interface TransitionState {
   isTransitioning: boolean;
@@ -14,36 +14,51 @@ interface PageTransitionContextType {
   endTransition: () => void;
 }
 
+const IDLE_STATE: TransitionState = {
+  isTransitioning: false,
+  fromCardId: null,
+  cardRect: null,
+};
+
 const PageTransitionContext = createContext<PageTransitionContextType | undefined>(undefined);
 
 export function PageTransitionProvider({ children }: { children: ReactNode }) {
-  const [transitionState, setTransitionState] = useState<TransitionState>({
-    isTransitioning: false,
-    fromCardId: null,
-    cardRect: null,
-  });
+  const [transitionState, setTransitionState] = useState<TransitionState>(IDLE_STATE);
+  const endTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const startTransition = (cardId: string, cardRect: DOMRect) => {
-    setTransitionState({
-      isTransitioning: true,
-      fromCardId: cardId,
-      cardRect,
-    });
-  };
+  const clearEndTimer = useCallback(() => {
+    if (endTimerRef.current) {
+      clearTimeout(endTimerRef.current);
+      endTimerRef.current = null;
+    }
+  }, []);
 
-  const endTransition = () => {
+  // Stable callbacks + memoised value: consumers (every EventCard) only re-render
+  // when the transition state actually changes, not whenever the provider does.
+  const startTransition = useCallback((cardId: string, cardRect: DOMRect) => {
+    // A pending "end" from the previous transition must not reset this new one.
+    clearEndTimer();
+    setTransitionState({ isTransitioning: true, fromCardId: cardId, cardRect });
+  }, [clearEndTimer]);
+
+  const endTransition = useCallback(() => {
+    clearEndTimer();
     // Delay to allow transition to complete
-    setTimeout(() => {
-      setTransitionState({
-        isTransitioning: false,
-        fromCardId: null,
-        cardRect: null,
-      });
+    endTimerRef.current = setTimeout(() => {
+      endTimerRef.current = null;
+      setTransitionState(IDLE_STATE);
     }, 800);
-  };
+  }, [clearEndTimer]);
+
+  useEffect(() => clearEndTimer, [clearEndTimer]);
+
+  const value = useMemo(
+    () => ({ transitionState, startTransition, endTransition }),
+    [transitionState, startTransition, endTransition]
+  );
 
   return (
-    <PageTransitionContext.Provider value={{ transitionState, startTransition, endTransition }}>
+    <PageTransitionContext.Provider value={value}>
       {children}
     </PageTransitionContext.Provider>
   );
@@ -55,4 +70,4 @@ export function usePageTransition() {
     throw new Error('usePageTransition must be used within a PageTransitionProvider');
   }
   return context;
-} 
+}

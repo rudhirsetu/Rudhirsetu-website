@@ -1,40 +1,22 @@
 import { Metadata } from "next";
 import GalleryClient from './GalleryClient';
-
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.rudhirsetu.org';
+import { client } from '../../lib/sanity';
+import { QUERIES } from '../../lib/queries';
+import { buildMetadata } from '../../lib/seo';
+import { GalleryPageData } from '../../lib/structured-data';
+import type { GalleryImage } from '../../types/sanity';
 
 export const metadata: Metadata = {
-  title: "Gallery | Rudhirsetu Seva Sanstha",
-  description: "Explore our journey through powerful images. Witness the impact of our blood donation camps, healthcare initiatives, and community outreach programs across India.",
+  // The root layout title template appends " | Rudhirsetu Seva Sanstha". The share image comes from ./opengraph-image.tsx.
+  ...buildMetadata({
+    title: "Gallery",
+    description: 'Photos from our blood donation camps, healthcare initiatives and community outreach programs across India. See our work in action.',
+    path: '/gallery',
+  }),
   keywords: ["gallery", "photos", "blood donation camps", "healthcare", "community impact", "rudhirsetu", "NGO"],
-  openGraph: {
-    title: "Gallery | Rudhirsetu Seva Sanstha",
-    description: "Witness our community impact through inspiring moments",
-    url: `${baseUrl}/gallery`,
-    siteName: "Rudhirsetu Seva Sanstha",
-    images: [
-      {
-        url: `${baseUrl}/api/og?title=${encodeURIComponent('Gallery')}&description=${encodeURIComponent('Witness our community impact through inspiring moments')}&route=gallery`,
-        width: 1200,
-        height: 630,
-        alt: "Rudhirsetu Seva Sanstha - Gallery",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Gallery | Rudhirsetu Seva Sanstha",
-    description: "Witness our community impact through inspiring moments",
-    images: [`${baseUrl}/api/og?title=${encodeURIComponent('Gallery')}&description=${encodeURIComponent('Witness our community impact through inspiring moments')}&route=gallery`],
-  },
   robots: {
     index: true,
     follow: true,
-  },
-  alternates: {
-    canonical: `${baseUrl}/gallery`,
   },
   other: {
     'article:section': 'Gallery',
@@ -42,6 +24,36 @@ export const metadata: Metadata = {
   },
 };
 
-export default function GalleryPage() {
-  return <GalleryClient />;
-} 
+// Fetched on the server so the page ships with its photos (no skeleton flash).
+// Revalidated every 5 minutes, or on demand via the `galleryImage` tag.
+const fetchOptions = { next: { revalidate: 300, tags: ['galleryImage'] } };
+
+export default async function GalleryPage() {
+  let initialImages: GalleryImage[] = [];
+  let featuredImages: GalleryImage[] = [];
+  let loadError = false;
+
+  try {
+    [initialImages, featuredImages] = await Promise.all([
+      client.fetch<GalleryImage[]>(QUERIES.galleryImages, {}, fetchOptions),
+      client.fetch<GalleryImage[]>(QUERIES.featuredImages, {}, fetchOptions),
+    ]);
+  } catch (error) {
+    console.error('Error fetching gallery images on the server:', error);
+    loadError = true;
+  }
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(GalleryPageData).replace(/</g, '\\u003c') }}
+      />
+      <GalleryClient
+        initialImages={initialImages ?? []}
+        featuredImages={featuredImages ?? []}
+        loadError={loadError}
+      />
+    </>
+  );
+}
